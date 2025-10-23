@@ -1,0 +1,16 @@
+[project]
+name = "laser-backend"
+version = "0.1.0"
+description = "Backend for 5DOF laser system"
+requires-python = ">=3.14"
+dependencies = [
+    "dependency-injector==4.48.2",
+    "fastapi>=0.119.1",
+    "pydantic>=2.12.3",
+    "pydantic-settings>=2.11.0",
+    "ruff==0.14.1",
+    "uvicorn>=0.38.0",
+]
+[dependency-groups]
+dev = ["pre-commit-uv==4.2.0"]
+
