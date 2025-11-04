@@ -169,8 +169,8 @@ class TrapezoidalCut:
         dz: float = current_depth - value
         move_vector: Vector = Vector(0, 0, dz)
 
-        self._start_lower.move(move_vector)
-        self._end_lower.move(move_vector)
+        self._start_lower = self._start_lower.move(move_vector)
+        self._end_lower = self._end_lower.move(move_vector)
 
         self._validate_cut()
 
@@ -221,12 +221,12 @@ class TrapezoidalCut:
         r.show()
 
     def move(self, v: Vector):
-        self._start_lower.move(v)
-        self._start_upper.move(v)
-        self._end_lower.move(v)
-        self._end_upper.move(v)
+        self._start_lower = self._start_lower.move(v)
+        self._start_upper = self._start_upper.move(v)
+        self._end_lower = self._end_lower.move(v)
+        self._end_upper = self._end_upper.move(v)
 
-        self._is_valid_cut()
+        self._validate_cut()
 
 
 if __name__ == "__main__":
