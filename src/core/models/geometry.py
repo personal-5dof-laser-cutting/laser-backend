@@ -174,29 +174,23 @@ class TrapezoidalCut:
 
         self._validate_cut()
 
-    @property
     def upper_segment(self) -> Segment:
-        return Segment(self._start_upper, self._end_upper)
+        return Segment(self.start_upper, self.end_upper)
 
-    @property
     def lower_segment(self) -> Segment:
-        return Segment(self._start_lower, self._end_lower)
+        return Segment(self.start_lower, self.end_lower)
 
-    @property
     def start_segment(self) -> Segment:
-        return Segment(self._start_upper, self._start_lower)
+        return Segment(self.start_upper, self.start_lower)
 
-    @property
     def end_segment(self) -> Segment:
-        return Segment(self._end_upper, self._end_lower)
+        return Segment(self.end_upper, self.end_lower)
 
-    @property
     def start_configuration(self) -> Configuration:
-        return Configuration.from_segment(self.start_segment)
+        return Configuration.from_segment(self.start_segment())
 
-    @property
     def end_configuration(self) -> Configuration:
-        return Configuration.from_segment(self.end_segment)
+        return Configuration.from_segment(self.end_segment())
 
     def flip_direction(self):
         """Flip the cut direction by swapping its start and end endpoints."""
@@ -207,7 +201,7 @@ class TrapezoidalCut:
     def polygon(self) -> ConvexPolygon:
         """Return a geometry3d ConvexPolygon representation of the trapezoid."""
         return ConvexPolygon(
-            (self._start_upper, self._end_upper, self._start_lower, self._end_lower)
+            (self.start_upper, self.end_upper, self.start_lower, self.end_lower)
         )
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
