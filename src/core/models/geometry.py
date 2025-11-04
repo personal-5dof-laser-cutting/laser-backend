@@ -196,8 +196,12 @@ class TrapezoidalCut:
     def flip_direction(self):
         """Flip the cut direction by swapping its start and end endpoints."""
 
-        self._start_lower, self._end_lower = self._end_lower, self._start_lower
-        self._start_upper, self._end_upper = self._end_upper, self._start_upper
+        self._start_lower, self._end_lower, self._start_upper, self._end_upper = (
+            self.end_lower,
+            self.start_lower,
+            self.end_upper,
+            self.start_upper,
+        )
 
     def polygon(self) -> ConvexPolygon:
         """Return a geometry3d ConvexPolygon representation of the trapezoid."""
