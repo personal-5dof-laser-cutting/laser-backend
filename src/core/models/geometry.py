@@ -2,10 +2,10 @@ from Geometry3D import (
     Point,
     Line,
     Vector,
+    ConvexPolygon,
     x_unit_vector,
     y_unit_vector,
     Visualizer,
-    ConvexPolygon,
     Segment,
     origin,
 )
@@ -225,8 +225,13 @@ class TrapezoidalCut:
         )
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
-        """Checks if two trapezoids intersect."""
-        return self.polygon().intersection(other.polygon()) is not None
+        """Checks if two cuts intersect."""
+        return self.intersection(other) is not None
+
+    def intersection(
+        self, other: TrapezoidalCut
+    ) -> None | Segment | Line | ConvexPolygon:
+        return self.polygon().intersection(other.polygon)
 
     def show(self):
         """Debug function that plots the Trapezoid using matplotlib."""
@@ -257,5 +262,5 @@ if __name__ == "__main__":
     print(t.start_upper)
     print(t.start_lower)
 
-    # c = Configuration.from_line(Line(Point(0,0,0), Point(1,0,0)))
-    # print(c)
+    c = Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 0, 0)))
+    print(c)
