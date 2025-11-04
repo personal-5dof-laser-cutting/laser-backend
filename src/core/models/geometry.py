@@ -17,7 +17,7 @@ def segment_to_line(seg: Segment) -> Line:
 
 class Geometry:
     def __init__(self, material_thickness: float) -> None:
-        self.cuts: list[Trapezoid] = []
+        self.cuts: list[TrapezoidalCut] = []
         self.material_thickness: float = material_thickness
 
 
@@ -65,7 +65,12 @@ class Configuration:
         return Segment(start_point, direction_vector)
 
 
-class Trapezoid:
+class TrapezoidalCut:
+    """
+    Represents a trapezoidal cut through a material, defined by four corner points.
+    Provides methods for validation, geometric manipulation, and intersection checks.
+    """
+
     def __init__(
         self, start_upper: Point, end_upper: Point, start_lower: Point, end_lower: Point
     ) -> None:
@@ -105,11 +110,11 @@ class Trapezoid:
         end_config: Configuration,
         cut_depth: float,
         material_height: float,
-    ) -> "Trapezoid":
+    ) -> "TrapezoidalCut":
         start_segment: Segment = start_config.to_segment(cut_depth, material_height)
         end_segment: Segment = end_config.to_segment(cut_depth, material_height)
 
-        return Trapezoid(
+        return TrapezoidalCut(
             start_segment.start_point,
             end_segment.start_point,
             start_segment.end_point,
@@ -197,7 +202,7 @@ class Trapezoid:
             (self._start_upper, self._end_upper, self._start_lower, self._end_lower)
         )
 
-    def intersects(self, other: Trapezoid) -> bool:
+    def intersects(self, other: "TrapezoidalCut") -> bool:
         """Checks if two trapezoids intersect."""
         return self.polygon().intersection(other.polygon()) is not None
 
@@ -217,7 +222,7 @@ class Trapezoid:
 
 
 if __name__ == "__main__":
-    t = Trapezoid(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1.2, 0, 0))
+    t = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1.2, 0, 0))
 
     print(t.cut_depth)
     t.show()
