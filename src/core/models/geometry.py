@@ -23,6 +23,21 @@ class Geometry:
 
 
 class Configuration:
+    """
+    Representation of a laser cutter configuration with two rotation axes.
+
+    Attributes
+    ----------
+    x : float
+        Offset in mm on the x axis
+    y : float
+        Offset in mm on the y axis
+    alpha_deg : float
+        Rotation around the x axis in degrees. 0 points downwards and positive is CW.
+    beta_deg : float
+        Rotation around the y axis in degrees. 0 points downwards and positve is CW.
+    """
+
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
         self.x: float = x
         self.y: float = y
