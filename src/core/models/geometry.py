@@ -100,8 +100,7 @@ class TrapezoidalCut:
         self._end_upper: Point = end_upper
         self._end_lower: Point = end_lower
 
-        self._is_valid_trapezoid()
-        self._is_valid_cut()
+        self._validate_cut()
 
     @classmethod
     def from_configurations(
@@ -121,18 +120,27 @@ class TrapezoidalCut:
             end_segment.end_point,
         )
 
-    def _is_valid_trapezoid(self) -> None:
-        upper = segment_to_line(self.upper_segment)
-        lower = segment_to_line(self.lower_segment)
-        assert upper.parallel(lower)
+    def _validate_trapezoid(self) -> None:
+        upper = segment_to_line(self.upper_segment())
+        lower = segment_to_line(self.lower_segment())
 
-    def _is_valid_cut(self) -> None:
+        if not upper.parallel(lower):
+            raise ValueError(
+                "The upper and lower points do not form two parallel lines."
+            )
+
+    def _validate_cut(self) -> None:
+        self._validate_trapezoid()
+
         # The z-values must be exactly the same; otherwise, other calculations may fail.
-        assert self._start_upper.z == self._end_upper.z
-        assert self._start_lower.z == self._end_lower.z
+        if self.start_upper.z != self.end_upper.z:
+            raise ValueError("The upper points must be on the same z height.")
+        if self.start_lower.z != self.end_lower.z:
+            raise ValueError("The lower points must be on the same z height.")
 
         # Check if the cut depth is equal or less than the material height.
-        assert self._start_lower.z >= 0.0 and self._end_lower.z >= 0.0
+        if self.start_lower.z < 0.0 or self.end_lower.z < 0.0:
+            raise ValueError("The lower points must not have negative z-values.")
 
     @property
     def start_lower(self) -> Point:
@@ -164,7 +172,7 @@ class TrapezoidalCut:
         self._start_lower.move(move_vector)
         self._end_lower.move(move_vector)
 
-        self._is_valid_cut()
+        self._validate_cut()
 
     @property
     def upper_segment(self) -> Segment:
