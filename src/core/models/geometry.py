@@ -7,6 +7,7 @@ from Geometry3D import (
     Visualizer,
     ConvexPolygon,
     Segment,
+    origin,
 )
 import math
 
@@ -211,7 +212,8 @@ class TrapezoidalCut:
     def show(self):
         """Debug function that plots the Trapezoid using matplotlib."""
         r = Visualizer()
-        r.add((t.polygon(), "r", 1), normal_length=0)
+        r.add((self.polygon(), "r", 1), normal_length=0)
+        r.add((origin(), "b", 4))
         r.show()
 
     def move(self, v: Vector):
@@ -230,9 +232,11 @@ if __name__ == "__main__":
     t.show()
     t.cut_depth = 0.2
     t.show()
+    t.move(Vector(1, 0, 0))
+    t.show()
 
-    print(t._start_upper)
-    print(t._start_lower)
+    print(t.start_upper)
+    print(t.start_lower)
 
     # c = Configuration.from_line(Line(Point(0,0,0), Point(1,0,0)))
     # print(c)
