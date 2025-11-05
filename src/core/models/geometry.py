@@ -52,9 +52,9 @@ class Configuration:
     y : float
         Offset in mm on the y axis
     alpha_deg : float
-        Rotation around the x axis in degrees. 0 points downwards and positive is CW.
+        Rotation around the x axis in degrees. 0 points downwards and positive is CCW.
     beta_deg : float
-        Rotation around the y axis in degrees. 0 points downwards and positve is CW.
+        Rotation around the y axis in degrees. 0 points downwards and positve is CCW.
     """
 
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
@@ -72,19 +72,26 @@ class Configuration:
         return math.radians(self.beta_deg)
 
     @classmethod
-    def from_segment(cls, line: Segment) -> "Configuration":
-        direction_vector: Vector = Vector(line.start_point, line.end_point)
+    def from_segment(cls, segment: Segment) -> "Configuration":
+        direction_vector: Vector = Vector(segment.start_point, segment.end_point)
+        start_point: Point = segment.start_point
         x, y, z = direction_vector
         xz_vector: Vector = Vector(x, 0, z)
         yz_vector: Vector = Vector(0, y, z)
         alpha: float = (
-            yz_vector.angle(x_unit_vector()) if yz_vector != Vector.zero() else 0
+            -(yz_vector.angle(y_unit_vector()) - math.pi / 2)
+            if yz_vector != Vector.zero()
+            else 0
         )
         beta: float = (
-            xz_vector.angle(y_unit_vector()) if xz_vector != Vector.zero() else 0
+            -(xz_vector.angle(x_unit_vector()) - math.pi / 2)
+            if xz_vector != Vector.zero()
+            else 0
         )
 
-        return Configuration(x, y, math.degrees(alpha), math.degrees(beta))
+        return Configuration(
+            start_point.x, start_point.y, math.degrees(alpha), math.degrees(beta)
+        )
 
     def __str__(self) -> str:
         return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha_deg}, beta={self.beta_deg})"
@@ -92,9 +99,9 @@ class Configuration:
     def to_segment(self, cut_depth: float, material_height: float) -> Segment:
         start_point: Point = Point(self.x, self.y, material_height)
         direction_vector: Vector = Vector(
-            math.tan(self.alpha_rad) * cut_depth,
             math.tan(self.beta_rad) * cut_depth,
-            cut_depth,
+            math.tan(self.alpha_rad) * cut_depth,
+            -cut_depth,
         )
 
         return Segment(start_point, direction_vector)
