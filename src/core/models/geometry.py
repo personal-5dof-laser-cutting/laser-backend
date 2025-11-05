@@ -267,12 +267,9 @@ class TrapezoidalCut:
     ) -> None | Segment | Line | ConvexPolygon:
         return self.polygon().intersection(other.polygon)
 
-    def show(self):
-        """Debug function that plots the Trapezoid using matplotlib."""
-        r = Visualizer()
-        r.add((self.polygon(), "r", 1), normal_length=0)
-        r.add((origin(), "b", 4))
-        r.show()
+    def plot_debug(self, visualizer, color="r"):
+        """Debug function that plots the cut using matplotlib."""
+        visualizer.add((self.polygon(), color, 1), normal_length=0)
 
     def move(self, v: Vector):
         self._start_lower = self._start_lower.move(v)
