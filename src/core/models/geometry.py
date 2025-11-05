@@ -281,17 +281,18 @@ class TrapezoidalCut:
 
 
 if __name__ == "__main__":
-    t = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1.2, 0, 0))
+    material_height = 2.0
+    cut_depth = 2.0
+    geo = Geometry(material_height)
 
-    print(t.cut_depth)
-    t.show()
-    t.cut_depth = 0.2
-    t.show()
-    t.move(Vector(1, 0, 0))
-    t.show()
+    c1 = Configuration(-1, 0, 0, 0)
+    c2 = Configuration(1, 0, 0, 45)
+    geo.add_cut_from_configurations(c1, c2, cut_depth)
 
-    print(t.start_upper)
-    print(t.start_lower)
+    c3 = Configuration(1, -1, -20, 45)
+    geo.add_cut_from_configurations(c2, c3, cut_depth)
 
-    c = Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 0, 0)))
-    print(c)
+    c4 = Configuration(-1, -1, -20, 0)
+    geo.add_cut_from_configurations(c3, c4, cut_depth)
+
+    geo.show_debug()
