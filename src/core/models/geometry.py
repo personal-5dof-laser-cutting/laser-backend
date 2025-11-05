@@ -17,9 +17,28 @@ def segment_to_line(seg: Segment) -> Line:
 
 
 class Geometry:
-    def __init__(self, material_thickness: float) -> None:
+    def __init__(self, material_height: float) -> None:
         self.cuts: list[TrapezoidalCut] = []
-        self.material_thickness: float = material_thickness
+        self.material_height: float = material_height
+
+    def add_cut(self, cut: TrapezoidalCut):
+        self.cuts.append(cut)
+
+    def add_cut_from_configurations(
+        self, start_config: Configuration, end_config: Configuration, cut_depth: float
+    ):
+        cut = TrapezoidalCut.from_configurations(
+            start_config, end_config, cut_depth, self.material_height
+        )
+        self.add_cut(cut)
+
+    def show_debug(self):
+        vis = Visualizer()
+        for cut in self.cuts:
+            cut.plot_debug(vis)
+
+        vis.add((origin(), "b", 5))
+        vis.show()
 
 
 class Configuration:
