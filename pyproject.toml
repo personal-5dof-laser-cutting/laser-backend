@@ -19,3 +19,6 @@ dependencies = [
 [dependency-groups]
 dev = ["pre-commit-uv==4.2.0"]
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
