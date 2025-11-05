@@ -63,6 +63,14 @@ class Configuration:
         self.alpha_deg: float = alpha
         self.beta_deg: float = beta
 
+        self._validate_angles()
+
+    def _validate_angles(self):
+        if abs(self.alpha_deg) > 90:
+            raise ValueError("Alpha angle over limits (-90° <= alpha <= 90°)")
+        if abs(self.beta_deg) > 90:
+            raise ValueError("Beta angle over limits (-90° <= beta <= 90°)")
+
     @property
     def alpha_rad(self) -> float:
         return math.radians(self.alpha_deg)
