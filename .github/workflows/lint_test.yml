@@ -1,0 +1,26 @@
+name: lint and test
+
+on: [ push, pull_request ]
+
+jobs:
+  lint-test:
+    name: python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          # Install a specific version of uv.
+          version: "0.9.5"
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run linting
+        run: uv run ruff check --fix
+
+      # todo: add pytest
