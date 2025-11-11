@@ -51,5 +51,5 @@ def test_move():
     t1 = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0))
     t2 = TrapezoidalCut(Point(1, 0, 1), Point(2, 0, 1), Point(1, 0, 0), Point(2, 0, 0))
 
-    t1.move(Vector(1, 0, 0))
-    assert t1.polygon() == t2.polygon()
+    t1_moved = t1.move(Vector(1, 0, 0))
+    assert t1_moved.polygon() == t2.polygon()

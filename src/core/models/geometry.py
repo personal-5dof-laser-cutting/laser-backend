@@ -10,6 +10,7 @@ from Geometry3D import (
     origin,
 )
 import math
+from copy import copy
 
 
 def segment_to_line(seg: Segment) -> Line:
@@ -262,10 +263,10 @@ class TrapezoidalCut:
         """Translate the cut using a Vector."""
 
         return TrapezoidalCut(
-            self.start_top.move(v),
-            self.end_top.move(v),
-            self.start_bottom.move(v),
-            self.end_bottom.move(v),
+            copy(self.start_top).move(v),
+            copy(self.end_top).move(v),
+            copy(self.start_bottom).move(v),
+            copy(self.end_bottom).move(v),
         )
 
 
