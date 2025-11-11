@@ -212,18 +212,6 @@ class TrapezoidalCut:
     def cut_depth(self) -> float:
         return self._start_top.z - self._start_bottom.z
 
-    @cut_depth.setter
-    def cut_depth(self, value: float):
-        current_depth: float = self.cut_depth
-
-        dz: float = current_depth - value
-        move_vector: Vector = Vector(0, 0, dz)
-
-        self._start_bottom = self._start_bottom.move(move_vector)
-        self._end_bottom = self._end_bottom.move(move_vector)
-
-        self._validate_cut()
-
     def top_segment(self) -> Segment:
         return Segment(self.start_top, self.end_top)
 
@@ -242,14 +230,13 @@ class TrapezoidalCut:
     def end_configuration(self) -> Configuration:
         return Configuration.from_segment(self.end_segment())
 
-    def flip_direction(self):
+    def flip_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
-
-        self._start_bottom, self._end_bottom, self._start_top, self._end_top = (
-            self.end_bottom,
-            self.start_bottom,
+        return TrapezoidalCut(
             self.end_top,
             self.start_top,
+            self.end_bottom,
+            self.start_bottom,
         )
 
     def polygon(self) -> ConvexPolygon:
@@ -271,13 +258,15 @@ class TrapezoidalCut:
         """Debug function that plots the cut using matplotlib."""
         visualizer.add((self.polygon(), color, 1), normal_length=0)
 
-    def move(self, v: Vector):
-        self._start_bottom = self._start_bottom.move(v)
-        self._start_top = self._start_top.move(v)
-        self._end_bottom = self._end_bottom.move(v)
-        self._end_top = self._end_top.move(v)
+    def move(self, v: Vector) -> TrapezoidalCut:
+        """Translate the cut using a Vector."""
 
-        self._validate_cut()
+        return TrapezoidalCut(
+            self.start_top.move(v),
+            self.end_top.move(v),
+            self.start_bottom.move(v),
+            self.end_bottom.move(v),
+        )
 
 
 if __name__ == "__main__":

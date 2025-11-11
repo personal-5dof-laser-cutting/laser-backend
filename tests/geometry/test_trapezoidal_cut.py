@@ -34,12 +34,6 @@ def test_cut_depth():
     )
     assert t.cut_depth == 0.5
 
-    t.cut_depth = 0.2
-    assert t.cut_depth == 0.2
-
-    with pytest.raises(ValueError):
-        t.cut_depth = 1.0
-
 
 def test_move():
     t1 = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0))
