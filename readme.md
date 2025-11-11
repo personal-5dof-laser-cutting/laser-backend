@@ -47,3 +47,10 @@ uvicorn src.main:app --reload
   ```sh
   ruff format 
   ```
+
+## Development
+### Tests
+[Pytest](https://docs.pytest.org/) is used for testing. Run all tests with
+```sh 
+pytest
+```

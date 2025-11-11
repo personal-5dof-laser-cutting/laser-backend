@@ -6,11 +6,17 @@ requires-python = ">=3.14"
 dependencies = [
     "dependency-injector==4.48.2",
     "fastapi>=0.119.1",
+    "geometry3d>=0.3.0",
+    "matplotlib>=3.10.7",
     "pydantic>=2.12.3",
     "pydantic-settings>=2.11.0",
+    "pytest>=8.4.2",
     "ruff==0.14.1",
     "uvicorn>=0.38.0",
 ]
 [dependency-groups]
 dev = ["pre-commit-uv==4.2.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
