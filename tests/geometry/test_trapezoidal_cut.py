@@ -22,6 +22,7 @@ def test_from_points():
 
 def test_invalid_cut():
     with pytest.raises(ValueError):
+        # this trapezoid does not have two pairs of parallel lines
         TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 1), Point(1, 0, 2))
 
 
