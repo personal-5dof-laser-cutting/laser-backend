@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Backend for 5DOF laser system"
 requires-python = ">=3.14"
 dependencies = [
-    "affine>=2.4.0",
     "dependency-injector==4.48.2",
     "fastapi>=0.119.1",
     "geometry3d>=0.3.0",
