@@ -12,7 +12,6 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "pytest>=8.4.2",
     "ruff==0.14.1",
-    "shapely>=2.1.2",
     "uvicorn>=0.38.0",
 ]
 [dependency-groups]
