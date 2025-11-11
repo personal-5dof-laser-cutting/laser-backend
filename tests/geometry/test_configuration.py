@@ -24,17 +24,8 @@ def test_config(
     config = Configuration.from_segment(segment)
     assert config.x == pytest.approx(expected_x, 0.01)
     assert config.y == pytest.approx(expected_y, 0.01)
-    assert config.alpha_deg == pytest.approx(expected_alpha, 0.01)
-    assert config.beta_deg == pytest.approx(expected_beta, 0.01)
-
-
-def test_deg_rad_conversion():
-    config = Configuration(0, 0, 90, 90)
-
-    assert config.alpha_deg == 90.0
-    assert config.beta_deg == 90.0
-    assert config.alpha_rad == pytest.approx(math.pi / 2, 0.01)
-    assert config.beta_rad == pytest.approx(math.pi / 2, 0.01)
+    assert config.alpha == pytest.approx(math.radians(expected_alpha), 0.01)
+    assert config.beta == pytest.approx(math.radians(expected_beta), 0.01)
 
 
 def test_over_limits():

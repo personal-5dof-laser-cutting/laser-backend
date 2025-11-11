@@ -61,24 +61,20 @@ class Configuration:
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
         self.x: float = x
         self.y: float = y
-        self.alpha_deg: float = alpha
-        self.beta_deg: float = beta
+        self.alpha: float = alpha
+        self.beta: float = beta
 
         self._validate_angles()
 
     def _validate_angles(self):
-        if abs(self.alpha_deg) > 90:
-            raise ValueError("Alpha angle over limits (-90° <= alpha <= 90°)")
-        if abs(self.beta_deg) > 90:
-            raise ValueError("Beta angle over limits (-90° <= beta <= 90°)")
-
-    @property
-    def alpha_rad(self) -> float:
-        return math.radians(self.alpha_deg)
-
-    @property
-    def beta_rad(self) -> float:
-        return math.radians(self.beta_deg)
+        if abs(self.alpha) >= math.radians(90):
+            raise ValueError(
+                "Alpha angle over limits (-90° <= math.degrees(alpha) <= 90°)"
+            )
+        if abs(self.beta) >= math.radians(90):
+            raise ValueError(
+                "Beta angle over limits (-90° <= math.degrees(beta) <= 90°)"
+            )
 
     @classmethod
     def from_segment(cls, segment: Segment) -> "Configuration":
@@ -98,18 +94,16 @@ class Configuration:
             else 0
         )
 
-        return Configuration(
-            start_point.x, start_point.y, math.degrees(alpha), math.degrees(beta)
-        )
+        return Configuration(start_point.x, start_point.y, alpha, beta)
 
     def __str__(self) -> str:
-        return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha_deg}, beta={self.beta_deg})"
+        return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha}, beta={self.beta})"
 
     def to_segment(self, cut_depth: float, material_height: float) -> Segment:
         start_point: Point = Point(self.x, self.y, material_height)
         direction_vector: Vector = Vector(
-            math.tan(self.beta_rad) * cut_depth,
-            math.tan(self.alpha_rad) * cut_depth,
+            math.tan(self.beta) * cut_depth,
+            math.tan(self.alpha) * cut_depth,
             -cut_depth,
         )
 
