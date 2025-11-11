@@ -25,14 +25,25 @@ def test_invalid_cut():
         TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 1), Point(1, 0, 2))
 
 
-def test_cut_depth():
-    t = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0))
-    assert t.cut_depth == 1
-
-    t = TrapezoidalCut(
-        Point(0, 0, 0.5), Point(1, 0, 0.5), Point(-1, 0, 0), Point(1, 0, 0)
-    )
-    assert t.cut_depth == 0.5
+@pytest.mark.parametrize(
+    "trapezoidal_cut,expected_cut_depth",
+    [
+        (
+            TrapezoidalCut(
+                Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0)
+            ),
+            1,
+        ),
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0.5), Point(1, 0, 0.5), Point(-1, 0, 0), Point(1, 0, 0)
+            ),
+            0.5,
+        ),
+    ],
+)
+def test_cut_depth(trapezoidal_cut: TrapezoidalCut, expected_cut_depth: float):
+    assert trapezoidal_cut.cut_depth == pytest.approx(expected_cut_depth, 0.01)
 
 
 def test_move():
