@@ -123,7 +123,7 @@ class TrapezoidalCut:
 
     def __init__(
         self, start_upper: Point, end_upper: Point, start_lower: Point, end_lower: Point
-    ) -> None:
+    ):
         """
         Initialize the geometry object with four corner points and perform validation.
 
