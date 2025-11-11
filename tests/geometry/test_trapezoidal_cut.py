@@ -10,12 +10,12 @@ def test_from_points():
     el = Point(1, 0, 0)
     t = TrapezoidalCut(su, eu, sl, el)
 
-    assert t.start_upper == su
-    assert t.end_upper == eu
-    assert t.start_lower == sl
-    assert t.end_lower == el
-    assert t.lower_segment() == Segment(sl, el)
-    assert t.upper_segment() == Segment(su, eu)
+    assert t.start_top == su
+    assert t.end_top == eu
+    assert t.start_bottom == sl
+    assert t.end_bottom == el
+    assert t.bottom_segment() == Segment(sl, el)
+    assert t.top_segment() == Segment(su, eu)
     assert t.start_segment() == Segment(su, sl)
     assert t.end_segment() == Segment(eu, el)
 

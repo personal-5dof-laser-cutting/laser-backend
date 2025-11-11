@@ -122,7 +122,7 @@ class TrapezoidalCut:
     """
 
     def __init__(
-        self, start_upper: Point, end_upper: Point, start_lower: Point, end_lower: Point
+        self, start_top: Point, end_top: Point, start_bottom: Point, end_bottom: Point
     ):
         """
         Initialize the geometry object with four corner points and perform validation.
@@ -145,10 +145,10 @@ class TrapezoidalCut:
         ValueError
             If the provided points do not form a valid trapezoid or the cut configuration is invalid.
         """
-        self._start_upper: Point = start_upper
-        self._start_lower: Point = start_lower
-        self._end_upper: Point = end_upper
-        self._end_lower: Point = end_lower
+        self._start_top: Point = start_top
+        self._start_bottom: Point = start_bottom
+        self._end_top: Point = end_top
+        self._end_bottom: Point = end_bottom
 
         self._validate_cut()
 
@@ -171,10 +171,10 @@ class TrapezoidalCut:
         )
 
     def _validate_trapezoid(self) -> None:
-        upper = segment_to_line(self.upper_segment())
-        lower = segment_to_line(self.lower_segment())
+        top_line = segment_to_line(self.top_segment())
+        bottom_line = segment_to_line(self.bottom_segment())
 
-        if not upper.parallel(lower):
+        if not top_line.parallel(bottom_line):
             raise ValueError(
                 "The upper and lower points do not form two parallel lines."
             )
@@ -183,34 +183,34 @@ class TrapezoidalCut:
         self._validate_trapezoid()
 
         # The z-values must be exactly the same; otherwise, other calculations may fail.
-        if self.start_upper.z != self.end_upper.z:
+        if self.start_top.z != self.end_top.z:
             raise ValueError("The upper points must be on the same z height.")
-        if self.start_lower.z != self.end_lower.z:
+        if self.start_bottom.z != self.end_bottom.z:
             raise ValueError("The lower points must be on the same z height.")
 
         # Check if the cut depth is equal or less than the material height.
-        if self.start_lower.z < 0.0 or self.end_lower.z < 0.0:
+        if self.start_bottom.z < 0.0 or self.end_bottom.z < 0.0:
             raise ValueError("The lower points must not have negative z-values.")
 
     @property
-    def start_lower(self) -> Point:
-        return self._start_lower
+    def start_bottom(self) -> Point:
+        return self._start_bottom
 
     @property
-    def end_lower(self) -> Point:
-        return self._end_lower
+    def end_bottom(self) -> Point:
+        return self._end_bottom
 
     @property
-    def start_upper(self) -> Point:
-        return self._start_upper
+    def start_top(self) -> Point:
+        return self._start_top
 
     @property
-    def end_upper(self) -> Point:
-        return self._end_upper
+    def end_top(self) -> Point:
+        return self._end_top
 
     @property
     def cut_depth(self) -> float:
-        return self._start_upper.z - self._start_lower.z
+        return self._start_top.z - self._start_bottom.z
 
     @cut_depth.setter
     def cut_depth(self, value: float):
@@ -219,22 +219,22 @@ class TrapezoidalCut:
         dz: float = current_depth - value
         move_vector: Vector = Vector(0, 0, dz)
 
-        self._start_lower = self._start_lower.move(move_vector)
-        self._end_lower = self._end_lower.move(move_vector)
+        self._start_bottom = self._start_bottom.move(move_vector)
+        self._end_bottom = self._end_bottom.move(move_vector)
 
         self._validate_cut()
 
-    def upper_segment(self) -> Segment:
-        return Segment(self.start_upper, self.end_upper)
+    def top_segment(self) -> Segment:
+        return Segment(self.start_top, self.end_top)
 
-    def lower_segment(self) -> Segment:
-        return Segment(self.start_lower, self.end_lower)
+    def bottom_segment(self) -> Segment:
+        return Segment(self.start_bottom, self.end_bottom)
 
     def start_segment(self) -> Segment:
-        return Segment(self.start_upper, self.start_lower)
+        return Segment(self.start_top, self.start_bottom)
 
     def end_segment(self) -> Segment:
-        return Segment(self.end_upper, self.end_lower)
+        return Segment(self.end_top, self.end_bottom)
 
     def start_configuration(self) -> Configuration:
         return Configuration.from_segment(self.start_segment())
@@ -245,17 +245,17 @@ class TrapezoidalCut:
     def flip_direction(self):
         """Flip the cut direction by swapping its start and end endpoints."""
 
-        self._start_lower, self._end_lower, self._start_upper, self._end_upper = (
-            self.end_lower,
-            self.start_lower,
-            self.end_upper,
-            self.start_upper,
+        self._start_bottom, self._end_bottom, self._start_top, self._end_top = (
+            self.end_bottom,
+            self.start_bottom,
+            self.end_top,
+            self.start_top,
         )
 
     def polygon(self) -> ConvexPolygon:
         """Return a geometry3d ConvexPolygon representation of the trapezoid."""
         return ConvexPolygon(
-            (self.start_upper, self.end_upper, self.start_lower, self.end_lower)
+            (self.start_top, self.end_top, self.start_bottom, self.end_bottom)
         )
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
@@ -272,10 +272,10 @@ class TrapezoidalCut:
         visualizer.add((self.polygon(), color, 1), normal_length=0)
 
     def move(self, v: Vector):
-        self._start_lower = self._start_lower.move(v)
-        self._start_upper = self._start_upper.move(v)
-        self._end_lower = self._end_lower.move(v)
-        self._end_upper = self._end_upper.move(v)
+        self._start_bottom = self._start_bottom.move(v)
+        self._start_top = self._start_top.move(v)
+        self._end_bottom = self._end_bottom.move(v)
+        self._end_top = self._end_top.move(v)
 
         self._validate_cut()
 
