@@ -23,4 +23,5 @@ jobs:
       - name: Run linting
         run: uv run ruff check --fix
 
-      # todo: add pytest
+      - name: Run tests
+        run: uv run pytest
