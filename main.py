@@ -1,6 +1,6 @@
-from src.core.service_container import Container
+from core.service_container import Container
 from fastapi import FastAPI
-from src.api.routers.base_router import router
+from api.routers.base_router import router
 
 
 def app_factory():
