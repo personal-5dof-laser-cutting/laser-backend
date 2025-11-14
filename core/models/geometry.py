@@ -263,13 +263,13 @@ if __name__ == "__main__":
     geo = Geometry()
 
     c1 = Configuration(-1, 0, 0, 0)
-    c2 = Configuration(1, 0, 0, 45)
+    c2 = Configuration(1, 0, 0, math.radians(45))
     geo.add_cut_from_configurations(c1, c2, cut_depth)
 
-    c3 = Configuration(1, -1, -20, 45)
+    c3 = Configuration(1, -1, math.radians(-20), math.radians(45))
     geo.add_cut_from_configurations(c2, c3, cut_depth)
 
-    c4 = Configuration(-1, -1, -20, 0)
+    c4 = Configuration(-1, -1, math.radians(-20), math.radians(0))
     geo.add_cut_from_configurations(c3, c4, cut_depth)
 
     geo.show_debug()
