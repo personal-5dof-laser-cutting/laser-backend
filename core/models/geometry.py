@@ -99,15 +99,6 @@ class Configuration:
     def __str__(self) -> str:
         return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha}, beta={self.beta})"
 
-    def __eq__(self, other) -> bool:
-        return (
-            isinstance(other, Configuration)
-            and self.x == other.x
-            and self.y == other.y
-            and self.alpha == other.alpha
-            and self.beta == other.beta
-        )
-
     def to_segment(self, cut_depth: float, material_height: float) -> Segment:
         start_point: Point = Point(self.x, self.y, material_height)
         direction_vector: Vector = Vector(
@@ -270,15 +261,6 @@ class TrapezoidalCut:
             copy(self.end_top).move(v),
             copy(self.start_bottom).move(v),
             copy(self.end_bottom).move(v),
-        )
-
-    def __eq__(self, other) -> bool:
-        return (
-            isinstance(other, TrapezoidalCut)
-            and self.start_bottom == other.start_bottom
-            and self.start_top == other.start_top
-            and self.end_bottom == other.end_bottom
-            and self.end_top == other.end_top
         )
 
 
