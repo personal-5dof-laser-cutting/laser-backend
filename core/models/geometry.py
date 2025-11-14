@@ -119,18 +119,18 @@ class TrapezoidalCut:
         """
         Initialize the geometry object with four corner points and perform validation.
 
-        The upper segment (start_upper and end_upper) must lie on the upper surface of the material. The lower segment (start_lower and end_lower) must be in the material or at the lower surface.
+        The top segment (start_top and end_top) must lie on z=0. The bottom segment (start_bottom and end_bottom) must be below the xy-plane and the -z coordinate is the cut depth.
 
         Parameters
         ----------
-        start_upper (Point)
-            The starting point of the upper edge of the trapezoid.
-        end_upper (Point)
-            The ending point of the upper edge of the trapezoid.
-        start_lower (Point)
-            The starting point of the lower edge of the trapezoid.
-        end_lower (Point)
-            The ending point of the lower edge of the trapezoid.
+        start_top (Point)
+            The starting point of the top edge of the trapezoid.
+        end_top (Point)
+            The ending point of the top edge of the trapezoid.
+        start_bottom (Point)
+            The starting point of the bottom edge of the trapezoid.
+        end_bottom (Point)
+            The ending point of the bottom edge of the trapezoid.
 
         Raises
         ------
