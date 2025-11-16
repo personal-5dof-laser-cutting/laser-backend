@@ -1,6 +1,6 @@
 from abc import ABC
 
-from src.core.services.base import BaseService
+from core.services.base import BaseService
 
 
 class LaserService(ABC, BaseService):

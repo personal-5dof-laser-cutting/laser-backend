@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-from src.core.services.base import BaseService
+from core.services.base import BaseService
 
 
 class ConfigModel(BaseSettings):

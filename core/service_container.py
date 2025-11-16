@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
-from src.core.services.config_service import ConfigService, ConfigServiceImpl
-from src.core.services.laser_service import LaserService, LaserServiceImpl
+from core.services.config_service import ConfigService, ConfigServiceImpl
+from core.services.laser_service import LaserService, LaserServiceImpl
 
 
 class Container(containers.DeclarativeContainer):
@@ -23,7 +23,7 @@ class Container(containers.DeclarativeContainer):
     """
 
     wiring_config = containers.WiringConfiguration(
-        packages=["src.core.pipeline", "src.api.routers"]
+        auto_wire=True, packages=["core.pipeline", "api.routers"]
     )
 
     # Gateways (none defined yet)
