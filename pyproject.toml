@@ -33,4 +33,3 @@ pythonpath = [""]
 
 [tool.uv.sources]
 gcode-lib = { git = "https://github.com/HCI-BP-25-26/gcode_lib.git" }
-
