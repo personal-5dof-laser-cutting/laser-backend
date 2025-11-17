@@ -18,9 +18,8 @@ def segment_to_line(seg: Segment) -> Line:
 
 
 class Geometry:
-    def __init__(self, material_height: float) -> None:
+    def __init__(self) -> None:
         self.cuts: list[TrapezoidalCut] = []
-        self.material_height: float = material_height
 
     def add_cut(self, cut: TrapezoidalCut):
         self.cuts.append(cut)
@@ -28,9 +27,7 @@ class Geometry:
     def add_cut_from_configurations(
         self, start_config: Configuration, end_config: Configuration, cut_depth: float
     ):
-        cut = TrapezoidalCut.from_configurations(
-            start_config, end_config, cut_depth, self.material_height
-        )
+        cut = TrapezoidalCut.from_configurations(start_config, end_config, cut_depth)
         self.add_cut(cut)
 
     def show_debug(self):
@@ -99,8 +96,8 @@ class Configuration:
     def __str__(self) -> str:
         return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha}, beta={self.beta})"
 
-    def to_segment(self, cut_depth: float, material_height: float) -> Segment:
-        start_point: Point = Point(self.x, self.y, material_height)
+    def to_segment(self, cut_depth: float) -> Segment:
+        start_point: Point = Point(self.x, self.y, 0)
         direction_vector: Vector = Vector(
             math.tan(self.beta) * cut_depth,
             math.tan(self.alpha) * cut_depth,
@@ -122,18 +119,18 @@ class TrapezoidalCut:
         """
         Initialize the geometry object with four corner points and perform validation.
 
-        The upper segment (start_upper and end_upper) must lie on the upper surface of the material. The lower segment (start_lower and end_lower) must be in the material or at the lower surface.
+        The top segment (start_top and end_top) must lie on z=0. The bottom segment (start_bottom and end_bottom) must be below the xy-plane and the -z coordinate is the cut depth.
 
         Parameters
         ----------
-        start_upper (Point)
-            The starting point of the upper edge of the trapezoid.
-        end_upper (Point)
-            The ending point of the upper edge of the trapezoid.
-        start_lower (Point)
-            The starting point of the lower edge of the trapezoid.
-        end_lower (Point)
-            The ending point of the lower edge of the trapezoid.
+        start_top (Point)
+            The starting point of the top edge of the trapezoid.
+        end_top (Point)
+            The ending point of the top edge of the trapezoid.
+        start_bottom (Point)
+            The starting point of the bottom edge of the trapezoid.
+        end_bottom (Point)
+            The ending point of the bottom edge of the trapezoid.
 
         Raises
         ------
@@ -149,14 +146,10 @@ class TrapezoidalCut:
 
     @classmethod
     def from_configurations(
-        cls,
-        start_config: Configuration,
-        end_config: Configuration,
-        cut_depth: float,
-        material_height: float,
+        cls, start_config: Configuration, end_config: Configuration, cut_depth: float
     ) -> "TrapezoidalCut":
-        start_segment: Segment = start_config.to_segment(cut_depth, material_height)
-        end_segment: Segment = end_config.to_segment(cut_depth, material_height)
+        start_segment: Segment = start_config.to_segment(cut_depth)
+        end_segment: Segment = end_config.to_segment(cut_depth)
 
         return TrapezoidalCut(
             start_segment.start_point,
@@ -177,14 +170,15 @@ class TrapezoidalCut:
     def _validate_cut(self) -> None:
         self._validate_trapezoid()
 
+        if self.start_top.z != 0 and self.end_top.z != 0:
+            raise ValueError("The upper points must be at z=0.")
+
         # The z-values must be exactly the same; otherwise, other calculations may fail.
-        if self.start_top.z != self.end_top.z:
-            raise ValueError("The upper points must be on the same z height.")
         if self.start_bottom.z != self.end_bottom.z:
             raise ValueError("The lower points must be on the same z height.")
 
-        # Check if the cut depth is equal or less than the material height.
-        if self.start_bottom.z < 0.0 or self.end_bottom.z < 0.0:
+        # Check if the cut depth is not zero
+        if self.start_bottom.z >= 0.0 or self.end_bottom.z >= 0.0:
             raise ValueError("The lower points must not have negative z-values.")
 
     @property
@@ -265,18 +259,17 @@ class TrapezoidalCut:
 
 
 if __name__ == "__main__":
-    material_height = 2.0
     cut_depth = 2.0
-    geo = Geometry(material_height)
+    geo = Geometry()
 
     c1 = Configuration(-1, 0, 0, 0)
-    c2 = Configuration(1, 0, 0, 45)
+    c2 = Configuration(1, 0, 0, math.radians(45))
     geo.add_cut_from_configurations(c1, c2, cut_depth)
 
-    c3 = Configuration(1, -1, -20, 45)
+    c3 = Configuration(1, -1, math.radians(-20), math.radians(45))
     geo.add_cut_from_configurations(c2, c3, cut_depth)
 
-    c4 = Configuration(-1, -1, -20, 0)
+    c4 = Configuration(-1, -1, math.radians(-20), math.radians(0))
     geo.add_cut_from_configurations(c3, c4, cut_depth)
 
     geo.show_debug()

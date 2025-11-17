@@ -4,10 +4,10 @@ import pytest
 
 
 def test_from_points():
-    su = Point(0, 0, 1)
-    eu = Point(1, 0, 1)
-    sl = Point(0, 0, 0)
-    el = Point(1, 0, 0)
+    su = Point(0, 0, 0)
+    eu = Point(1, 0, 0)
+    sl = Point(0, 0, -1)
+    el = Point(1, 0, -1)
     t = TrapezoidalCut(su, eu, sl, el)
 
     assert t.start_top == su
@@ -31,13 +31,13 @@ def test_invalid_cut():
     [
         (
             TrapezoidalCut(
-                Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0)
+                Point(0, 0, 0), Point(1, 0, 0), Point(0, 0, -1), Point(1, 0, -1)
             ),
             1,
         ),
         (
             TrapezoidalCut(
-                Point(0, 0, 0.5), Point(1, 0, 0.5), Point(-1, 0, 0), Point(1, 0, 0)
+                Point(0, 0, 0), Point(1, 0, 0), Point(-1, 0, -0.5), Point(1, 0, -0.5)
             ),
             0.5,
         ),
@@ -48,8 +48,12 @@ def test_cut_depth(trapezoidal_cut: TrapezoidalCut, expected_cut_depth: float):
 
 
 def test_move():
-    t1 = TrapezoidalCut(Point(0, 0, 1), Point(1, 0, 1), Point(0, 0, 0), Point(1, 0, 0))
-    t2 = TrapezoidalCut(Point(1, 0, 1), Point(2, 0, 1), Point(1, 0, 0), Point(2, 0, 0))
+    t1 = TrapezoidalCut(
+        Point(0, 0, 0), Point(1, 0, 0), Point(0, 0, -1), Point(1, 0, -1)
+    )
+    t2 = TrapezoidalCut(
+        Point(1, 0, 0), Point(2, 0, 0), Point(1, 0, -1), Point(2, 0, -1)
+    )
 
     t1_moved = t1.move(Vector(1, 0, 0))
     assert t1_moved.polygon() == t2.polygon()

@@ -30,7 +30,7 @@ def test_config(
 
 def test_over_limits():
     with pytest.raises(ValueError):
-        Configuration(0, 0, 91, 0)
+        Configuration(0, 0, math.radians(91), 0)
 
     with pytest.raises(ValueError):
-        Configuration(0, 0, 0, -91)
+        Configuration(0, 0, 0, math.radians(-91))
