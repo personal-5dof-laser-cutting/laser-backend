@@ -110,6 +110,9 @@ class Configuration:
             and math.isclose(self.beta, other.beta)
         )
 
+    def __hash__(self) -> int:
+        return hash((self.x, self.y, self.alpha, self.beta))
+
     def to_segment(self, cut_depth: float) -> Segment:
         start_point: Point = Point(self.x, self.y, 0)
         direction_vector: Vector = Vector(
@@ -351,6 +354,9 @@ class TrapezoidalCut:
 
     def __hash__(self) -> int:
         return hash((self.start_top, self.end_top, self.start_bottom, self.end_bottom))
+
+    def __hash__(self) -> int:
+        return hash((self.start_top, self.start_bottom, self.end_top, self.end_bottom))
 
 
 if __name__ == "__main__":
