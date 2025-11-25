@@ -1,12 +1,13 @@
-from dependency_injector.wiring import inject, Provide
-import networkx as nx
-from networkx.algorithms.approximation import christofides
 from math import inf
 
-from core.service_container import Container
+import networkx as nx
+from dependency_injector.wiring import Provide, inject
+from networkx.algorithms.approximation import christofides
+
+from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
+from core.service_container import Container
 from core.services.cost_function_service import CostFunctionService
-from core.models.geometry import Geometry, TrapezoidalCut, Configuration
 
 
 class GlobalOptimizerModule(Module[Geometry, Geometry]):
@@ -21,8 +22,9 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         self._build_graph(graph, cuts, cost_function)
 
         path = christofides(graph)
-        path = self._path_to_trapezoids(path)
-        data.cuts = path
+        trapezoid_path = self._path_to_trapezoids(path)
+        data.cuts = trapezoid_path
+
         return data
 
     def _build_graph(
@@ -65,15 +67,54 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
                         dist = cost_function.get_cost(cut_config, neighbour_config)
                         graph.add_edge(cut_config, neighbour_config, weight=dist)
 
-    def _path_to_trapezoids(self, path: list[TrapezoidalCut | Configuration]):
-        path = path[:-1]
-        while not isinstance(path[0], TrapezoidalCut):
-            path.insert(0, path.pop())
-        assert isinstance(path[1], Configuration)
-        for i in range(2, len(path) - 1):
-            if isinstance(path[i], TrapezoidalCut):
-                assert isinstance(path[i - 1], Configuration)
-                assert isinstance(path[i + 1], Configuration)
+    def _path_to_trapezoids(
+        self, path: list[TrapezoidalCut | Configuration]
+    ) -> list[TrapezoidalCut]:
+        if len(path) == 0:
+            return []
+        if len(path) == 1:
+            if not isinstance(path[1], TrapezoidalCut):
+                raise TypeError(
+                    "A path consisting of only one element has to be a TrapezoidalCut"
+                )
+            return [path[1]]
+        if path[0] != path[-1]:
+            raise ValueError("A path has to be a Hamilton Cycle")
+        path.pop()
+        if not isinstance(path[1], TrapezoidalCut):
+            if isinstance(path[2], TrapezoidalCut):
+                path.append(path.pop(0))  # left shift
+            elif isinstance(path[0], TrapezoidalCut):
+                path.insert(0, path.pop())  # right shift
+            else:
+                raise TypeError(
+                    "A path can't have more than two Configuration objects in a row"
+                )
+        if not isinstance(path[0], Configuration):
+            raise TypeError("A path has to start at a Configuration")
+        cut_list = []
+        for i in range(1, len(path)):
+            current = path[i]
+            if isinstance(current, TrapezoidalCut):
+                start_config = path[i - 1]
+                end_config = path[(i + 1) % len(path)]
+                if not isinstance(start_config, Configuration) or not isinstance(
+                    end_config, Configuration
+                ):
+                    raise TypeError(
+                        "A TrapezoidalCut has to be surrounded by Configuration objects"
+                    )
+                if {start_config, end_config} != {
+                    current.start_configuration(),
+                    current.end_configuration(),
+                }:
+                    raise ValueError(
+                        "A TrapezoidalCut has to be surrounded by its start and end configuration "
+                    )
+                cut_list.append(
+                    TrapezoidalCut.from_configurations(
+                        start_config, end_config, current.cut_depth
+                    )
+                )
 
-        cut_list = [cut for cut in path if isinstance(cut, TrapezoidalCut)]
         return cut_list
