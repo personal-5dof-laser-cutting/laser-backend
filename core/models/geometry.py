@@ -24,6 +24,9 @@ class Geometry:
     def add_cut(self, cut: TrapezoidalCut):
         self.cuts.append(cut)
 
+    def add_cuts(self, cuts: list[TrapezoidalCut]):
+        self.cuts.extend(cuts)
+
     def add_cut_from_configurations(
         self, start_config: Configuration, end_config: Configuration, cut_depth: float
     ):
