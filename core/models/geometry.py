@@ -272,6 +272,22 @@ class TrapezoidalCut:
             copy(self.end_bottom).move(v),
         )
 
+    def __repr__(self) -> str:
+        return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
+
+    def __eq__(self, other):
+        if not isinstance(other, TrapezoidalCut):
+            return NotImplemented
+        return (self.start_top, self.end_top, self.start_bottom, self.end_bottom) == (
+            other.start_top,
+            other.end_top,
+            other.start_bottom,
+            other.end_bottom,
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.start_top, self.end_top, self.start_bottom, self.end_bottom))
+
 
 if __name__ == "__main__":
     cut_depth = 2.0
