@@ -1,6 +1,6 @@
 import pytest
 import networkx as nx
-from Geometry3D import Point
+from Geometry3D import Point, Segment
 from core.pipeline.global_optimizer import GlobalOptimizerModule
 from core.models.geometry import Geometry, TrapezoidalCut, Configuration
 from core.service_container import Container
@@ -10,21 +10,11 @@ from core.services.cost_function_service import (
 )
 from dependency_injector.wiring import inject, Provide
 
-TEST_PARAMS = [
-    [
-        TrapezoidalCut(
-            Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
-        ),
-        TrapezoidalCut(
-            Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
-        ),
-        TrapezoidalCut(
-            Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)
-        ),
-        TrapezoidalCut(
-            Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)
-        ),
-    ]
+SQUARE_PARAMS = [
+    TrapezoidalCut(Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)),
+    TrapezoidalCut(Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)),
+    TrapezoidalCut(Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)),
+    TrapezoidalCut(Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)),
 ]
 
 
@@ -67,41 +57,118 @@ def test_build_graph(cut1: TrapezoidalCut, cut2: TrapezoidalCut):
     assert control_graph.edges == generated_graph.edges
 
 
-@pytest.mark.parametrize("cuts", TEST_PARAMS)
+@pytest.mark.parametrize(
+    "path, cuts",
+    [
+        (
+            [
+                Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 1, -5))),
+                TrapezoidalCut(
+                    Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+                ),
+                Configuration.from_segment(Segment(Point(0, 3, 0), Point(1, 2, -5))),
+                Configuration.from_segment(Segment(Point(0, 3, 0), Point(1, 2, -5))),
+                TrapezoidalCut(
+                    Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+                ),
+                Configuration.from_segment(Segment(Point(3, 3, 0), Point(2, 2, -5))),
+                Configuration.from_segment(Segment(Point(3, 3, 0), Point(2, 2, -5))),
+                TrapezoidalCut(
+                    Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)
+                ),
+                Configuration.from_segment(Segment(Point(3, 0, 0), Point(2, 1, -5))),
+                Configuration.from_segment(Segment(Point(3, 0, 0), Point(2, 1, -5))),
+                TrapezoidalCut(
+                    Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)
+                ),
+                Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 1, -5))),
+            ],
+            [
+                TrapezoidalCut(
+                    Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+                ),
+                TrapezoidalCut(
+                    Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+                ),
+                TrapezoidalCut(
+                    Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)
+                ),
+                TrapezoidalCut(
+                    Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)
+                ),
+            ],
+        ),
+        (
+            [
+                Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 1, -5))),
+                TrapezoidalCut(
+                    Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+                ),
+                Configuration.from_segment(Segment(Point(0, 3, 0), Point(1, 2, -5))),
+                TrapezoidalCut(
+                    Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+                ),
+                Configuration.from_segment(Segment(Point(3, 3, 0), Point(2, 2, -5))),
+                TrapezoidalCut(
+                    Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)
+                ),
+                Configuration.from_segment(Segment(Point(3, 0, 0), Point(2, 1, -5))),
+                TrapezoidalCut(
+                    Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)
+                ),
+                Configuration.from_segment(Segment(Point(0, 0, 0), Point(1, 1, -5))),
+            ],
+            [
+                TrapezoidalCut(
+                    Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+                ),
+                TrapezoidalCut(
+                    Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+                ),
+                TrapezoidalCut(
+                    Point(3, 3, 0), Point(3, 0, 0), Point(2, 2, -5), Point(2, 1, -5)
+                ),
+                TrapezoidalCut(
+                    Point(3, 0, 0), Point(0, 0, 0), Point(2, 1, -5), Point(1, 1, -5)
+                ),
+            ],
+        ),
+    ],
+)
 def test_path_to_trapezoids(
-    cuts: list[TrapezoidalCut],
+    path: list[TrapezoidalCut | Configuration], cuts: list[TrapezoidalCut]
 ):
-    path: list[TrapezoidalCut | Configuration] = []
-    for cut in cuts:
-        path.append(cut.start_configuration())
-        path.append(cut)
-        path.append(cut.end_configuration())
-    path.append(path[0])
-
     go = GlobalOptimizerModule()
+    ls_path = path.copy()
+    rs_path = path.copy()
     trapezoids = go._path_to_trapezoids(path)
     assert set(trapezoids) == set(cuts)
 
-    ls_path = path
+    if len(path) == 0:
+        return
+
+    ls_path.pop()
     ls_path.append(ls_path.pop(0))
-    trapezoids = go._path_to_trapezoids(path)
+    ls_path.append(ls_path[0])
+    trapezoids = go._path_to_trapezoids(ls_path)
     assert set(trapezoids) == set(cuts)
 
-    rs_path = path
+    rs_path.pop()
     rs_path.insert(0, rs_path.pop())
-    trapezoids = go._path_to_trapezoids(path)
+    rs_path.append(rs_path[0])
+    trapezoids = go._path_to_trapezoids(rs_path)
     assert set(trapezoids) == set(cuts)
 
 
-@pytest.mark.parametrize("cuts", TEST_PARAMS)
+@pytest.mark.parametrize("cuts", [SQUARE_PARAMS])
 def test_global_optimizer(cuts: list[TrapezoidalCut]):
     geo_rep = Geometry()
     geo_rep.cuts = cuts
 
     optimizer = GlobalOptimizerModule()
+    original_costs = _calculate_path_cost(geo_rep.cuts)
     optimized_geo = optimizer.process(geo_rep)
 
-    original_costs = _calculate_path_cost(geo_rep.cuts)
     optimized_costs = _calculate_path_cost(optimized_geo.cuts)
     assert original_costs > optimized_costs or original_costs == pytest.approx(
         optimized_costs
