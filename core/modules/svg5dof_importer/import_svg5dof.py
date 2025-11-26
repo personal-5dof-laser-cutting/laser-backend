@@ -11,8 +11,8 @@ from core.pipeline.base import Module
 from PIL.ImageColor import getrgb
 
 
-TOP_COLOR = (255, 255, 255, 255)
-BOTTOM_COLOR = (255, 0, 0, 255)
+TOP_COLOR = (255, 0, 0, 255)  # red
+BOTTOM_COLOR = (0, 125, 255, 255)  # blue
 
 
 @dataclass
