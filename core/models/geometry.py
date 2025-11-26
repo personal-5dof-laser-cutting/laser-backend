@@ -101,8 +101,8 @@ class Configuration:
             isinstance(other, Configuration)
             and self.x == other.x
             and self.y == other.y
-            and self.alpha == other.alpha
-            and self.beta == other.beta
+            and math.isclose(self.alpha, other.alpha)
+            and math.isclose(self.beta, other.beta)
         )
 
     def to_segment(self, cut_depth: float) -> Segment:
