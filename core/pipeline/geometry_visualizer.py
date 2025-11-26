@@ -1,4 +1,4 @@
-from vpython import scene, quad, curve, vertex, color, arrow, vector, sphere, text
+from vpython import scene, quad, curve, vertex, color, arrow, vector, text
 
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
@@ -25,13 +25,22 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
                 ]
             ]
 
+            cut_vectors = {
+                k: v
+                for k, v in zip(
+                    ["start_bottom", "end_bottom", "end_top", "start_top"], cut_vectors
+                )
+            }
+
             quad(
-                vs=[vertex(pos=vec, color=color.orange) for vec in cut_vectors],
+                vs=[
+                    vertex(pos=vec, color=color.orange) for vec in cut_vectors.values()
+                ],
                 opacity=1,
                 retain=1,
             )
 
-            self._add_cut_order(data.cuts, arrow_width / 2)
+            self._add_cut_rank(cut_vectors, i + 1, arrow_width / 2)
             self._add_cut_direction(cut_vectors, arrow_width)
 
             if (
@@ -41,66 +50,56 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             ):
                 self._add_travel_move(data.cuts[i - 1], data.cuts[i], arrow_width)
 
-            outline_points = cut_vectors
+            outline_points = list(cut_vectors.values())
             curve(pos=outline_points, color=color.black, radius=0.03)
-
-            sphere(pos=cut_vectors[0], radius=0.1, color=color.red)
-            sphere(pos=cut_vectors[1], radius=0.1, color=color.red)
-            sphere(pos=cut_vectors[2], radius=0.1, color=color.red)
-            sphere(pos=cut_vectors[3], radius=0.1, color=color.red)
 
         return data
 
     def _write_text(
         self,
-        cut: TrapezoidalCut,
-        text_content: str,
-        height_offset: float,
-        draw_top: bool = True,
+        pos: vector,
+        content: str,
+        up: vector,
+        text_height: float,
+        text_color: vector = color.black,
     ):
-        if draw_top:
-            points = [cut.start_top, cut.end_top]
-        else:
-            points = [cut.start_bottom, cut.end_bottom]
-        text_x = (points[0].x + points[1].x) / 2
-        text_z = (
-            (points[0].y + points[1].y) / 2
-        )  # coordinate system uses y for height, which is why TrapezoidalCut y is text_z
-
-        text_height = 0.5
-        if draw_top:
-            y_pos = height_offset
-            z_pos = text_z + text_height / 2
-        else:
-            y_pos = points[0].z - height_offset
-            z_pos = text_z - text_height / 2
-        text_pos = vector(text_x, y_pos, z_pos)
-        up_vector = vector(0, 0, -1) if draw_top else vector(0, 0, 1)
         text(
-            text=text_content,
-            pos=text_pos,
-            align="center",
-            color=color.black,
+            text=content,
+            pos=pos,
+            up=up,
             height=text_height,
-            up=up_vector,
+            color=text_color,
+            align="center",
             billboard=False,
         )
 
-    def _add_cut_order(self, cuts: list[TrapezoidalCut], height_offset: float):
-        for i, cut in enumerate(cuts):
-            self._write_text(cut, str(i + 1), height_offset)
-            self._write_text(cut, str(i + 1), -height_offset, draw_top=False)
+    def _add_cut_rank(
+        self, cut_vector: dict[str, vector], rank: int, height_offset: float
+    ):
+        text_height = 0.5
 
-    def _add_cut_direction(self, cut_vectors: list[vector], arrow_width: float):
+        top_pos = (cut_vector["start_top"] + cut_vector["end_top"]) / 2
+        top_pos.y = height_offset
+        top_pos.z += text_height / 2
+        top_up_vector = vector(0, 0, -1)
+
+        bottom_pos = (cut_vector["start_bottom"] + cut_vector["end_bottom"]) / 2
+        bottom_pos.y = cut_vector["start_bottom"].y - height_offset
+        bottom_pos.z -= text_height / 2
+        bottom_up_vector = vector(0, 0, 1)
+        self._write_text(top_pos, str(rank), top_up_vector, text_height)
+        self._write_text(bottom_pos, str(rank), bottom_up_vector, text_height)
+
+    def _add_cut_direction(self, cut_vectors: dict[str, vector], arrow_width: float):
         arrow(
-            pos=cut_vectors[3],
-            axis=(cut_vectors[2] - cut_vectors[3]),
+            pos=cut_vectors["start_top"],
+            axis=(cut_vectors["end_top"] - cut_vectors["start_top"]),
             shaftwidth=arrow_width,
             color=color.red,
         )
         arrow(
-            pos=cut_vectors[1],
-            axis=(cut_vectors[0] - cut_vectors[1]),
+            pos=cut_vectors["start_bottom"],
+            axis=(cut_vectors["end_bottom"] - cut_vectors["start_bottom"]),
             shaftwidth=arrow_width,
             color=color.red,
         )
