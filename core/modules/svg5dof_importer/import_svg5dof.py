@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import math
 from typing import Tuple
 
 from Geometry3D import Point
@@ -30,6 +31,13 @@ class Point2D:
 
     def to_point3d(self, z: float = 0) -> Point:
         return Point(self.x, self.y, z)
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, Point2D):
+            raise NotImplementedError
+        return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
 
 
 def compare_tuples(a: tuple, b: tuple) -> float:
