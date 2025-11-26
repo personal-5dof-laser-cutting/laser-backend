@@ -52,24 +52,43 @@ def compare_tuples(a: tuple, b: tuple) -> float:
 
 
 def svg_elem_to_points(
-    element: svg.Line | svg.Path | svg.CubicBezier | svg.Arc | svg.QuadraticBezier,
+    svg_elem: svg.Line | svg.Arc | svg.CubicBezier | svg.QuadraticBezier,
     num_points: int = 2,
 ) -> list[Point2D]:
-    if num_points < 2:
-        raise ValueError("At least two points are required.")
-
-    if element is svg.Line:
+    if isinstance(svg_elem, svg.Line):
         num_points = 2
 
-    points_complex: list[complex] = [
-        element.point(t / (num_points - 1)) for t in range(num_points)
+    points: list[complex] = [
+        svg_elem.point(t / (num_points - 1)) for t in range(num_points)
     ]
 
-    return [Point2D.from_complex(p_complex) for p_complex in points_complex]
+    return [Point2D.from_complex(p_complex) for p_complex in points]
+
+
+def svg_paths_to_points(
+    bottom_path: svg.Path, top_path: svg.Path, resolution_mm=5
+) -> tuple[list[Point2D], list[Point2D]]:
+    if len(bottom_path) != len(top_path):
+        raise Exception("Top and bottom path must have the same number of elements.")
+
+    top_points: list[Point2D] = []
+    bottom_points: list[Point2D] = []
+
+    for top_elem, bottom_elem in zip(top_path, bottom_path):
+        top_length: float = top_elem.length()  # type: ignore
+        bottom_length: float = bottom_elem.length()  # type: ignore
+
+        max_length: float = max(top_length, bottom_length)
+        num_segments: int = math.ceil(max_length / resolution_mm)
+
+        top_points.extend(svg_elem_to_points(top_elem, num_points=num_segments))
+        bottom_points.extend(svg_elem_to_points(bottom_elem, num_points=num_segments))
+
+    return (bottom_points, top_points)
 
 
 def points_to_trapezoids(
-    top_points: list[Point2D], bottom_points: list[Point2D], material_height: float
+    bottom_points: list[Point2D], top_points: list[Point2D], material_height: float
 ) -> list[TrapezoidalCut]:
     if len(top_points) < 2 or len(bottom_points) < 2:
         raise ValueError("There must be at least two top and two bottom points.")
@@ -84,6 +103,9 @@ def points_to_trapezoids(
     for end, start in zip(points + [(None, None)], [(None, None)] + points):
         if None in start or None in end:
             continue
+        if end == start:
+            continue
+
         start_top = start[0].to_point3d(0)  # type: ignore
         end_top = end[0].to_point3d(0)  # type: ignore
         start_bottom = start[1].to_point3d(-material_height)  # type: ignore
@@ -126,14 +148,19 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
         for element in svg_root:
             tag = element.tag.split(svg_namespace)[-1]
             match tag:
-                case "line" | "path":
-                    paths, _ = svg.svgstr2paths(
+                case "line" | "path" | "rect" | "circle":
+                    paths, _ = svg.svgstr2paths(  # type: ignore
                         ET.tostring(element, encoding="unicode")
-                    )  # type: ignore
-                    points = svg_elem_to_points(paths[0])
+                    )
+                    if len(paths) != 1:
+                        raise Exception(
+                            f"SVG element '{element}' does not contain exactly one svg element"
+                        )
+                    path = paths[0]
+                    top_points, bottom_points = svg_paths_to_points(path, path)
                     cuts = points_to_trapezoids(
-                        top_points=points,
-                        bottom_points=points,
+                        bottom_points=bottom_points,
+                        top_points=top_points,
                         material_height=material_height,
                     )
                     geometry.add_cuts(cuts)
@@ -162,13 +189,12 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
                         )
                     )
 
-                    bottom_points, top_points = (
-                        svg_elem_to_points(bottom_path[0]),
-                        svg_elem_to_points(top_path[0]),
+                    bottom_points, top_points = svg_paths_to_points(
+                        bottom_path[0], top_path[0]
                     )
 
                     cuts = points_to_trapezoids(
-                        top_points, bottom_points, material_height
+                        bottom_points, top_points, material_height
                     )
                     geometry.add_cuts(cuts)
                 case _:
