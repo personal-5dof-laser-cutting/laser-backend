@@ -1,7 +1,8 @@
-from vpython import scene, quad, curve, vertex, color, arrow, vector, text
+from vpython import scene, quad, curve, vertex, color, arrow, vector, text, cross
 
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
+import math
 
 
 class GeometryVisualizerModule(Module[Geometry, Geometry]):
@@ -13,6 +14,8 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         scene.height = 800
 
         arrow_width = 0.1
+        top_color = color.yellow
+        bottom_color = color.red
 
         for i, cut in enumerate(data.cuts):
             cut_vectors = [
@@ -32,13 +35,32 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
                 )
             }
 
-            quad(
-                vs=[
-                    vertex(pos=vec, color=color.orange) for vec in cut_vectors.values()
-                ],
-                opacity=1,
-                retain=1,
+            normal_vector = cross(
+                cut_vectors["end_top"] - cut_vectors["start_top"],
+                cut_vectors["start_bottom"] - cut_vectors["start_top"],
             )
+            if (
+                math.isclose(normal_vector.x, 0)
+                + math.isclose(normal_vector.y, 0)
+                + math.isclose(normal_vector.z, 0)
+            ) > 1:
+                quad(
+                    vs=[
+                        vertex(pos=vec, color=color.orange)
+                        for vec in cut_vectors.values()
+                    ],
+                    opacity=1,
+                    retain=1,
+                )
+            else:
+                quad(
+                    v0=vertex(pos=cut_vectors["start_bottom"], color=bottom_color),
+                    v1=vertex(pos=cut_vectors["end_bottom"], color=bottom_color),
+                    v2=vertex(pos=cut_vectors["end_top"], color=top_color),
+                    v3=vertex(pos=cut_vectors["start_top"], color=top_color),
+                    opacity=1,
+                    retain=1,
+                )
 
             self._add_cut_rank(cut_vectors, i + 1, arrow_width / 2)
             self._add_cut_direction(cut_vectors, arrow_width)
@@ -51,8 +73,10 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
                 self._add_travel_move(data.cuts[i - 1], data.cuts[i], arrow_width)
 
             outline_points = list(cut_vectors.values())
+            outline_points.append(outline_points[0])
             curve(pos=outline_points, color=color.black, radius=0.03)
 
+        print("hihi")
         return data
 
     def _write_text(
@@ -76,25 +100,28 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
     def _add_cut_rank(
         self, cut_vector: dict[str, vector], rank: int, height_offset: float
     ):
-        text_height = 0.5
-
+        top_text_height = (cut_vector["end_top"] - cut_vector["start_top"]).mag * 0.3
         top_pos = (cut_vector["start_top"] + cut_vector["end_top"]) / 2
         top_pos.y = height_offset
-        top_pos.z += text_height / 2
+        top_pos.z += top_text_height / 2
         top_up_vector = vector(0, 0, -1)
 
+        bottom_text_height = (
+            cut_vector["end_bottom"] - cut_vector["start_bottom"]
+        ).mag * 0.3
         bottom_pos = (cut_vector["start_bottom"] + cut_vector["end_bottom"]) / 2
         bottom_pos.y = cut_vector["start_bottom"].y - height_offset
-        bottom_pos.z -= text_height / 2
+        bottom_pos.z -= bottom_text_height / 2
         bottom_up_vector = vector(0, 0, 1)
-        self._write_text(top_pos, str(rank), top_up_vector, text_height)
-        self._write_text(bottom_pos, str(rank), bottom_up_vector, text_height)
+        self._write_text(top_pos, str(rank), top_up_vector, top_text_height)
+        self._write_text(bottom_pos, str(rank), bottom_up_vector, bottom_text_height)
 
     def _add_cut_direction(self, cut_vectors: dict[str, vector], arrow_width: float):
         arrow(
             pos=cut_vectors["start_top"],
             axis=(cut_vectors["end_top"] - cut_vectors["start_top"]),
             shaftwidth=arrow_width,
+            headlength=2 * arrow_width,
             color=color.red,
         )
         arrow(
