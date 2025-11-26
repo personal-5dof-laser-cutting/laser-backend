@@ -32,6 +32,9 @@ from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
                 )
             ],
         ),
+        # (open("tests/svg5dof/svgs/square_45degrees_5dof.svg").read(), 6.0, []),
+        # (open("tests/svg5dof/svgs/circle.svg").read(), 6.0, []),
+        # (open("tests/svg5dof/svgs/whine-rack.svg").read(), 6.0, []),
     ],
 )
 def test_import(
@@ -41,4 +44,3 @@ def test_import(
     geometry: Geometry = dof.process((svg_string, material_height))
     cuts: set[TrapezoidalCut] = set(geometry.cuts)
     assert cuts == set(expected_cuts)
-    geometry.show_debug()
