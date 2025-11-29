@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Backend for 5DOF laser system"
 requires-python = ">=3.14"
 dependencies = [
-    "dependency-injector==4.48.2",
     "fastapi>=0.119.1",
     "geometry3d>=0.3.0",
     "matplotlib>=3.10.7",
@@ -13,7 +12,7 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "pytest>=8.4.2",
     "ruff==0.14.1",
-    "uvicorn>=0.38.0",
+    "uvicorn>=0.38.0",,
     "vpython>=7.6.5",
 ]
 

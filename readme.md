@@ -22,7 +22,7 @@ uv sync --group dev && uv run pre-commit install && cp .env.example .env
 
 ### 3. Run the project
 ```sh
-uvicorn src.main:app --reload
+uvicorn main:app --reload
 ```
 ### Docs will be available under http://127.0.0.1:8000/docs
 
