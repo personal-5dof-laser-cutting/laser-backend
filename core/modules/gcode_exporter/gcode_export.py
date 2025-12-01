@@ -29,9 +29,9 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
         for cut in geometry.cuts:
             start_config = cut.start_configuration()
 
-            if last_config is not None and last_config != start_config:
+            if last_config != start_config:
                 self._add_command(
-                    f"G0 {start_config.x} {start_config.y} {material_height} {start_config.alpha} {start_config.beta + 0.0}",
+                    f"G0 {start_config.x} {start_config.y} {material_height} {start_config.alpha + 0.0} {start_config.beta + 0.0}",
                     "travel move",
                 )  # travel move
 
