@@ -99,8 +99,8 @@ class Configuration:
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, Configuration)
-            and self.x == other.x
-            and self.y == other.y
+            and math.isclose(self.x, other.x)
+            and math.isclose(self.y, other.y)
             and math.isclose(self.alpha, other.alpha)
             and math.isclose(self.beta, other.beta)
         )
@@ -242,6 +242,9 @@ class TrapezoidalCut:
         return ConvexPolygon(
             (self.start_top, self.end_top, self.start_bottom, self.end_bottom)
         )
+
+    def points(self) -> list[Point]:
+        return [self.start_top, self.end_top, self.start_bottom, self.end_bottom]
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
         """Checks if two cuts intersect."""

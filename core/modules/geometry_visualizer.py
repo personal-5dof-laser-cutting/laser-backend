@@ -1,8 +1,13 @@
 from vpython import scene, quad, curve, vertex, color, arrow, vector, text, cross
+from Geometry3D import Point
 
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 import math
+
+
+def point_to_vector(point: Point) -> vector:
+    return vector(point.x, point.y, point.z)
 
 
 class GeometryVisualizerModule(Module[Geometry, Geometry]):
@@ -18,15 +23,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         bottom_color = color.red
 
         for i, cut in enumerate(data.cuts):
-            cut_vectors = [
-                vector(point.x, point.z, point.y)
-                for point in [
-                    cut.start_bottom,
-                    cut.end_bottom,
-                    cut.end_top,
-                    cut.start_top,
-                ]
-            ]
+            cut_vectors = [point_to_vector(point) for point in cut.points()]
 
             cut_vectors = {
                 k: v
@@ -39,11 +36,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
                 cut_vectors["end_top"] - cut_vectors["start_top"],
                 cut_vectors["start_bottom"] - cut_vectors["start_top"],
             )
-            if (
-                math.isclose(normal_vector.x, 0)
-                + math.isclose(normal_vector.y, 0)
-                + math.isclose(normal_vector.z, 0)
-            ) > 1:
+            if math.isclose(normal_vector.z, 0):
                 quad(
                     vs=[
                         vertex(pos=vec, color=color.orange)
@@ -76,7 +69,6 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             outline_points.append(outline_points[0])
             curve(pos=outline_points, color=color.black, radius=0.03)
 
-        print("hihi")
         return data
 
     def _write_text(
