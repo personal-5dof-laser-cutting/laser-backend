@@ -33,11 +33,11 @@ class Point2D:
         return Point(self.x, self.y, z)
 
     def __eq__(self, other):
-        if other is None:
-            return False
-        if not isinstance(other, Point2D):
-            raise NotImplementedError
-        return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
+        return (
+            isinstance(other, Point2D)
+            and math.isclose(self.x, other.x)
+            and math.isclose(self.y, other.y)
+        )
 
 
 def compare_tuples(a: tuple, b: tuple) -> float:
