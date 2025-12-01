@@ -40,7 +40,9 @@ class Point2D:
         )
 
 
-def compare_tuples(a: tuple, b: tuple) -> float:
+def compare_rgba_tuples(
+    a: tuple[int, int, int, int], b: tuple[int, int, int, int]
+) -> float:
     """
     Compare two numeric tuples element-wise and return the sum of absolute differences.
     """
@@ -172,7 +174,7 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
 
                     elem1, elem2 = element
                     second_is_top: bool = (
-                        compare_tuples(
+                        compare_rgba_tuples(
                             svg_color_to_rgba(elem2.attrib["stroke"]), TOP_COLOR
                         )
                         < 20
