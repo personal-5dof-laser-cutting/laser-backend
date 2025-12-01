@@ -1,6 +1,8 @@
 from core.models.geometry import Configuration, Geometry
 from core.pipeline.base import Module
 
+import math
+
 
 class GCodeExporter(Module[tuple[Geometry, float], str]):
     def __init__(self) -> None:
@@ -13,6 +15,9 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
         if self.add_comments and comment != "":
             self.gcode += f"; {comment}"
         self.gcode += "\n"
+
+    def format_float(self, value, precision=8) -> str:
+        return f"{round(value, precision):.{precision}}"
 
     def process(self, data: tuple[Geometry, float]) -> str:
         geometry, material_height = data
@@ -31,16 +36,17 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
 
             if last_config != start_config:
                 self._add_command(
-                    f"G0 {start_config.x} {start_config.y} {material_height} {start_config.alpha + 0.0} {start_config.beta + 0.0}",
+                    f"G0 {self.format_float(start_config.x)} {self.format_float(start_config.y)} {self.format_float(material_height)} {self.format_float(math.degrees(start_config.alpha) + 0.0)} {self.format_float(math.degrees(start_config.beta) + 0.0)}",
                     "travel move",
                 )  # travel move
 
             end_config = cut.end_configuration()
             self._add_command(
-                f"M4 S{cut.cut_depth * cut_speed * material_constant}", "laser on"
+                f"M4 S{self.format_float(cut.cut_depth * cut_speed * material_constant)}",
+                "laser on",
             )  # laser on dynamic power
             self._add_command(
-                f"G1 {end_config.x} {end_config.y} {material_height} {end_config.alpha + 0.0} {end_config.beta + 0.0}",
+                f"G1 {self.format_float(end_config.x)} {self.format_float(end_config.y)} {self.format_float(material_height)} {self.format_float(math.degrees(end_config.alpha) + 0.0)} {self.format_float(math.degrees(end_config.beta) + 0.0)}",
                 "cut move",
             )  # cut
             self._add_command("M4 S0", "laser off")  # laser off
