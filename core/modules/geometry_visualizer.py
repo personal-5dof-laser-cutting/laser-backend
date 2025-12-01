@@ -17,6 +17,8 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         scene.background = color.gray(0.8)
         scene.width = 1200
         scene.height = 800
+        scene.up = vector(0, 0, 1)
+        scene.forward = vector(0, 1, -1)
 
         arrow_width = 0.1
         top_color = color.yellow
@@ -94,17 +96,17 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
     ):
         top_text_height = (cut_vector["end_top"] - cut_vector["start_top"]).mag * 0.3
         top_pos = (cut_vector["start_top"] + cut_vector["end_top"]) / 2
-        top_pos.y = height_offset
-        top_pos.z += top_text_height / 2
-        top_up_vector = vector(0, 0, -1)
+        top_pos.z = height_offset
+        top_pos.y -= top_text_height / 2
+        top_up_vector = vector(0, 1, 0)
 
         bottom_text_height = (
             cut_vector["end_bottom"] - cut_vector["start_bottom"]
         ).mag * 0.3
         bottom_pos = (cut_vector["start_bottom"] + cut_vector["end_bottom"]) / 2
-        bottom_pos.y = cut_vector["start_bottom"].y - height_offset
-        bottom_pos.z -= bottom_text_height / 2
-        bottom_up_vector = vector(0, 0, 1)
+        bottom_pos.z = cut_vector["start_bottom"].z - height_offset
+        bottom_pos.y += bottom_text_height / 2
+        bottom_up_vector = vector(0, -1, 0)
         self._write_text(top_pos, str(rank), top_up_vector, top_text_height)
         self._write_text(bottom_pos, str(rank), bottom_up_vector, bottom_text_height)
 
@@ -127,15 +129,15 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         self, from_cut: TrapezoidalCut, to_cut: TrapezoidalCut, arrow_width: float
     ):
         from_vector_top = vector(
-            from_cut.end_top.x, from_cut.end_top.z, from_cut.end_top.y
+            from_cut.end_top.x, from_cut.end_top.y, from_cut.end_top.z
         )
         from_vector_bottom = vector(
-            from_cut.end_bottom.x, from_cut.end_bottom.z, from_cut.end_bottom.y
+            from_cut.end_bottom.x, from_cut.end_bottom.y, from_cut.end_bottom.z
         )
 
-        to_vector_top = vector(to_cut.end_top.x, to_cut.end_top.z, to_cut.end_top.y)
+        to_vector_top = vector(to_cut.end_top.x, to_cut.end_top.y, to_cut.end_top.z)
         to_vector_bottom = vector(
-            to_cut.end_bottom.x, to_cut.end_bottom.z, to_cut.end_bottom.y
+            to_cut.end_bottom.x, to_cut.end_bottom.y, to_cut.end_bottom.z
         )
 
         arrow(
