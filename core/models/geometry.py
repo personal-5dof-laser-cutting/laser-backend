@@ -276,9 +276,12 @@ class TrapezoidalCut:
         return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
 
     def __eq__(self, other):
-        if not isinstance(other, TrapezoidalCut):
-            return NotImplemented
-        return (self.start_top, self.end_top, self.start_bottom, self.end_bottom) == (
+        return isinstance(other, TrapezoidalCut) and (
+            self.start_top,
+            self.end_top,
+            self.start_bottom,
+            self.end_bottom,
+        ) == (
             other.start_top,
             other.end_top,
             other.start_bottom,
