@@ -25,12 +25,20 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         bottom_color = color.red
 
         for i, cut in enumerate(data.cuts):
-            cut_vectors = [point_to_vector(point) for point in cut.points()]
+            cut_vectors = [
+                point_to_vector(point)
+                for point in [
+                    cut.start_top,
+                    cut.start_bottom,
+                    cut.end_bottom,
+                    cut.end_top,
+                ]
+            ]
 
             cut_vectors = {
                 k: v
                 for k, v in zip(
-                    ["start_bottom", "end_bottom", "end_top", "start_top"], cut_vectors
+                    ["start_top", "start_bottom", "end_bottom", "end_top"], cut_vectors
                 )
             }
 

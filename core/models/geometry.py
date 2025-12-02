@@ -244,7 +244,7 @@ class TrapezoidalCut:
         )
 
     def points(self) -> list[Point]:
-        return [self.start_bottom, self.end_bottom, self.end_top, self.start_top]
+        return [self.start_top, self.end_top, self.start_bottom, self.end_bottom]
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
         """Checks if two cuts intersect."""
