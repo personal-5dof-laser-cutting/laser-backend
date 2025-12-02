@@ -87,7 +87,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         content: str,
         up: vector,
         text_height: float,
-        text_color: vector = color.black,
+        text_color: vector = color.gray(0.5),
     ):
         text(
             text=content,
@@ -97,6 +97,8 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             color=text_color,
             align="center",
             billboard=False,
+            shininess=0,
+            emissive=1,
         )
 
     def _add_cut_rank(
