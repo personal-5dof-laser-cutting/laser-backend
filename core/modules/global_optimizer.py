@@ -1,7 +1,6 @@
 from math import inf
 
 import networkx as nx
-from dependency_injector.wiring import Provide, inject
 from networkx.algorithms.approximation import christofides
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
@@ -11,11 +10,10 @@ from core.services.cost_function_service import CostFunctionService
 
 
 class GlobalOptimizerModule(Module[Geometry, Geometry]):
-    @inject
     def process(
         self,
         data: Geometry,
-        cost_function: CostFunctionService = Provide[Container.cost_function],
+        cost_function: CostFunctionService = Container.cost_function,
     ) -> Geometry:
         graph: nx.Graph = nx.Graph()
         cuts: list[TrapezoidalCut] = data.cuts
