@@ -1,14 +1,13 @@
 import pytest
 import networkx as nx
 from Geometry3D import Point, Segment
-from core.pipeline.global_optimizer import GlobalOptimizerModule
+from core.modules.global_optimizer import GlobalOptimizerModule
 from core.models.geometry import Geometry, TrapezoidalCut, Configuration
 from core.service_container import Container
 from core.services.cost_function_service import (
     CostFunctionService,
     CostFunctionServiceImpl,
 )
-from dependency_injector.wiring import inject, Provide
 
 SQUARE_PARAMS = [
     TrapezoidalCut(Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)),
@@ -177,10 +176,9 @@ def test_global_optimizer(cuts: list[TrapezoidalCut]):
     print(f"Optimized cost is {optimized_costs}")
 
 
-@inject
 def _calculate_path_cost(
     path: list[TrapezoidalCut],
-    cost_function: CostFunctionService = Provide[Container.cost_function],
+    cost_function: CostFunctionService = Container.cost_function,
 ):
     total_cost = 0
     cost_function = CostFunctionServiceImpl()
