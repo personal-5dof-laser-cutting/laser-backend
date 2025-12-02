@@ -96,6 +96,15 @@ class Configuration:
     def __str__(self) -> str:
         return f"Configuration(x={self.x}, y={self.y}, alpha={self.alpha}, beta={self.beta})"
 
+    def __eq__(self, other) -> bool:
+        return (
+            isinstance(other, Configuration)
+            and math.isclose(self.x, other.x)
+            and math.isclose(self.y, other.y)
+            and math.isclose(self.alpha, other.alpha)
+            and math.isclose(self.beta, other.beta)
+        )
+
     def to_segment(self, cut_depth: float) -> Segment:
         start_point: Point = Point(self.x, self.y, 0)
         direction_vector: Vector = Vector(
@@ -233,6 +242,9 @@ class TrapezoidalCut:
         return ConvexPolygon(
             (self.start_top, self.end_top, self.start_bottom, self.end_bottom)
         )
+
+    def points(self) -> list[Point]:
+        return [self.start_top, self.end_top, self.start_bottom, self.end_bottom]
 
     def intersects(self, other: "TrapezoidalCut") -> bool:
         """Checks if two cuts intersect."""

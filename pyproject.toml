@@ -13,6 +13,7 @@ dependencies = [
     "pytest>=8.4.2",
     "ruff==0.14.1",
     "uvicorn>=0.38.0",
+    "vpython>=7.6.5",
 ]
 
 [dependency-groups]
