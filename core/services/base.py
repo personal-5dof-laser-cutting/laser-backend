@@ -11,7 +11,7 @@ class BaseService:
         MyServiceImpl(MyService):
             pass # define the implementation of MyService
 
-    Also, list your service in the service_container.py file for Dependency Injection.
+    Also, list your service in the service_container.py file for accessing.
     """
 
     def __init__(self) -> None:
