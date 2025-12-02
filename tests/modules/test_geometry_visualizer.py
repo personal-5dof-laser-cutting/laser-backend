@@ -2,7 +2,7 @@ from Geometry3D import Point
 import pytest
 import os
 
-from core.pipeline.geometry_visualizer import GeometryVisualizerModule
+from core.modules.geometry_visualizer import GeometryVisualizerModule
 from core.models.geometry import Geometry, TrapezoidalCut
 
 IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
