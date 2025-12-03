@@ -9,4 +9,4 @@ class Container:
 
     config_service: ConfigService = ConfigServiceImpl()
 
-    laser_service: LaserService = LaserServiceImpl
+    laser_service: LaserService = LaserServiceImpl()
