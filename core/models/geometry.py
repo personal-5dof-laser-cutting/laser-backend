@@ -24,6 +24,9 @@ class Geometry:
     def add_cut(self, cut: TrapezoidalCut):
         self.cuts.append(cut)
 
+    def add_cuts(self, cuts: list[TrapezoidalCut]):
+        self.cuts.extend(cuts)
+
     def add_cut_from_configurations(
         self, start_config: Configuration, end_config: Configuration, cut_depth: float
     ):
@@ -268,6 +271,25 @@ class TrapezoidalCut:
             copy(self.start_bottom).move(v),
             copy(self.end_bottom).move(v),
         )
+
+    def __repr__(self) -> str:
+        return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
+
+    def __eq__(self, other):
+        return isinstance(other, TrapezoidalCut) and (
+            self.start_top,
+            self.end_top,
+            self.start_bottom,
+            self.end_bottom,
+        ) == (
+            other.start_top,
+            other.end_top,
+            other.start_bottom,
+            other.end_bottom,
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.start_top, self.end_top, self.start_bottom, self.end_bottom))
 
 
 if __name__ == "__main__":

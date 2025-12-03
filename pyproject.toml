@@ -8,12 +8,14 @@ dependencies = [
     "geometry3d>=0.3.0",
     "matplotlib>=3.10.7",
     "networkx>=3.5",
+    "pillow>=12.0.0",
     "pydantic>=2.12.3",
     "pydantic-settings>=2.11.0",
     "pytest>=8.4.2",
     "ruff==0.14.1",
     "uvicorn>=0.38.0",
     "vpython>=7.6.5",
+    "svgpathtools>=1.7.1",
 ]
 
 [dependency-groups]
