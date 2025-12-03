@@ -47,6 +47,11 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
 
         last_config: None | Configuration = None
         for cut in geometry.cuts:
+            if not math.isclose(cut.cut_depth, material_height):
+                raise NotImplementedError(
+                    f"Partial cuts are currently not supported! cut depth={cut.cut_depth:.5f} mm, material_height={material_height:.5f} mm"
+                )
+
             start_config = cut.start_configuration()
 
             if last_config != start_config:
