@@ -7,20 +7,30 @@ import math
 class GCodeExporter(Module[tuple[Geometry, float], str]):
     def __init__(self) -> None:
         super().__init__()
-        self.gcode: str = ""
+        self._gcode: str = ""
+
+        # gcode settings
         self.add_comments: bool = True
-        self.dry_run: bool = True
+        self.pretty_formatting: bool = True
+
+        # machine settings
         self.cut_speed: float = 10  # mm/s
         self.material_constant: float = 3.21  # s/mm^2
+        self.dry_run: bool = True
 
     def _add_command(self, command: str, comment: str = ""):
-        self.gcode += f"{command}"
+        self._gcode += f"{command}"
         if self.add_comments and comment != "":
-            self.gcode += f"; {comment}"
-        self.gcode += "\n"
+            self._gcode += f"; {comment}"
+        self._gcode += "\n"
 
     def format_float(self, value, precision=8) -> str:
-        return f"{round(value, precision):.{precision}}"
+        rounded_value = round(value, precision)
+
+        if self.pretty_formatting:
+            return f"{rounded_value:5.{precision}}"
+        else:
+            return f"{rounded_value:.{precision}}"
 
     def discretize_cut_by_depth(
         self, cut: TrapezoidalCut, max_deviation_mm: float = 0.5
@@ -63,4 +73,4 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
 
         self._add_command("M8.1", "air assist off")  # air assist off
         self._add_command("M2", "end")  # end of program
-        return self.gcode
+        return self._gcode
