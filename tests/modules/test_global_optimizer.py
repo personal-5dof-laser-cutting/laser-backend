@@ -18,33 +18,28 @@ SQUARE_PARAMS = [
 
 
 @pytest.mark.parametrize(
-    "cut1, cut2",
+    "cuts",
     [
-        (
+        [
             TrapezoidalCut(
                 Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
             ),
             TrapezoidalCut(
                 Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
             ),
-        )
+        ]
     ],
 )
-def test_build_graph(cut1: TrapezoidalCut, cut2: TrapezoidalCut):
+def test_build_graph(cuts: list[TrapezoidalCut]):
     generated_graph = nx.Graph()
     control_graph = nx.Graph()
     cost_function = CostFunctionServiceImpl()
     optimizer = GlobalOptimizerModule()
-    optimizer._build_graph(generated_graph, [cut1, cut2], cost_function)
+    optimizer._build_graph(generated_graph, cuts, cost_function)
 
-    expected_nodes = [
-        cut1,
-        cut1.start_configuration(),
-        cut1.end_configuration(),
-        cut2,
-        cut2.start_configuration(),
-        cut2.end_configuration(),
-    ]
+    expected_nodes = []
+    for cut in cuts:
+        expected_nodes += [cut] + cut.configurations()
     control_graph.add_nodes_from(expected_nodes)
     assert control_graph.nodes == generated_graph.nodes
 
