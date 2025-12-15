@@ -1,3 +1,4 @@
+from math import inf
 import pytest
 import networkx as nx
 from Geometry3D import Point, Segment
@@ -27,7 +28,18 @@ SQUARE_PARAMS = [
             TrapezoidalCut(
                 Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
             ),
-        ]
+        ],
+        [
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+            ),
+            TrapezoidalCut(
+                Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+            ),
+            TrapezoidalCut(
+                Point(3, 3, 0), Point(0, 0, 0), Point(2, 2, -5), Point(1, 1, -5)
+            ),
+        ],
     ],
 )
 def test_build_graph(cuts: list[TrapezoidalCut]):
@@ -49,6 +61,42 @@ def test_build_graph(cuts: list[TrapezoidalCut]):
                 control_graph.add_edge(u, v)
 
     assert control_graph.edges == generated_graph.edges
+
+
+def test_triangle_constallation():
+    cuts = [
+        TrapezoidalCut(
+            Point(0, 0, 0), Point(0, 3, 0), Point(1, 1, -5), Point(1, 2, -5)
+        ),
+        TrapezoidalCut(
+            Point(0, 3, 0), Point(3, 3, 0), Point(1, 2, -5), Point(2, 2, -5)
+        ),
+        TrapezoidalCut(
+            Point(3, 3, 0), Point(0, 0, 0), Point(2, 2, -5), Point(1, 1, -5)
+        ),
+    ]
+    optimizer = GlobalOptimizerModule()
+    graph = nx.Graph()
+    optimizer._build_graph(graph, cuts, CostFunctionServiceImpl())
+    assert (
+        graph.get_edge_data(cuts[0].start_configuration(), cuts[0].end_configuration())[
+            "weight"
+        ]
+        == inf
+    )
+    assert (
+        graph.get_edge_data(cuts[1].start_configuration(), cuts[1].end_configuration())[
+            "weight"
+        ]
+        == inf
+    )
+    assert (
+        graph.get_edge_data(cuts[2].start_configuration(), cuts[2].end_configuration())[
+            "weight"
+        ]
+        == inf
+    )
+    pass
 
 
 @pytest.mark.parametrize(
