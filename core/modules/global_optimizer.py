@@ -2,12 +2,13 @@ from ctypes import ArgumentError
 from math import inf
 
 import networkx as nx
-from networkx.algorithms.approximation import christofides
+import numpy as np
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
 from core.services.cost_function_service import CostFunctionService
+from core.modules.genetic_gtsp import GTSP, run_gcga
 
 
 class GlobalOptimizerModule(Module[Geometry, Geometry]):
@@ -16,15 +17,74 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         data: Geometry,
         cost_function: CostFunctionService = Container.cost_function,
     ) -> Geometry:
-        graph: nx.Graph = nx.Graph()
         cuts: list[TrapezoidalCut] = data.cuts
-        self._build_graph(graph, cuts, cost_function)
-
-        path = christofides(graph)
-        trapezoid_path = self._path_to_trapezoids(path)
+        weights, groups = self._generate_weights(data.cuts, cost_function)
+        gtsp = GTSP(weights, groups)
+        best_chrom, best_cost = run_gcga(
+            gtsp,
+            pop_size=100,
+            generations=1000,
+            crossover_prob=0.9,
+            mutation_prob=0.15,
+            tournament_k=3,
+            elitism=2,
+            do_head_reopt=True,
+        )
+        tour = gtsp.decode(best_chrom)
+        trapezoid_path = []
+        for idx in tour:
+            line = cuts[idx // 2]
+            if idx % 2 != 0:
+                trapezoid_path.append(line)
+            else:
+                trapezoid_path.append(line.flip_direction())
+        # graph: nx.Graph = nx.Graph()
+        # self._build_graph(graph, cuts, cost_function, True)
+        # path = christofides(graph)
+        # trapezoid_path = self._path_to_trapezoids(path)
         data.cuts = trapezoid_path
 
         return data
+
+    def _generate_weights(
+        self, cuts: list[TrapezoidalCut], cost_function: CostFunctionService
+    ) -> tuple[np.ndarray, list[list[int]]]:
+        weights = np.zeros((2 * len(cuts), 2 * len(cuts)))
+        groups = []
+        for i in range(len(cuts)):
+            groups.append([2 * i, 2 * i + 1])
+            for k in range(0, i):
+                start_config = i * 2
+                end_config = start_config + 1
+                other_start_config = k * 2
+                other_end_config = other_start_config + 1
+
+                weights[start_config, other_start_config] = cost_function.get_cost(
+                    cuts[i].end_configuration(), cuts[k].start_configuration()
+                )
+                weights[start_config, other_end_config] = cost_function.get_cost(
+                    cuts[i].end_configuration(), cuts[k].end_configuration()
+                )
+                weights[end_config, other_start_config] = cost_function.get_cost(
+                    cuts[i].start_configuration(), cuts[k].start_configuration()
+                )
+                weights[end_config, other_end_config] = cost_function.get_cost(
+                    cuts[i].start_configuration(), cuts[k].end_configuration()
+                )
+                weights[other_start_config, start_config] = cost_function.get_cost(
+                    cuts[k].end_configuration(), cuts[i].start_configuration()
+                )
+                weights[other_start_config, end_config] = cost_function.get_cost(
+                    cuts[k].end_configuration(), cuts[i].end_configuration()
+                )
+                weights[other_end_config, start_config] = cost_function.get_cost(
+                    cuts[k].start_configuration(), cuts[i].start_configuration()
+                )
+                weights[other_end_config, end_config] = cost_function.get_cost(
+                    cuts[k].start_configuration(), cuts[i].end_configuration()
+                )
+
+        return (weights, groups)
 
     def _snap_cuts(
         self,
@@ -62,12 +122,14 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         graph: nx.Graph,
         cuts: list[TrapezoidalCut],
         cost_function: CostFunctionService,
+        make_complete: bool,
     ):
         for i in range(len(cuts)):
             cut1 = cuts[i]
-            graph.add_edge(
-                cut1.start_configuration(), cut1.end_configuration(), weight=inf
-            )
+            if make_complete:
+                graph.add_edge(
+                    cut1.start_configuration(), cut1.end_configuration(), weight=inf
+                )
             graph.add_edge(cut1.start_configuration(), cut1, weight=0)
             graph.add_edge(cut1.end_configuration(), cut1, weight=0)
             for k in range(i + 1, len(cuts)):
@@ -75,13 +137,15 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
                 if cut1 is cut2:
                     cut2 = cut1
                     continue
-                graph.add_edge(cut1, cut2, weight=inf)
+                if make_complete:
+                    graph.add_edge(cut1, cut2, weight=inf)
 
                 for cut_config in cut1.configurations():
                     if cut_config in cut2.configurations():
                         self._snap_cuts(cut_config, cut2.configurations(), cut2)
                         continue
-                    graph.add_edge(cut_config, cut2, weight=inf)
+                    if make_complete:
+                        graph.add_edge(cut_config, cut2, weight=inf)
 
                     for neighbour_config in cut2.configurations():
                         if neighbour_config in cut1.configurations():
