@@ -111,7 +111,14 @@ class Configuration:
         )
 
     def __hash__(self) -> int:
-        return hash((self.x, self.y, self.alpha, self.beta))
+        return hash(
+            (
+                round(self.x, 6),
+                round(self.y, 6),
+                round(self.alpha, 6),
+                round(self.beta, 6),
+            )
+        )
 
     def to_segment(self, cut_depth: float) -> Segment:
         start_point: Point = Point(self.x, self.y, 0)
@@ -258,6 +265,9 @@ class TrapezoidalCut:
 
     def end_configuration(self) -> Configuration:
         return Configuration.from_segment(self.end_segment())
+
+    def configurations(self) -> list[Configuration]:
+        return [self.start_configuration(), self.end_configuration()]
 
     def top_vector(self) -> Vector:
         return self.end_top.pv() - self.start_top.pv()
