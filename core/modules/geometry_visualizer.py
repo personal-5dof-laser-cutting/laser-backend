@@ -18,7 +18,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
         scene.width = 1200
         scene.height = 800
         scene.up = vector(0, 0, 1)
-        scene.forward = vector(0, 1, -1)
+        scene.forward = point_to_vector(data.cuts[0].start_bottom)
 
         arrow_width = 0.1
         top_color = color.yellow
@@ -104,21 +104,19 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
     def _add_cut_rank(
         self, cut_vector: dict[str, vector], rank: int, height_offset: float
     ):
-        top_text_height = (cut_vector["end_top"] - cut_vector["start_top"]).mag * 0.3
+        text_height = cut_vector["start_top"].z - cut_vector["start_bottom"].z
+
         top_pos = (cut_vector["start_top"] + cut_vector["end_top"]) / 2
         top_pos.z = height_offset
-        top_pos.y -= top_text_height / 2
+        top_pos.y -= text_height / 2
         top_up_vector = vector(0, 1, 0)
 
-        bottom_text_height = (
-            cut_vector["end_bottom"] - cut_vector["start_bottom"]
-        ).mag * 0.3
         bottom_pos = (cut_vector["start_bottom"] + cut_vector["end_bottom"]) / 2
         bottom_pos.z = cut_vector["start_bottom"].z - height_offset
-        bottom_pos.y += bottom_text_height / 2
+        bottom_pos.y += text_height / 2
         bottom_up_vector = vector(0, -1, 0)
-        self._write_text(top_pos, str(rank), top_up_vector, top_text_height)
-        self._write_text(bottom_pos, str(rank), bottom_up_vector, bottom_text_height)
+        self._write_text(top_pos, str(rank), top_up_vector, text_height)
+        self._write_text(bottom_pos, str(rank), bottom_up_vector, text_height)
 
     def _add_cut_direction(self, cut_vectors: dict[str, vector], arrow_width: float):
         arrow(
@@ -132,6 +130,8 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             pos=cut_vectors["start_bottom"],
             axis=(cut_vectors["end_bottom"] - cut_vectors["start_bottom"]),
             shaftwidth=arrow_width,
+            headlength=2 * arrow_width,
+            headwidth=2 * arrow_width,
             color=color.red,
         )
 
@@ -154,11 +154,15 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             pos=from_vector_top,
             axis=(to_vector_top - from_vector_top),
             shaftwidth=arrow_width,
+            headlength=2 * arrow_width,
+            headwidth=2 * arrow_width,
             color=color.gray(0.5),
         )
         arrow(
             pos=from_vector_bottom,
             axis=(to_vector_bottom - from_vector_bottom),
             shaftwidth=arrow_width,
+            headlength=2 * arrow_width,
+            headwidth=2 * arrow_width,
             color=color.gray(0.5),
         )
