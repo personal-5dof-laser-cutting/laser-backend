@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 from math import inf
 
 import networkx as nx
@@ -25,6 +26,37 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
 
         return data
 
+    def _snap_cuts(
+        self,
+        base_configs: list[Configuration] | Configuration,
+        potential_configs: list[Configuration] | Configuration,
+        other_cut: TrapezoidalCut,
+    ):
+        if isinstance(base_configs, Configuration):
+            base_configs = [base_configs]
+        if isinstance(potential_configs, Configuration):
+            potential_configs = [potential_configs]
+        for base_config in base_configs:
+            for potential_config in potential_configs:
+                if base_config == potential_config:
+                    potential_config = base_config
+                    if potential_config == other_cut.start_configuration():
+                        other_cut = TrapezoidalCut.from_configurations(
+                            base_config,
+                            other_cut.end_configuration(),
+                            other_cut.cut_depth,
+                        )
+                    elif potential_config == other_cut.end_configuration():
+                        other_cut = TrapezoidalCut.from_configurations(
+                            other_cut.start_configuration(),
+                            base_config,
+                            other_cut.cut_depth,
+                        )
+                    else:
+                        raise ArgumentError(
+                            "The potential configurations must be part of the TrapezoidalCut"
+                        )
+
     def _build_graph(
         self,
         graph: nx.Graph,
@@ -41,28 +73,21 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
             for k in range(i + 1, len(cuts)):
                 cut2 = cuts[k]
                 if cut1 is cut2:
+                    cut2 = cut1
                     continue
                 graph.add_edge(cut1, cut2, weight=inf)
 
-                for cut_config in [
-                    cut1.start_configuration(),
-                    cut1.end_configuration(),
-                ]:
-                    if cut_config in [
-                        cut2.start_configuration(),
-                        cut2.end_configuration(),
-                    ]:
+                for cut_config in cut1.configurations():
+                    if cut_config in cut2.configurations():
+                        self._snap_cuts(cut_config, cut2.configurations(), cut2)
                         continue
                     graph.add_edge(cut_config, cut2, weight=inf)
 
-                    for neighbour_config in [
-                        cut2.start_configuration(),
-                        cut2.end_configuration(),
-                    ]:
-                        if neighbour_config in [
-                            cut1.start_configuration(),
-                            cut1.end_configuration(),
-                        ]:
+                    for neighbour_config in cut2.configurations():
+                        if neighbour_config in cut1.configurations():
+                            self._snap_cuts(
+                                cut1.configurations(), neighbour_config, cut2
+                            )
                             continue
                         graph.add_edge(cut1, neighbour_config)
                         if not graph.has_edge(cut_config, neighbour_config):
