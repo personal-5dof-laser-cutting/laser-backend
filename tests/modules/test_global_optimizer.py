@@ -47,7 +47,7 @@ def test_build_graph(cuts: list[TrapezoidalCut]):
     control_graph = nx.Graph()
     cost_function = CostFunctionServiceImpl()
     optimizer = GlobalOptimizerModule()
-    optimizer._build_graph(generated_graph, cuts, cost_function)
+    optimizer._build_graph(generated_graph, cuts, cost_function, True)
 
     expected_nodes = []
     for cut in cuts:
@@ -77,7 +77,7 @@ def test_triangle_constallation():
     ]
     optimizer = GlobalOptimizerModule()
     graph = nx.Graph()
-    optimizer._build_graph(graph, cuts, CostFunctionServiceImpl())
+    optimizer._build_graph(graph, cuts, CostFunctionServiceImpl(), True)
     assert (
         graph.get_edge_data(cuts[0].start_configuration(), cuts[0].end_configuration())[
             "weight"
