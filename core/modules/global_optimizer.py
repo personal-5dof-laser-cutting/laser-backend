@@ -31,13 +31,15 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         cuts: list[TrapezoidalCut],
         cost_function: CostFunctionService,
     ):
-        for cut1 in cuts:
+        for i in range(len(cuts)):
+            cut1 = cuts[i]
             graph.add_edge(
                 cut1.start_configuration(), cut1.end_configuration(), weight=inf
             )
             graph.add_edge(cut1.start_configuration(), cut1, weight=0)
             graph.add_edge(cut1.end_configuration(), cut1, weight=0)
-            for cut2 in cuts:
+            for k in range(i + 1, len(cuts)):
+                cut2 = cuts[k]
                 if cut1 is cut2:
                     continue
                 graph.add_edge(cut1, cut2, weight=inf)
@@ -59,11 +61,13 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
                     ]:
                         if neighbour_config in [
                             cut1.start_configuration(),
-                            cut2.start_configuration(),
+                            cut1.end_configuration(),
                         ]:
                             continue
-                        dist = cost_function.get_cost(cut_config, neighbour_config)
-                        graph.add_edge(cut_config, neighbour_config, weight=dist)
+                        graph.add_edge(cut1, neighbour_config)
+                        if not graph.has_edge(cut_config, neighbour_config):
+                            dist = cost_function.get_cost(cut_config, neighbour_config)
+                            graph.add_edge(cut_config, neighbour_config, weight=dist)
 
     def _path_to_trapezoids(
         self, path: list[TrapezoidalCut | Configuration]
