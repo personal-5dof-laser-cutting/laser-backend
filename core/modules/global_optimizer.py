@@ -20,7 +20,7 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         cuts: list[TrapezoidalCut] = data.cuts
         weights, groups = self._generate_weights(data.cuts, cost_function)
         gtsp = GTSP(weights, groups)
-        best_chrom, best_cost = run_gcga(
+        best_chrom, _ = run_gcga(
             gtsp,
             pop_size=100,
             generations=1000,
@@ -31,15 +31,9 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
             do_head_reopt=True,
         )
         tour = gtsp.decode(best_chrom)
-        trapezoid_path = []
-        for idx in tour:
-            line = cuts[idx // 2]
-            if idx % 2 != 0:
-                trapezoid_path.append(line)
-            else:
-                trapezoid_path.append(line.flip_direction())
+        trapezoid_path = self._tour_to_path(tour, cuts)
         # graph: nx.Graph = nx.Graph()
-        # self._build_graph(graph, cuts, cost_function, True)
+        # self._build_graph(graph, cuts, cost_function)
         # path = christofides(graph)
         # trapezoid_path = self._path_to_trapezoids(path)
         data.cuts = trapezoid_path
@@ -86,6 +80,18 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
 
         return (weights, groups)
 
+    def _tour_to_path(self, tour: list[int], cuts: list[TrapezoidalCut]):
+        if len(tour) != len(cuts):
+            raise ArgumentError("Every cut has to be included in the tour.")
+        cut_list = []
+        for index in tour:
+            cut = cuts[index // 2]
+            if index % 2 != 0:
+                cut_list.append(cut)
+            else:
+                cut_list.append(cut.flip_direction())
+        return cut_list
+
     def _snap_cuts(
         self,
         base_configs: list[Configuration] | Configuration,
@@ -117,19 +123,36 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
                             "The potential configurations must be part of the TrapezoidalCut"
                         )
 
+    def _min_dist(
+        self,
+        from_cuts: list[Configuration],
+        to_cuts: list[Configuration],
+        cost_function: CostFunctionService,
+    ):
+        min_dist = inf
+        for from_config in from_cuts:
+            for to_config in to_cuts:
+                if from_config != to_config:
+                    current_dist = cost_function.get_cost(from_config, to_config)
+                    if current_dist < min_dist:
+                        min_dist = current_dist
+        return min_dist
+
     def _build_graph(
         self,
         graph: nx.Graph,
         cuts: list[TrapezoidalCut],
         cost_function: CostFunctionService,
-        make_complete: bool,
     ):
         for i in range(len(cuts)):
             cut1 = cuts[i]
-            if make_complete:
-                graph.add_edge(
-                    cut1.start_configuration(), cut1.end_configuration(), weight=inf
-                )
+            graph.add_edge(
+                cut1.start_configuration(),
+                cut1.end_configuration(),
+                weight=cost_function.get_cost(
+                    cut1.start_configuration(), cut1.end_configuration()
+                ),
+            )
             graph.add_edge(cut1.start_configuration(), cut1, weight=0)
             graph.add_edge(cut1.end_configuration(), cut1, weight=0)
             for k in range(i + 1, len(cuts)):
@@ -137,15 +160,25 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
                 if cut1 is cut2:
                     cut2 = cut1
                     continue
-                if make_complete:
-                    graph.add_edge(cut1, cut2, weight=inf)
+                graph.add_edge(
+                    cut1,
+                    cut2,
+                    weight=self._min_dist(
+                        cut1.configurations(), cut2.configurations(), cost_function
+                    ),
+                )
 
                 for cut_config in cut1.configurations():
                     if cut_config in cut2.configurations():
                         self._snap_cuts(cut_config, cut2.configurations(), cut2)
                         continue
-                    if make_complete:
-                        graph.add_edge(cut_config, cut2, weight=inf)
+                    graph.add_edge(
+                        cut_config,
+                        cut2,
+                        weight=self._min_dist(
+                            [cut_config], cut2.configurations(), cost_function
+                        ),
+                    )
 
                     for neighbour_config in cut2.configurations():
                         if neighbour_config in cut1.configurations():
