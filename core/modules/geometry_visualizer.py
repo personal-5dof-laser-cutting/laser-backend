@@ -155,7 +155,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             axis=(to_vector_top - from_vector_top),
             shaftwidth=arrow_width,
             headlength=2 * arrow_width,
-            headwidth=2 * arrow_width,
+            headwidth=1 * arrow_width,
             color=color.gray(0.5),
         )
         arrow(
@@ -163,6 +163,6 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
             axis=(to_vector_bottom - from_vector_bottom),
             shaftwidth=arrow_width,
             headlength=2 * arrow_width,
-            headwidth=2 * arrow_width,
+            headwidth=1 * arrow_width,
             color=color.gray(0.5),
         )
