@@ -4,9 +4,10 @@ from core.pipeline.base import Module
 import math
 
 
-class GCodeExporter(Module[tuple[Geometry, float], str]):
+class GCodeExporter(Module[Geometry, str]):
     def __init__(
         self,
+        material_height: float,
         gcode_comments: bool = True,
         pretty_formatting: bool = True,
         cut_speed: float = 20,
@@ -16,6 +17,9 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
     ) -> None:
         super().__init__()
         self._gcode: str = ""
+
+        # workpiece settings
+        self.material_height: float = material_height
 
         # gcode settings
         self.gcode_comments: bool = gcode_comments
@@ -53,8 +57,8 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
         max_depth: float = max(start_depth, end_depth)
         return max_depth * self.cut_speed * self.material_constant
 
-    def process(self, data: tuple[Geometry, float]) -> str:
-        geometry, material_height = data
+    def process(self, data: Geometry) -> str:
+        geometry = data
 
         self._add_command("G90", "absolute positioning")  # absolute positioning
         self._add_command("G21", "units in mm")  # use milimeters for XYZ
@@ -66,16 +70,16 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
 
         last_config: None | Configuration = None
         for cut in geometry.cuts:
-            if not math.isclose(cut.cut_depth, material_height):
+            if not math.isclose(cut.cut_depth, self.material_height):
                 raise NotImplementedError(
-                    f"Partial cuts are currently not supported! cut depth={cut.cut_depth:.5f} mm, material_height={material_height:.5f} mm"
+                    f"Partial cuts are currently not supported! cut depth={cut.cut_depth:.5f} mm, material_height={self.material_height:.5f} mm"
                 )
 
             start_config = cut.start_configuration()
 
             if last_config != start_config:
                 self._add_command(
-                    f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(material_height)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
+                    f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
                     "travel move",
                 )  # travel move
 
@@ -88,7 +92,7 @@ class GCodeExporter(Module[tuple[Geometry, float], str]):
                 )  # laser on dynamic power
 
             self._add_command(
-                f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(material_height)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
+                f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
                 "cut move",
             )  # cut
 

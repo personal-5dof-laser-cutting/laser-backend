@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import math
-from typing import Tuple
 
 from Geometry3D import Point
 import svgpathtools as svg
@@ -126,15 +125,19 @@ def svg_color_to_rgba(col: str) -> tuple[int, int, int, int]:
     return result if len(result) == 4 else result + (255,)
 
 
-class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
+class SVG5DOF_Importer(Module[str, Geometry]):
     dpi = 72
     inch_to_mm = 25.4
 
+    def __init__(self, material_thickness: float) -> None:
+        self.material_thickness: float = material_thickness
+        super().__init__()
+
     def process(
         self,
-        data: Tuple[str, float],
+        data: str,
     ) -> Geometry:
-        svg_content, material_height = data
+        svg_content: str = data
 
         svg_root = ET.fromstring(svg_content)
         svg_namespace = "{http://www.w3.org/2000/svg}"
@@ -163,7 +166,7 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
                     cuts = points_to_trapezoids(
                         bottom_points=bottom_points,
                         top_points=top_points,
-                        material_height=material_height,
+                        material_height=self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
                 case "g":
@@ -196,7 +199,7 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
                     )
 
                     cuts = points_to_trapezoids(
-                        bottom_points, top_points, material_height
+                        bottom_points, top_points, self.material_thickness
                     )
                     geometry.add_cuts(cuts)
                 case _:
