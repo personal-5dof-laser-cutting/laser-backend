@@ -126,16 +126,17 @@ def svg_color_to_rgba(col: str) -> tuple[int, int, int, int]:
     return result if len(result) == 4 else result + (255,)
 
 
-class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
+class SVG5DOF_Importer(Module[str, Geometry]):
     dpi = 72
     inch_to_mm = 25.4
 
-    def __init__(self, scaling: Literal["illustrator"] | Literal["mm"] = "mm") -> None:
+    def __init__(self, material_thickness: float, scaling: Literal["illustrator"] | Literal["mm"] = "mm") -> None:
         super().__init__()
         scaling_factors: dict[str, float] = {
             "illustrator": (1 / self.dpi) * self.inch_to_mm,
             "mm": 1,
         }
+        self.material_thickness: float = material_thickness
         self.scaling_factor: float = scaling_factors[scaling]
 
     def _scale_points(self, points: list[Point2D]) -> list[Point2D]:
@@ -143,12 +144,12 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
             Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
             for p in points
         ]
-
+    
     def process(
         self,
-        data: Tuple[str, float],
+        data: str,
     ) -> Geometry:
-        svg_content, material_height = data
+        svg_content: str = data
 
         svg_root = ET.fromstring(svg_content)
         svg_namespace = "{http://www.w3.org/2000/svg}"
@@ -177,7 +178,7 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
                     cuts = points_to_trapezoids(
                         bottom_points=self._scale_points(bottom_points),
                         top_points=self._scale_points(top_points),
-                        material_height=material_height,
+                        material_height=self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
                 case "g":
@@ -212,7 +213,7 @@ class SVG5DOF_Importer(Module[tuple[str, float], Geometry]):
                     cuts = points_to_trapezoids(
                         self._scale_points(bottom_points),
                         self._scale_points(top_points),
-                        material_height,
+                        self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
                 case _:
