@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from api.models.base import SomeOutput, SomeInput
+from api.models.base import GCodeOutput, SomeOutput, SvgToGcodeInput
+from core.pipeline.pipeline import full_pipline_unoptimized
 
 router = APIRouter()
 
@@ -12,7 +13,9 @@ def test_endpoint_1(inp: str) -> SomeOutput:
     return SomeOutput(message=inp)
 
 
-# sample post endpoint
-@router.post("/post")
-def test_endpoint_post(inp: SomeInput) -> SomeOutput:
-    return SomeOutput(message=inp.message)
+@router.post("/post", response_model=GCodeOutput)
+def svg_to_gcode(inp: SvgToGcodeInput) -> GCodeOutput:
+    pipeline = full_pipline_unoptimized(
+        inp.material_thickness, inp.laser_off, inp.cut_speed
+    )
+    return GCodeOutput(gcode=pipeline.run(inp.svg))
