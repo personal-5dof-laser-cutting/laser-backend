@@ -289,6 +289,9 @@ class TrapezoidalCut:
             (self.start_top, self.end_top, self.start_bottom, self.end_bottom)
         )
 
+    def plane(self) -> Plane:
+        return Plane(self.start_top, self.end_top, self.start_bottom)
+
     def points(self) -> list[Point]:
         return [self.start_top, self.end_top, self.start_bottom, self.end_bottom]
 
