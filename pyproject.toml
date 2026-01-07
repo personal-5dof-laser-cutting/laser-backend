@@ -18,6 +18,7 @@ dependencies = [
     "svgpathtools>=1.7.1",
     "gcode-lib",
     "websockets>=16.0",
+    "mpl-interactions>=0.24.2",
 ]
 
 [dependency-groups]
