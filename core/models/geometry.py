@@ -231,6 +231,18 @@ class TrapezoidalCut:
     def end_configuration(self) -> Configuration:
         return Configuration.from_segment(self.end_segment())
 
+    def top_vector(self) -> Vector:
+        return self.end_top.pv() - self.start_top.pv()
+
+    def bottom_vector(self) -> Vector:
+        return self.end_bottom.pv() - self.start_bottom.pv()
+
+    def start_vector(self) -> Vector:
+        return self.start_bottom.pv() - self.start_top.pv()
+
+    def end_vector(self) -> Vector:
+        return self.end_bottom.pv() - self.end_top.pv()
+
     def flip_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
         return TrapezoidalCut(
@@ -238,6 +250,11 @@ class TrapezoidalCut:
             self.start_top,
             self.end_bottom,
             self.start_bottom,
+        )
+
+    def flip_vertical(self) -> TrapezoidalCut:
+        return TrapezoidalCut(
+            self.start_bottom, self.end_bottom, self.start_top, self.end_top
         )
 
     def polygon(self) -> ConvexPolygon:
