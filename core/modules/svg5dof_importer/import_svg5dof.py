@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+from typing import Literal, Tuple
 
 from Geometry3D import Point
 import svgpathtools as svg
@@ -11,8 +12,8 @@ from core.pipeline.base import Module
 from PIL.ImageColor import getrgb
 
 
-TOP_COLOR = (255, 0, 0, 255)  # red
-BOTTOM_COLOR = (0, 125, 255, 255)  # blue
+TOP_COLOR = (0, 0, 0, 255)  # black
+BOTTOM_COLOR = (204, 204, 204, 255)  # 20% gray
 
 
 @dataclass
@@ -129,9 +130,20 @@ class SVG5DOF_Importer(Module[str, Geometry]):
     dpi = 72
     inch_to_mm = 25.4
 
-    def __init__(self, material_thickness: float) -> None:
-        self.material_thickness: float = material_thickness
+    def __init__(self, material_thickness: float, scaling: Literal["illustrator"] | Literal["mm"] = "mm") -> None:
         super().__init__()
+        scaling_factors: dict[str, float] = {
+            "illustrator": (1 / self.dpi) * self.inch_to_mm,
+            "mm": 1,
+        }
+        self.material_thickness: float = material_thickness
+        self.scaling_factor: float = scaling_factors[scaling]
+
+    def _scale_points(self, points: list[Point2D]) -> list[Point2D]:
+        return [
+            Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
+            for p in points
+        ]
 
     def process(
         self,
@@ -164,8 +176,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     path = paths[0]
                     top_points, bottom_points = svg_paths_to_points(path, path)
                     cuts = points_to_trapezoids(
-                        bottom_points=bottom_points,
-                        top_points=top_points,
+                        bottom_points=self._scale_points(bottom_points),
+                        top_points=self._scale_points(top_points),
                         material_height=self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
@@ -199,7 +211,9 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     )
 
                     cuts = points_to_trapezoids(
-                        bottom_points, top_points, self.material_thickness
+                        self._scale_points(bottom_points),
+                        self._scale_points(top_points),
+                        self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
                 case _:
