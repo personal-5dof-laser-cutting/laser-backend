@@ -1,14 +1,12 @@
-from Geometry3D import Point
-from matplotlib.patches import PathPatch
-from matplotlib.textpath import TextPath
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
 from mpl_interactions import panhandler, zoom_factory
 import matplotlib.pyplot as plt
+from Geometry3D import Point, Vector
+from enum import IntFlag
 
 import math
-from enum import IntFlag
 
 
 class VisualizerFlags(IntFlag):
@@ -19,12 +17,19 @@ class VisualizerFlags(IntFlag):
 class DebugVisualizerModule(Module[Geometry, Geometry]):
     max_x = 0
     max_y = 0
+    direction_map = ["<", "^", ">", "v"]
 
-    def __init__(self, flags: VisualizerFlags) -> None:
+    def __init__(
+        self, material_height: float, flags: VisualizerFlags | None = None
+    ) -> None:
         super().__init__()
+        self.material_height = material_height
+        if flags:
+            self.shadeArea = bool(flags & VisualizerFlags.SHOW_AREA)
+            self.showOrder = bool(flags & VisualizerFlags.SHOW_ORDER)
 
-        self.shadeArea = bool(flags & VisualizerFlags.SHOW_AREA)
-        self.showOrder = bool(flags & VisualizerFlags.SHOW_ORDER)
+        self.lightest_grey_value = 0.8
+        self.arrow_width = 0.1
 
     def process(self, data: Geometry) -> Geometry:
         geometry = data
@@ -58,54 +63,32 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
         is_slanted_cut = not math.isclose(cut.plane().n[2], 0)
 
-        self.ax.plot((start_top.x, end_top.x), (start_top.y, end_top.y), color="red")
+        self._draw_line(start_top, end_top, "black")
         if is_slanted_cut:
-            self.ax.plot(
-                (start_bottom.x, end_bottom.x),
-                (start_bottom.y, end_bottom.y),
-                color="blue",
+            self._draw_line(
+                start_bottom, end_bottom, self._get_grey_color(-start_bottom.z)
             )
-            if self.showOrder:
-                arrow_start = Point(
-                    (start_top.x + start_bottom.x) / 2,
-                    (start_top.y + start_bottom.y) / 2,
-                    0,
-                )
-                arrow_end = Point(
-                    (end_top.x + end_bottom.x) / 2, (end_top.y + end_bottom.y) / 2, 0
-                )
-                arrow_direction = Point(
-                    arrow_end.x - arrow_start.x, arrow_end.y - arrow_start.y, 0
-                )
-                self.ax.arrow(
-                    arrow_start.x + arrow_direction.x * 0.05,
-                    arrow_start.y + arrow_direction.y * 0.05,
-                    arrow_direction.x * 0.9,
-                    arrow_direction.y * 0.9,
-                    length_includes_head=True,
-                    color="black",
-                    width=0.1,
-                    head_width=1,
-                    head_length=1,
-                )
+            self._draw_connecting_lines(cut)
 
-                text_size = 2
-                text_path = TextPath(
-                    (
-                        (arrow_start.x + arrow_end.x) / 2 - text_size / 2,
-                        (arrow_start.y + arrow_end.y) / 2 - text_size / 2,
-                    ),
-                    str(cut_number),
-                    size=text_size,
-                )
-                self.ax.add_patch(PathPatch(text_path, color="black"))
-
-        self.ax.plot(
-            (start_top.x, start_bottom.x), (start_top.y, start_bottom.y), color="purple"
-        )
-        self.ax.plot(
-            (end_top.x, end_bottom.x), (end_top.y, end_bottom.y), color="purple"
-        )
+        if self.showOrder:
+            cut_direction: Vector = Vector(cut.start_top, cut.end_top)
+            cut_direction_normal = Vector(
+                -cut_direction[1], cut_direction[0], 0
+            ).normalized()
+            angle = cut_direction.angle(Vector.y_unit_vector())
+            direction = (
+                int(angle * (-1 if cut_direction[0] < 0 else 1) * 2 / math.pi) + 1
+            )
+            text_point = Point(
+                (start_top.x + end_top.x) / 2 + cut_direction_normal[0],
+                (start_top.y + end_top.y) / 2 + cut_direction_normal[1],
+                0,
+            )
+            self.ax.text(
+                text_point.x,
+                text_point.y,
+                str(cut_number + 1) + self.direction_map[direction],
+            )
 
         self.max_x = max(
             [self.max_x, start_top.x, end_top.x, start_bottom.x, end_bottom.x]
@@ -121,6 +104,35 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             to_config.x - from_config.x,
             to_config.y - from_config.y,
             length_includes_head=True,
-            color="gray",
-            width=0.075,
+            color="#0004",
+            linestyle="dotted",
+            width=self.arrow_width * 3 / 4,
         )
+
+    def _draw_connecting_lines(self, cut: TrapezoidalCut):
+        color = "#bbe"
+        linestyle = "dashdot"
+        self._draw_line(cut.start_top, cut.start_bottom, color, linestyle)
+        self._draw_line(
+            Point((cut.start_top.pv() + cut.end_top.pv()) * 0.5),
+            Point((cut.start_bottom.pv() + cut.end_bottom.pv()) * 0.5),
+            color,
+            linestyle,
+        )
+        self._draw_line(cut.end_top, cut.end_bottom, color, linestyle)
+
+    def _draw_line(
+        self, start: Point, end: Point, color: str, linestyle: str = "solid"
+    ):
+        self.ax.plot(
+            (start.x, end.x), (start.y, end.y), color=color, linestyle=linestyle
+        )
+
+    def _get_grey_color(self, cut_depth: float) -> str:
+        assert cut_depth > 0
+        assert cut_depth < self.material_height or math.isclose(
+            cut_depth, self.material_height
+        )
+        percentage = cut_depth / self.material_height
+        grey = self.lightest_grey_value * percentage
+        return str(grey)
