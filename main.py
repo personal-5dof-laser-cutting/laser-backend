@@ -15,6 +15,7 @@ def app_factory():
         allow_origins=origins,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"],
     )
     api.include_router(router)
     return api
