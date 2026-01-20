@@ -14,3 +14,20 @@ def full_pipline_unoptimized(
             ),
         ]
     )
+
+
+def gcode_pipeline(
+    material_thickness: float,
+    optimize: bool,
+    laser_off: bool = False,
+    cut_speed_mm_per_s: float = 20,
+) -> Pipeline:
+    modules = [
+        SVG5DOF_Importer(material_thickness),
+        GCodeExporter(
+            material_thickness, dry_run=laser_off, cut_speed=cut_speed_mm_per_s
+        ),
+    ]
+    if optimize:
+        print("Optimizing")
+    return Pipeline(modules)

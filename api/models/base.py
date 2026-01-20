@@ -13,6 +13,7 @@ class SvgToGcodeInput(BaseModel):
     laser_off: bool
     cut_speed: float
     svg: str
+    optimize: bool
 
 
 class GCodeOutput(BaseModel):
