@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Literal, Tuple
+from typing import Literal
 
 from Geometry3D import Point
 import svgpathtools as svg
@@ -130,7 +130,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
     dpi = 72
     inch_to_mm = 25.4
 
-    def __init__(self, material_thickness: float, scaling: Literal["illustrator"] | Literal["mm"] = "mm") -> None:
+    def __init__(
+        self,
+        material_thickness: float,
+        scaling: Literal["illustrator"] | Literal["mm"] = "mm",
+    ) -> None:
         super().__init__()
         scaling_factors: dict[str, float] = {
             "illustrator": (1 / self.dpi) * self.inch_to_mm,
@@ -144,7 +148,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
             Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
             for p in points
         ]
-    
+
     def _5dof_color_to_percentage(self, color: tuple[int, int, int, int]) -> float:
         if not (color[0] == color[1] and color[1] == color[2]):
             raise Exception("Found non grayscale line in svg.")
@@ -221,7 +225,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
 
                     bottom_color = svg_color_to_rgba(bottom_element.attrib["stroke"])
                     cut_depth: float = (
-                        self._5dof_color_to_percentage(bottom_color) * material_height
+                        self._5dof_color_to_percentage(bottom_color)
+                        * self.material_thickness
                     )
 
                     cuts = points_to_trapezoids(
