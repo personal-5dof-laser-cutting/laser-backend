@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg">
     <g>
-        <circle cx="150" cy="150" r="30" stroke="#f00" />
-        <circle cx="150" cy="150" r="31" stroke="#00f" />
+        <circle cx="150" cy="150" r="30" stroke="#000" />
+        <circle cx="150" cy="150" r="31" stroke="#ccc" />
     </g>
 </svg>
