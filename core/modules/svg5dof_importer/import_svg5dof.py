@@ -145,6 +145,17 @@ class SVG5DOF_Importer(Module[str, Geometry]):
             for p in points
         ]
     
+    def _5dof_color_to_percentage(self, color: tuple[int, int, int, int]) -> float:
+        if not (color[0] == color[1] and color[1] == color[2]):
+            raise Exception("Found non grayscale line in svg.")
+
+        value: int = color[0]
+        if value > BOTTOM_COLOR[0]:
+            raise Exception("Found out of bounds color in svg.")
+
+        percentage: float = value / BOTTOM_COLOR[0]
+        return percentage
+
     def process(
         self,
         data: str,
@@ -194,26 +205,29 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                         )
                         < 20
                     )
+                    top_element = elem2 if second_is_top else elem1
+                    bottom_element = elem1 if second_is_top else elem2
 
                     top_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(
-                            elem2 if second_is_top else elem1, encoding="unicode"
-                        )
+                        ET.tostring(top_element, encoding="unicode")
                     )
                     bottom_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(
-                            elem1 if second_is_top else elem2, encoding="unicode"
-                        )
+                        ET.tostring(bottom_element, encoding="unicode")
                     )
 
                     bottom_points, top_points = svg_paths_to_points(
                         bottom_path[0], top_path[0]
                     )
 
+                    bottom_color = svg_color_to_rgba(bottom_element.attrib["stroke"])
+                    cut_depth: float = (
+                        self._5dof_color_to_percentage(bottom_color) * material_height
+                    )
+
                     cuts = points_to_trapezoids(
                         self._scale_points(bottom_points),
                         self._scale_points(top_points),
-                        self.material_thickness,
+                        cut_depth,
                     )
                     geometry.add_cuts(cuts)
                 case _:
