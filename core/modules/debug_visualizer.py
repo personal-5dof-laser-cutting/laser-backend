@@ -72,16 +72,13 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
         if self.showOrder:
             cut_direction: Vector = Vector(cut.start_top, cut.end_top)
-            cut_direction_normal = Vector(
-                -cut_direction[1], cut_direction[0], 0
-            ).normalized()
             angle = cut_direction.angle(Vector.y_unit_vector())
             direction = (
                 int(angle * (-1 if cut_direction[0] < 0 else 1) * 2 / math.pi) + 1
             )
             text_point = Point(
-                (start_top.x + end_top.x) / 2 + cut_direction_normal[0],
-                (start_top.y + end_top.y) / 2 + cut_direction_normal[1],
+                (start_top.x + end_top.x + start_bottom.x + end_bottom.x) / 4,
+                (start_top.y + end_top.y + start_bottom.y + end_bottom.y) / 4,
                 0,
             )
             self.ax.text(
