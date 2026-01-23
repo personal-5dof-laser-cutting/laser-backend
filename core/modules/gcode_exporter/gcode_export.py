@@ -134,6 +134,7 @@ class GCodeExporter(Module[Geometry, str]):
             self._add_command("M8", "air assist on")  # air assist on (flood pin)
 
         last_config: None | Configuration = None
+        last_laser: None | float = None
         for raw_cut in geometry.cuts:
             for cut in self._discretize_cut(raw_cut):
                 if not math.isclose(cut.cut_depth, self.material_height):
@@ -152,19 +153,24 @@ class GCodeExporter(Module[Geometry, str]):
                 end_config = cut.end_configuration()
 
                 if not self.dry_run:
-                    self._add_command(
-                        f"M4 S{self.calculate_laser_power(cut)}",
-                        "laser on",
-                    )  # laser on dynamic power
+                    laser_power = self.calculate_laser_power(cut)
+
+                    if laser_power != last_laser:
+                        self._add_command(
+                            f"M4 S{laser_power}",
+                            "laser on",
+                        )  # laser on dynamic power
+                        last_laser = laser_power
 
                 self._add_command(
                     f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
                     "cut move",
                 )  # cut
 
-                if not self.dry_run:
-                    self._add_command("M4 S0", "laser off")  # laser off
                 last_config = end_config
+
+        if not self.dry_run:
+            self._add_command("M4 S0", "laser off")  # laser off
 
         if not self.dry_run:
             self._add_command("M8.1", "air assist off")  # air assist off
