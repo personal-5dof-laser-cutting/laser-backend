@@ -318,6 +318,12 @@ class TrapezoidalCut:
             copy(self.end_bottom).move(v),
         )
 
+    def get_slant_angle(self) -> float:
+        return self.plane().n[2]
+
+    def is_straight_cut(self) -> bool:
+        return math.isclose(self.get_slant_angle(), 0)
+
     def depth(self, x: float) -> float:
         # For x = 0, this method will return the length of the start segment, for x = 1 it returns the lnegth of the end segment
         # For x = 0.5 this will return distance between the middle points of the top and bottom line
