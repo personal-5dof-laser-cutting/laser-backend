@@ -1,9 +1,8 @@
-from vpython import scene, quad, curve, vertex, color, arrow, vector, text, cross
+from vpython import scene, quad, curve, vertex, color, arrow, vector, text
 from Geometry3D import Point
 
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
-import math
 
 
 def point_to_vector(point: Point) -> vector:
@@ -42,11 +41,7 @@ class GeometryVisualizerModule(Module[Geometry, Geometry]):
                 )
             }
 
-            normal_vector = cross(
-                cut_vectors["end_top"] - cut_vectors["start_top"],
-                cut_vectors["start_bottom"] - cut_vectors["start_top"],
-            )
-            if math.isclose(normal_vector.z, 0):
+            if cut.is_straight_cut():
                 quad(
                     vs=[
                         vertex(pos=vec, color=color.orange)

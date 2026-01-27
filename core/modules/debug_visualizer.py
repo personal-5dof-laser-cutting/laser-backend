@@ -63,10 +63,8 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         start_bottom = cut.bottom_segment().start_point
         end_bottom = cut.bottom_segment().end_point
 
-        is_slanted_cut = not math.isclose(cut.plane().n[2], 0)
-
         self._draw_line(start_top, end_top, "black")
-        if is_slanted_cut:
+        if not cut.is_straight_cut():
             self._draw_line(
                 start_bottom, end_bottom, self._get_grey_color(-start_bottom.z)
             )

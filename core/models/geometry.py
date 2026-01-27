@@ -302,6 +302,12 @@ class TrapezoidalCut:
             copy(self.end_bottom).move(v),
         )
 
+    def get_slant_angle(self) -> float:
+        return self.plane().n[2]
+
+    def is_straight_cut(self) -> bool:
+        return math.isclose(self.get_slant_angle(), 0)
+
     def __repr__(self) -> str:
         return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
 
