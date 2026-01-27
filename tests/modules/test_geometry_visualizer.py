@@ -2,7 +2,7 @@ from Geometry3D import Point
 import pytest
 import os
 
-from core.modules.debug_visualizer import DebugVisualizerModule, VisualizerFlags
+from core.modules.geometry_visualizer import GeometryVisualizerModule
 from core.models.geometry import Geometry, TrapezoidalCut
 
 IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
@@ -16,11 +16,14 @@ SQUARE_PARAMS = [
 ]
 
 
+@pytest.mark.skipif(
+    IN_GITHUB_ACTIONS, reason="Test doesn't terminate in Github Actions."
+)
 @pytest.mark.parametrize("cuts", [SQUARE_PARAMS])
 def test_visualizer(cuts: list[TrapezoidalCut]):
-    dv = DebugVisualizerModule(2, VisualizerFlags.SHOW_ORDER)
+    gv = GeometryVisualizerModule()
     geo = Geometry()
     for cut in cuts:
         geo.add_cut(cut)
 
-    dv.process(geo)
+    gv.process(geo)
