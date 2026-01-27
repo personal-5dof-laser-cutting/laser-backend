@@ -19,7 +19,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
     max_y = 0
     shadeArea = False
     showOrder = False
-    direction_map = ["<", "^", ">", "v"]
+    direction_map = ["←", "↑", "→", "↓"]
 
     def __init__(
         self, material_height: float, flags: VisualizerFlags | None = None
