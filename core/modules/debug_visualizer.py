@@ -17,6 +17,8 @@ class VisualizerFlags(IntFlag):
 class DebugVisualizerModule(Module[Geometry, Geometry]):
     max_x = 0
     max_y = 0
+    shadeArea = False
+    showOrder = False
     direction_map = ["<", "^", ">", "v"]
 
     def __init__(
