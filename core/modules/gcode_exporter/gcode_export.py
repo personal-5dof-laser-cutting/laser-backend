@@ -42,13 +42,13 @@ class GCodeExporter(Module[Geometry, str]):
             self._gcode += f"; {comment}"
         self._gcode += "\n"
 
-    def format_float(self, value, precision=8) -> str:
+    def format_float(self, value, precision=3) -> str:
         rounded_value = round(value, precision)
 
         if self.pretty_formatting:
-            return f"{rounded_value:4.{precision}f}"
+            return f"{rounded_value:z4.{precision}f}"
         else:
-            return f"{rounded_value:.{precision}}"
+            return f"{rounded_value:z.{precision}f}".rstrip("0").rstrip(".")
 
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
         if self.force_max_laser_power:
