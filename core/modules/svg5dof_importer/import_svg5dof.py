@@ -60,6 +60,8 @@ def svg_elem_to_points(
     if isinstance(svg_elem, svg.Line):
         num_points = 2
 
+    num_points = max(2, num_points)
+
     points: list[complex] = [
         svg_elem.point(t / (num_points - 1)) for t in range(num_points)
     ]
@@ -68,7 +70,7 @@ def svg_elem_to_points(
 
 
 def svg_paths_to_points(
-    bottom_path: svg.Path, top_path: svg.Path, resolution_mm=5
+    bottom_path: svg.Path, top_path: svg.Path, resolution_mm=1
 ) -> tuple[list[Point2D], list[Point2D]]:
     if len(bottom_path) != len(top_path):
         raise Exception("Top and bottom path must have the same number of elements.")
@@ -180,7 +182,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         for element in svg_root:
             tag = element.tag.split(svg_namespace)[-1]
             match tag:
-                case "line" | "path" | "rect" | "circle":
+                case "line" | "path" | "rect" | "circle" | "polygon" | "polyline":
                     paths, _ = svg.svgstr2paths(  # type: ignore
                         ET.tostring(element, encoding="unicode")
                     )
