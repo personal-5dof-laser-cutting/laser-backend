@@ -40,7 +40,7 @@ from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 def test_import(
     svg_string: str, material_height: float, expected_cuts: list[TrapezoidalCut]
 ):
-    dof = SVG5DOF_Importer()
-    geometry: Geometry = dof.process((svg_string, material_height))
+    dof = SVG5DOF_Importer(material_height)
+    geometry: Geometry = dof.process(svg_string)
     cuts: set[TrapezoidalCut] = set(geometry.cuts)
     assert cuts == set(expected_cuts)

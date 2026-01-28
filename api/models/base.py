@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
@@ -5,6 +6,17 @@ from pydantic import BaseModel, Field
 
 class SomeInput(BaseModel):
     message: str = Field(description="Provide docs here")
+
+
+class SvgToGcodeInput(BaseModel):
+    material_thickness: float
+    laser_off: bool
+    cut_speed: float
+    svg: str
+
+
+class GCodeOutput(BaseModel):
+    gcode: Any = Field(description="Gcode")
 
 
 class SomeOutput(BaseModel):
