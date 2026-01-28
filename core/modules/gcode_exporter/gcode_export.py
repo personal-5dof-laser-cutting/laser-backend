@@ -37,7 +37,7 @@ class GCodeExporter(Module[Geometry, str]):
         self.force_max_laser_power: bool = force_max_laser_power
 
     def _add_command(self, command: str, comment: str = ""):
-        self._gcode += f"{command}"
+        self._gcode += command
         if self.gcode_comments and comment != "":
             self._gcode += f"; {comment}"
         self._gcode += "\n"
