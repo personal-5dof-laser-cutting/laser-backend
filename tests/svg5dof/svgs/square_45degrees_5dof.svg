@@ -2,9 +2,9 @@
 <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" baseProfile="tiny" version="1.2" viewBox="0 0 595.28 841.89">
   <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
   <g>
-    <rect x="134.1" y="200.23" width="283.46" height="283.46" fill="none" stroke="red" stroke-miterlimit="10"
+    <rect x="134.1" y="200.23" width="283.46" height="283.46" fill="none" stroke="#000" stroke-miterlimit="10"
       stroke-width="1.42" />
-    <rect x="117.09" y="183.23" width="317.48" height="317.48" fill="none" stroke="#007dff" stroke-miterlimit="10"
+    <rect x="117.09" y="183.23" width="317.48" height="317.48" fill="none" stroke="#ccc" stroke-miterlimit="10"
       stroke-width="1.42" />
   </g>
 </svg>

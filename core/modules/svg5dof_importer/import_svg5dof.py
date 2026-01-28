@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Literal, Tuple
+from typing import Literal
 
 from Geometry3D import Point
 import svgpathtools as svg
@@ -60,6 +60,8 @@ def svg_elem_to_points(
     if isinstance(svg_elem, svg.Line):
         num_points = 2
 
+    num_points = max(2, num_points)
+
     points: list[complex] = [
         svg_elem.point(t / (num_points - 1)) for t in range(num_points)
     ]
@@ -68,7 +70,7 @@ def svg_elem_to_points(
 
 
 def svg_paths_to_points(
-    bottom_path: svg.Path, top_path: svg.Path, resolution_mm=5
+    bottom_path: svg.Path, top_path: svg.Path, resolution_mm=1
 ) -> tuple[list[Point2D], list[Point2D]]:
     if len(bottom_path) != len(top_path):
         raise Exception("Top and bottom path must have the same number of elements.")
@@ -130,7 +132,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
     dpi = 72
     inch_to_mm = 25.4
 
-    def __init__(self, material_thickness: float, scaling: Literal["illustrator"] | Literal["mm"] = "mm") -> None:
+    def __init__(
+        self,
+        material_thickness: float,
+        scaling: Literal["illustrator"] | Literal["mm"] = "mm",
+    ) -> None:
         super().__init__()
         scaling_factors: dict[str, float] = {
             "illustrator": (1 / self.dpi) * self.inch_to_mm,
@@ -144,7 +150,18 @@ class SVG5DOF_Importer(Module[str, Geometry]):
             Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
             for p in points
         ]
-    
+
+    def _5dof_color_to_percentage(self, color: tuple[int, int, int, int]) -> float:
+        if not (color[0] == color[1] and color[1] == color[2]):
+            raise Exception("Found non grayscale line in svg.")
+
+        value: int = color[0]
+        if value > BOTTOM_COLOR[0]:
+            raise Exception("Found out of bounds color in svg.")
+
+        percentage: float = value / BOTTOM_COLOR[0]
+        return percentage
+
     def process(
         self,
         data: str,
@@ -165,7 +182,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         for element in svg_root:
             tag = element.tag.split(svg_namespace)[-1]
             match tag:
-                case "line" | "path" | "rect" | "circle":
+                case "line" | "path" | "rect" | "circle" | "polygon" | "polyline":
                     paths, _ = svg.svgstr2paths(  # type: ignore
                         ET.tostring(element, encoding="unicode")
                     )
@@ -194,26 +211,30 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                         )
                         < 20
                     )
+                    top_element = elem2 if second_is_top else elem1
+                    bottom_element = elem1 if second_is_top else elem2
 
                     top_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(
-                            elem2 if second_is_top else elem1, encoding="unicode"
-                        )
+                        ET.tostring(top_element, encoding="unicode")
                     )
                     bottom_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(
-                            elem1 if second_is_top else elem2, encoding="unicode"
-                        )
+                        ET.tostring(bottom_element, encoding="unicode")
                     )
 
                     bottom_points, top_points = svg_paths_to_points(
                         bottom_path[0], top_path[0]
                     )
 
+                    bottom_color = svg_color_to_rgba(bottom_element.attrib["stroke"])
+                    cut_depth: float = (
+                        self._5dof_color_to_percentage(bottom_color)
+                        * self.material_thickness
+                    )
+
                     cuts = points_to_trapezoids(
                         self._scale_points(bottom_points),
                         self._scale_points(top_points),
-                        self.material_thickness,
+                        cut_depth,
                     )
                     geometry.add_cuts(cuts)
                 case _:

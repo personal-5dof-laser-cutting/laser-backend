@@ -2,8 +2,8 @@
 <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" baseProfile="tiny" version="1.2" viewBox="0 0 595.28 841.89">
   <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
   <g>
-    <rect x="50" y="50" width="100" height="100" fill="none" stroke="red" stroke-miterlimit="10"
+    <rect x="50" y="50" width="100" height="100" fill="none" stroke="#000" stroke-miterlimit="10"
       stroke-width="1.42" />
-    <rect x="50" y="51" width="100" height="100" fill="none" stroke="blue" stroke-miterlimit="10" />
+    <rect x="50" y="51" width="100" height="100" fill="none" stroke="#ccc" stroke-miterlimit="10" />
   </g>
 </svg>

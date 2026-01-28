@@ -171,6 +171,14 @@ class TrapezoidalCut:
         )
 
     def _validate_trapezoid(self) -> None:
+        if self._start_top == self._end_top:
+            raise ValueError(
+                f"The top points are identical. Distance: {self._start_top.distance(self.end_top)}"
+            )
+        if self._start_bottom == self._end_bottom:
+            raise ValueError(
+                f"The bottom points are identical. Distance: {self._start_bottom.distance(self.end_bottom)}"
+            )
         top_line = segment_to_line(self.top_segment())
         bottom_line = segment_to_line(self.bottom_segment())
 
@@ -253,6 +261,7 @@ class TrapezoidalCut:
         )
 
     def flip_vertical(self) -> TrapezoidalCut:
+        """Swap top and bottom edge"""
         return TrapezoidalCut(
             self.start_bottom, self.end_bottom, self.start_top, self.end_top
         )

@@ -32,6 +32,18 @@ from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
                 )
             ],
         ),
+        (
+            open("tests/svg5dof/svgs/one_line_partial.svg").read(),
+            10.0,
+            [
+                TrapezoidalCut(
+                    Point(0.0, 0.0, 0.0),
+                    Point(100.0, 100.0, 0.0),
+                    Point(0.0, 0.0, -5.0),
+                    Point(100.0, 100.0, -5.0),
+                )
+            ],
+        ),
         # (open("tests/svg5dof/svgs/square_45degrees_5dof.svg").read(), 6.0, []),
         # (open("tests/svg5dof/svgs/circle.svg").read(), 6.0, []),
         # (open("tests/svg5dof/svgs/whine-rack.svg").read(), 6.0, []),
