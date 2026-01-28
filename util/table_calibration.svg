@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <!-- <circle cx="197" cy="236.6" r="100" stroke="#000" /> -->
+    <g>
+        <circle cx="197" cy="236.6" r="105" stroke="#000" />
+        <circle cx="197" cy="236.6" r="110" stroke="#ccc" />
+    </g>
+</svg>
