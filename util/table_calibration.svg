@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="150" r="50" stroke="#000" />
+    <g>
+        <circle cx="100" cy="150" r="55" stroke="#000" />
+        <circle cx="100" cy="150" r="60" stroke="#ccc" />
+    </g>
+</svg>
