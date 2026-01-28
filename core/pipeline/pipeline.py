@@ -10,7 +10,7 @@ def full_pipline_unoptimized(
         [
             SVG5DOF_Importer(material_thickness),
             GCodeExporter(
-                material_thickness, dry_run=laser_off, cut_speed=cut_speed_mm_per_s
+                material_thickness, laser_off=laser_off, cut_speed=cut_speed_mm_per_s
             ),
         ]
     )

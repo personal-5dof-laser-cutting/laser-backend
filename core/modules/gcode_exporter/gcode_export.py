@@ -13,7 +13,7 @@ class GCodeExporter(Module[Geometry, str]):
         pretty_formatting: bool = True,
         cut_speed: float = 20,
         material_constant: float = 1.0,
-        dry_run: bool = True,
+        laser_off: bool = True,
         force_max_laser_power: bool = True,
     ) -> None:
         super().__init__()
@@ -33,7 +33,7 @@ class GCodeExporter(Module[Geometry, str]):
         self.cut_speed: float = cut_speed  # mm/s
         # laser
         self.material_constant: float = material_constant  # s/mm^2
-        self.dry_run: bool = dry_run
+        self.laser_off: bool = laser_off
         self.force_max_laser_power: bool = force_max_laser_power
 
     def _add_command(self, command: str, comment: str = ""):
@@ -130,7 +130,7 @@ class GCodeExporter(Module[Geometry, str]):
         self._add_command(
             f"F{self.format_float(self.cut_speed * 60)}", "feedrate"
         )  # set feedrate (in mm/minute)
-        if not self.dry_run:
+        if not self.laser_off:
             self._add_command("M8", "air assist on")  # air assist on (flood pin)
 
         last_config: None | Configuration = None
@@ -152,7 +152,7 @@ class GCodeExporter(Module[Geometry, str]):
 
                 end_config = cut.end_configuration()
 
-                if not self.dry_run:
+                if not self.laser_off:
                     laser_power = self.calculate_laser_power(cut)
 
                     if laser_power != last_laser:
@@ -169,10 +169,10 @@ class GCodeExporter(Module[Geometry, str]):
 
                 last_config = end_config
 
-        if not self.dry_run:
+        if not self.laser_off:
             self._add_command("M4 S0", "laser off")  # laser off
 
-        if not self.dry_run:
+        if not self.laser_off:
             self._add_command("M8.1", "air assist off")  # air assist off
         self._add_command("M2", "end")  # end of program
         return self._gcode
