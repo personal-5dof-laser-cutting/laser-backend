@@ -107,7 +107,8 @@ class GCodeExporter(Module[Geometry, str]):
         ]
 
     def _discretize_cut(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
-        assert math.isclose(cut.cut_depth, self.material_height)
+        if not math.isclose(cut.cut_depth, self.material_height):
+            raise Exception("Partial cuts are not supported")
         return [cut]
 
         #####
