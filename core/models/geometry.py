@@ -261,6 +261,7 @@ class TrapezoidalCut:
         )
 
     def flip_vertical(self) -> TrapezoidalCut:
+        """Swap top and bottom edge"""
         return TrapezoidalCut(
             self.start_bottom, self.end_bottom, self.start_top, self.end_top
         )
