@@ -36,16 +36,14 @@ class CorgiInterface:
         self._interface.send(string)
         self.buffer_corgi.append(string)
         self.buffer_used += byte_count
-        print(f"corgi: sent {string}")
 
     def main_loop(self):
         while True:
             if (msg := self._interface.recv()) is not None:
-                if msg == "ok" and len(self.buffer_corgi) > 0:
+                if msg.strip() == "ok" and len(self.buffer_corgi) > 0:
                     processed_command: str = self.buffer_corgi.pop(0)
                     byte_count: int = str_len(processed_command)
                     self.buffer_used -= byte_count
-                    print(f"remove from buffer {byte_count}")
 
                     assert self.buffer_used >= 0
                 elif msg.startswith("error"):
