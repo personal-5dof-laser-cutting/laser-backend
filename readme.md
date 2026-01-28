@@ -54,3 +54,6 @@ uvicorn main:app --reload
 ```sh 
 pytest
 ```
+
+### GCode Sender
+`python3 -m util.send_gcode test.gcode 192.168.0.1:81` 
