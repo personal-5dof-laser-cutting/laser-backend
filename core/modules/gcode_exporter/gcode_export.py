@@ -61,7 +61,7 @@ class GCodeExporter(Module[Geometry, str]):
         return max_depth * self.cut_speed * self.material_constant
 
     def _disretize_cut_one_step(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
-        # If we cut through the material, we do not need to discretize as the laser power can constant
+        # If we cut through the material, we do not need to discretize as the laser power can be constant
         if math.isclose(self.material_height, cut.cut_depth):
             return [cut]
 
