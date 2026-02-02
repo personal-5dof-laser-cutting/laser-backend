@@ -1,17 +1,19 @@
-import asyncio
+import Geometry3D
 from fastapi import APIRouter, WebSocket
 
+from core.corgi_interface import CorgiInterface
 from core.pipeline.pipeline import full_pipline_unoptimized
+from gcode_lib.gcode_interface import GCodeInterface
 
+import threading
 
 ws_router = APIRouter()
 
 
 @ws_router.websocket("/ws/cut_svg")
 async def ws_cut_svg(ws: WebSocket):
-    print("backend connected")
     await ws.accept()
-
+    Geometry3D.set_sig_figures(4)
     data = await ws.receive_json()
     pipeline = full_pipline_unoptimized(
         websocket=ws,
@@ -19,13 +21,7 @@ async def ws_cut_svg(ws: WebSocket):
         laser_off=data["laser_off"],
         cut_speed_mm_per_s=data["cut_speed"],
     )
-
-    loop = asyncio.get_running_loop()
-
-    def worker():
-        result = pipeline.run(data["svg"])
-        loop.call_soon_threadsafe(
-            asyncio.create_task, ws.send_json({"type": "result", "content": result})
-        )
-
-    await loop.run_in_executor(None, worker)
+    result: str = pipeline.run(data["svg"])
+    corgi_interface = CorgiInterface(GCodeInterface("192.168.0.1:81"))
+    threading.Thread(target=corgi_interface.main_loop, daemon=True).start()
+    corgi_interface.send_lines(("$h\n" + result).split("\n"))
