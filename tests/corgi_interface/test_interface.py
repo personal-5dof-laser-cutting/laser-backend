@@ -1,4 +1,3 @@
-from os import times_result
 from core.corgi_interface import CorgiInterface, str_len
 import threading
 from time import sleep
