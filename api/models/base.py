@@ -21,6 +21,7 @@ class GCodeOutput(BaseModel):
 
 
 class FrontendInput(BaseModel):
+    material: str = Field(description="Material type")
     material_thickness: float = Field(description="Material thickness in mm")
     cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
     laser_off: bool = Field(
