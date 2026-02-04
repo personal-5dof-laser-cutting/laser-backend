@@ -1,16 +1,16 @@
-from typing import Literal
 from fastapi import WebSocket
+from api.models.base import FrontendInput, ScalingType
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
-from core.pipeline.base import Pipeline
+from core.pipeline.base import Module, Pipeline
 
 
-def full_pipline_unoptimized(
+def full_pipeline_unoptimized(
     websocket: WebSocket,
     material_thickness: float,
-    laser_off: bool = True,
     cut_speed_mm_per_s: float = 20,
-    svg_scaling: Literal["mm"] | Literal["illustrator"] = "mm",
+    laser_off: bool = True,
+    svg_scaling: ScalingType = "mm",
 ) -> Pipeline:
     return Pipeline(
         [
@@ -24,6 +24,28 @@ def full_pipline_unoptimized(
             # GCodeSender(websocket),
         ]
     )
+
+
+def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
+    modules: list[Module] = [
+        SVG5DOF_Importer(
+            frontendInput.material_thickness, scaling=frontendInput.scaling
+        )
+    ]
+    if frontendInput.optimize:
+        # TODO add GlobalOptimizerModule here
+        pass
+    modules.extend(
+        [
+            GCodeExporter(
+                frontendInput.material_thickness,
+                laser_off=frontendInput.laser_off,
+                cut_speed=frontendInput.cut_speed,
+                pretty_formatting=False,
+            )
+        ]
+    )
+    return Pipeline(modules)
 
 
 def gcode_pipeline(
