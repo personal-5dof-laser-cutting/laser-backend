@@ -20,6 +20,7 @@ def app_factory():
     )
     api.include_router(router)
     api.include_router(ws_router)
+    print(f"#{'-' * 11}#")
     return api
 
 
