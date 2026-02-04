@@ -19,6 +19,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Configure Git to use SSH
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+
       - name: Set up Python
         run: uv python install
 
