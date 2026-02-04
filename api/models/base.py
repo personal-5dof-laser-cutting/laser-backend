@@ -18,3 +18,16 @@ class SvgToGcodeInput(BaseModel):
 
 class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
+
+
+class FrontendInput(BaseModel):
+    material_thickness: float = Field(description="Material thickness in mm")
+    cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
+    laser_off: bool = Field(
+        description="If true, the laser will be disabled, but the path will still be walked"
+    )
+    optimize: bool = Field(description="If true, the global optimizer will try")
+    svg: str = Field(description="Content of the svg file")
+    scaling: ScalingType = Field(
+        description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm"
+    )
