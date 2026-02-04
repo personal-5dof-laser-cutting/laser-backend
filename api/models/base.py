@@ -1,5 +1,7 @@
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
+
+ScalingType = Literal["mm", "illustrator"]
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
 
