@@ -1,7 +1,6 @@
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
-from mpl_interactions import panhandler, zoom_factory
 import matplotlib.pyplot as plt
 from Geometry3D import Point, Vector
 from enum import IntFlag
@@ -50,8 +49,6 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.ax.set_xlim(-1, self.max_x + 5)
         self.ax.set_ylim(-1, self.max_y + 5)
         self.ax.set_aspect("equal")
-        zoom_factory(self.ax)
-        panhandler(self.fig)
 
         plt.show()
         return geometry
