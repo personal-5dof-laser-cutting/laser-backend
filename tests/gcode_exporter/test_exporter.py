@@ -1,5 +1,7 @@
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
-from core.modules.geometry_visualizer import GeometryVisualizerModule
+from core.modules.geometry_visualizer.geometry_visualizer import (
+    GeometryVisualizerModule,
+)
 from core.models.geometry import Geometry, TrapezoidalCut
 from Geometry3D import Point, Vector
 
