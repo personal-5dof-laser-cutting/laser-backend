@@ -1,3 +1,4 @@
+import Geometry3D
 from fastapi import FastAPI
 import uvicorn
 from api.routers.base_router import router
@@ -24,6 +25,7 @@ def app_factory():
     return api
 
 
+Geometry3D.set_sig_figures(4)
 app = app_factory()
 
 
