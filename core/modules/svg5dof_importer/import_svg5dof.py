@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import math
-from typing import Literal
 
 from Geometry3D import Point
 import svgpathtools as svg
 import xml.etree.ElementTree as ET
 
+from api.models.base import ScalingType
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
@@ -135,7 +135,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
     def __init__(
         self,
         material_thickness: float,
-        scaling: Literal["illustrator"] | Literal["mm"] = "mm",
+        scaling: ScalingType = "mm",
     ) -> None:
         super().__init__()
         scaling_factors: dict[str, float] = {
