@@ -1,4 +1,3 @@
-import Geometry3D
 from fastapi import APIRouter, WebSocket
 from pydantic import ValidationError
 
@@ -15,7 +14,6 @@ ws_router = APIRouter()
 @ws_router.websocket("/ws/cut_svg")
 async def ws_cut_svg(ws: WebSocket):
     await ws.accept()
-    Geometry3D.set_sig_figures(4)
     data = await ws.receive_json()
     print("recieved data")
     try:
