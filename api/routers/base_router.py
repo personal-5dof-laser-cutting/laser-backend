@@ -2,8 +2,8 @@ import io
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from api.models.base import SvgToGcodeInput
-from core.pipeline.pipeline import gcode_pipeline
+from api.models.base import FrontendInput
+from core.pipeline.pipeline import full_pipeline
 
 router = APIRouter()
 
@@ -18,10 +18,8 @@ router = APIRouter()
         }
     },
 )
-def generate_gcode(inp: SvgToGcodeInput) -> StreamingResponse:
-    pipeline = gcode_pipeline(
-        inp.material_thickness, inp.optimize, inp.laser_off, inp.cut_speed
-    )
+def generate_gcode(inp: FrontendInput) -> StreamingResponse:
+    pipeline = full_pipeline(inp)
     file_like = io.StringIO(pipeline.run(inp.svg))
 
     return StreamingResponse(

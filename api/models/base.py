@@ -6,18 +6,6 @@ ScalingType = Literal["mm", "illustrator"]
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
 
 
-class SvgToGcodeInput(BaseModel):
-    material_thickness: float = Field(description="Material thickness in mm")
-    laser_off: bool = Field(
-        description="If true, the laser will be disabled, but the path will still be walked"
-    )
-    cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
-    svg: str = Field(description="Content of the svg file")
-    optimize: bool = Field(
-        description="If true, the global optimizer will approximate an optimized cut order"
-    )
-
-
 class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
 
