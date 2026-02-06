@@ -18,7 +18,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
     max_y = 0
     shadeArea = False
     showOrder = False
-    direction_map = ["←", "↑", "→", "↓"]
+    direction_identifiers = ["←", "↑", "→", "↓"]
 
     def __init__(
         self, material_height: float, flags: VisualizerFlags | None = None
@@ -81,7 +81,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self.ax.text(
                 text_point.x,
                 text_point.y,
-                str(cut_number + 1) + self.direction_map[direction],
+                str(cut_number + 1) + self.direction_identifiers[direction],
             )
 
         self.max_x = max(
