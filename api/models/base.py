@@ -13,7 +13,9 @@ class SvgToGcodeInput(BaseModel):
     )
     cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
     svg: str = Field(description="Content of the svg file")
-    optimize: bool = Field(description="If true, the global optimizer will try")
+    optimize: bool = Field(
+        description="If true, the global optimizer will approximate an optimized cut order"
+    )
 
 
 class GCodeOutput(BaseModel):
@@ -27,7 +29,9 @@ class FrontendInput(BaseModel):
     laser_off: bool = Field(
         description="If true, the laser will be disabled, but the path will still be walked"
     )
-    optimize: bool = Field(description="If true, the global optimizer will try")
+    optimize: bool = Field(
+        description="If true, the global optimizer will approximate an optimized cut order"
+    )
     svg: str = Field(description="Content of the svg file")
     scaling: ScalingType = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm"
