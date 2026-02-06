@@ -6,7 +6,7 @@ from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
 from core.services.cost_function_service import CostFunctionService
-from core.modules.genetic_gtsp import GTSP, run_gcga
+from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
 class GlobalOptimizerModule(Module[Geometry, Geometry]):

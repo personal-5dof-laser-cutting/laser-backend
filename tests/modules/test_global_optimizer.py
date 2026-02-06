@@ -1,7 +1,7 @@
 import pytest
 from Geometry3D import Point
-from core.modules.global_optimizer import GlobalOptimizerModule
-from core.modules.genetic_gtsp import GTSP, run_gcga
+from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
+from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.service_container import Container
 from core.services.cost_function_service import (
