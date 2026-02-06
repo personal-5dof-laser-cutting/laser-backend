@@ -10,6 +10,10 @@ from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
 class GlobalOptimizerModule(Module[Geometry, Geometry]):
+    def __init__(self, generations: int = 1000) -> None:
+        super().__init__()
+        self.generations = generations
+
     def process(
         self,
         data: Geometry,
@@ -21,7 +25,7 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         best_chrom, _ = run_gcga(
             gtsp,
             pop_size=100,
-            generations=1000,
+            generations=self.generations,
             crossover_prob=0.9,
             mutation_prob=0.15,
             tournament_k=3,
