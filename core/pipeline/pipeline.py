@@ -1,29 +1,7 @@
-from fastapi import WebSocket
-from api.models.base import FrontendInput, ScalingType
+from api.models.base import FrontendInput
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.pipeline.base import Module, Pipeline
-
-
-def full_pipeline_unoptimized(
-    websocket: WebSocket,
-    material_thickness: float,
-    cut_speed_mm_per_s: float = 20,
-    laser_off: bool = True,
-    svg_scaling: ScalingType = "mm",
-) -> Pipeline:
-    return Pipeline(
-        [
-            SVG5DOF_Importer(material_thickness, scaling=svg_scaling),
-            GCodeExporter(
-                material_thickness,
-                laser_off=laser_off,
-                cut_speed=cut_speed_mm_per_s,
-                pretty_formatting=False,
-            ),
-            # GCodeSender(websocket),
-        ]
-    )
 
 
 def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
