@@ -1174,6 +1174,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "mock" },
     { name = "pre-commit-uv" },
     { name = "ruff" },
 ]
