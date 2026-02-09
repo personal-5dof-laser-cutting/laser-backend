@@ -12,9 +12,9 @@ class GCodeExporter(Module[Geometry, str]):
         gcode_comments: bool = True,
         pretty_formatting: bool = True,
         cut_speed: float = 20,
-        material_constant: float = 1.0,
+        material_constant: float = 7.5,
         laser_off: bool = True,
-        force_max_laser_power: bool = True,
+        force_max_laser_power: bool = False,
     ) -> None:
         super().__init__()
         self._gcode: str = ""
@@ -51,14 +51,10 @@ class GCodeExporter(Module[Geometry, str]):
             return f"{rounded_value:z.{precision}f}".rstrip("0").rstrip(".")
 
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
-        if self.force_max_laser_power:
-            return 1000
-
-        # TODO: this calculation is not that useful
-        start_depth: float = cut.start_segment().length()
-        end_depth: float = cut.end_segment().length()
-        max_depth: float = max(start_depth, end_depth)
-        return max_depth * self.cut_speed * self.material_constant
+        depth: float = cut.depth(0.5)
+        laser_power: float = depth * self.cut_speed * self.material_constant
+        assert laser_power >= 0
+        return laser_power
 
     def _disretize_cut_one_step(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
         # If we cut through the material, we do not need to discretize as the laser power can be constant
@@ -107,21 +103,15 @@ class GCodeExporter(Module[Geometry, str]):
         ]
 
     def _discretize_cut(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
-        if not math.isclose(cut.cut_depth, self.material_height):
-            raise Exception("Partial cuts are not supported")
+        if (
+            cut.start_configuration().direction_vector()
+            != cut.end_configuration().direction_vector()
+            and not math.isclose(cut.cut_depth, self.material_height)
+        ):
+            raise Exception(
+                "Partial cuts that are not straight are not supported (yet)"
+            )
         return [cut]
-
-        #####
-        cuts: list[TrapezoidalCut] = []
-        split_cuts: list[TrapezoidalCut] = [cut]
-        while True:
-            split_cuts = self._disretize_cut_one_step(split_cuts[-1])
-            cuts.append(split_cuts[0])
-            if len(split_cuts) == 1:
-                cuts.append(split_cuts[-1])
-                break
-
-        return cuts
 
     def process(self, data: Geometry) -> str:
         geometry = data
@@ -138,11 +128,6 @@ class GCodeExporter(Module[Geometry, str]):
         last_laser: None | float = None
         for raw_cut in geometry.cuts:
             for cut in self._discretize_cut(raw_cut):
-                if not math.isclose(cut.cut_depth, self.material_height):
-                    raise NotImplementedError(
-                        f"Partial cuts are currently not supported! cut depth={cut.cut_depth:.5f} mm, material_height={self.material_height:.5f} mm"
-                    )
-
                 start_config = cut.start_configuration()
 
                 if last_config != start_config:
@@ -154,11 +139,19 @@ class GCodeExporter(Module[Geometry, str]):
                 end_config = cut.end_configuration()
 
                 if not self.laser_off:
-                    laser_power = self.calculate_laser_power(cut)
+                    laser_power: float = (
+                        1000
+                        if self.force_max_laser_power
+                        else self.calculate_laser_power(cut)
+                    )
+                    if laser_power > 1000:
+                        raise Exception(
+                            "Cut speed to high or laser not powerful enough"
+                        )
 
                     if laser_power != last_laser:
                         self._add_command(
-                            f"M4 S{laser_power}",
+                            f"M4 S{self.format_float(laser_power)}",
                             "laser on",
                         )  # laser on dynamic power
                         last_laser = laser_power
