@@ -118,6 +118,11 @@ class Configuration:
 
         return Segment(start_point, direction_vector)
 
+    def direction_vector(self) -> Vector:
+        y = math.tan(self.alpha)
+        x = math.tan(self.beta)
+        return Vector(x, y, 1).normalized()
+
 
 class TrapezoidalCut:
     """
@@ -219,6 +224,7 @@ class TrapezoidalCut:
 
     @property
     def cut_depth(self) -> float:
+        # The height of the trapezoid
         return self._start_top.z - self._start_bottom.z
 
     def top_segment(self) -> Segment:
@@ -297,6 +303,15 @@ class TrapezoidalCut:
             copy(self.start_bottom).move(v),
             copy(self.end_bottom).move(v),
         )
+
+    def depth(self, x: float) -> float:
+        # For x = 0, this method will return the length of the start segment, for x = 1 it returns the lnegth of the end segment
+        # For x = 0.5 this will return distance between the middle points of the top and bottom line
+        if 1 > x < 0:
+            raise ValueError("x must be between 0 and 1 (inclusive)")
+        upper_point: Point = Point(self.start_top.pv() + self.top_vector() * x)
+        lower_point: Point = Point(self.start_bottom.pv() + self.bottom_vector() * x)
+        return upper_point.distance(lower_point)
 
     def __repr__(self) -> str:
         return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
