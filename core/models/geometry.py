@@ -52,10 +52,10 @@ class Configuration:
         Offset in mm on the x axis
     y : float
         Offset in mm on the y axis
-    alpha_deg : float
-        Rotation around the x axis in degrees. 0 points downwards and positive is CCW.
-    beta_deg : float
-        Rotation around the y axis in degrees. 0 points downwards and positve is CCW.
+    alpha : float
+        Rotation around the x axis in radians. 0 points downwards and positive is CCW.
+    beta : float
+        Rotation around the y axis in radians. 0 points downwards and positve is CCW.
     """
 
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
