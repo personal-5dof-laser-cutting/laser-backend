@@ -225,7 +225,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                         cuts = points_to_trapezoids(
                             bottom_points=self._transform_points(bottom_points),
                             top_points=self._transform_points(top_points),
-                            material_height=self.material_thickness,
+                            material_height=cut_depth,
                         )
                         geometry.add_cuts(cuts)
                     case "g":
