@@ -338,7 +338,7 @@ class TrapezoidalCut:
         )
 
     def __hash__(self) -> int:
-        return hash((self.start_top, self.start_bottom, self.end_top, self.end_bottom))
+        return hash((self.start_top, self.end_top, self.start_bottom, self.end_bottom))
 
 
 if __name__ == "__main__":
