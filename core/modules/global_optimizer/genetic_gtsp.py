@@ -1,5 +1,5 @@
 """
-gtsp_gcga.py
+genetic_gtsp.py
 
 A readable implementation of a Generalized-Chromosome Genetic Algorithm (GCGA)
 for the Generalized Traveling Salesman Problem (GTSP), following the
