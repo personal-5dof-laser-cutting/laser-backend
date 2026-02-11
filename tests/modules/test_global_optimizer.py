@@ -1,7 +1,6 @@
 import pytest
 from Geometry3D import Point
 from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
-from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.service_container import Container
 from core.services.cost_function_service import (
@@ -17,25 +16,13 @@ SQUARE_PARAMS = [
 ]
 
 
-@pytest.mark.parametrize("cuts", [SQUARE_PARAMS[:-1]])
-def test_tour_to_path(cuts: list[TrapezoidalCut]):
+@pytest.mark.parametrize("cuts, tour", [(SQUARE_PARAMS, [0, 2, 4, 6])])
+def test_tour_to_path(cuts: list[TrapezoidalCut], tour: list[int]):
     optimizer = GlobalOptimizerModule()
-    weights, groups = optimizer._generate_weights(cuts, Container.cost_function)
-    gtsp = GTSP(weights, groups)
-    best_chrom, _ = run_gcga(
-        gtsp,
-        pop_size=100,
-        generations=1000,
-        crossover_prob=0.9,
-        mutation_prob=0.15,
-        tournament_k=3,
-        elitism=2,
-        do_head_reopt=True,
-    )
-    tour = gtsp.decode(best_chrom)
     trapezoid_path = optimizer._tour_to_path(tour, cuts, Container.cost_function)
     for i in range(len(cuts)):
-        assert trapezoid_path[i] == cuts[i]
+        # tour_to_path tries to eliminate the most costly travel move. Since they're all 0 it eliminates the first travel move by left-shifting the array
+        assert trapezoid_path[i] == cuts[(i + 1) % len(cuts)]
 
 
 @pytest.mark.parametrize("cuts", [SQUARE_PARAMS])
