@@ -147,7 +147,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
 
     def _scale_points(self, points: list[Point2D]) -> list[Point2D]:
         return [
-            Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
+            Point2D(p.x * self.scaling_factor + 100, p.y * self.scaling_factor + 100)
             for p in points
         ]
 
@@ -192,10 +192,16 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                         )
                     path = paths[0]
                     top_points, bottom_points = svg_paths_to_points(path, path)
+
+                    color = svg_color_to_rgba(element.attrib["stroke"])
+                    cut_depth: float = (
+                        self._5dof_color_to_percentage(color) * self.material_thickness
+                    )
+
                     cuts = points_to_trapezoids(
-                        bottom_points=self._scale_points(bottom_points),
-                        top_points=self._scale_points(top_points),
-                        material_height=self.material_thickness,
+                        self._scale_points(bottom_points),
+                        self._scale_points(top_points),
+                        cut_depth,
                     )
                     geometry.add_cuts(cuts)
                 case "g":
