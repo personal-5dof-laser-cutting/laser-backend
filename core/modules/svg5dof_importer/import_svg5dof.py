@@ -199,6 +199,12 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                         )
                     path = paths[0]
                     top_points, bottom_points = svg_paths_to_points(path, path)
+
+                    color = svg_color_to_rgba(element.attrib["stroke"])
+                    cut_depth: float = (
+                        self._5dof_color_to_percentage(color) * self.material_thickness
+                    )
+
                     cuts = points_to_trapezoids(
                         bottom_points=self._transform_points(bottom_points),
                         top_points=self._transform_points(top_points),
