@@ -1,8 +1,9 @@
+from itertools import product
 import numpy as np
 from ctypes import ArgumentError
 from math import inf
 
-from core.models.geometry import Geometry, TrapezoidalCut
+from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
 from core.services.cost_function_service import CostFunctionService
@@ -19,8 +20,9 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         data: Geometry,
         cost_function: CostFunctionService = Container.cost_function,
     ) -> Geometry:
+        self.cost_function = cost_function
         cuts: list[TrapezoidalCut] = data.cuts
-        weights, groups = self._generate_weights(data.cuts, cost_function)
+        weights, groups = self._generate_weights(data.cuts)
         gtsp = GTSP(weights, groups)
         best_chrom, _ = run_gcga(
             gtsp,
@@ -34,53 +36,53 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         )
         tour = gtsp.decode(best_chrom)
         trapezoid_path = self._tour_to_path(tour, cuts, cost_function)
-        # graph: nx.Graph = nx.Graph()
-        # self._build_graph(graph, cuts, cost_function)
-        # path = christofides(graph)
-        # trapezoid_path = self._path_to_trapezoids(path)
         data.cuts = trapezoid_path
 
         return data
 
     def _generate_weights(
-        self, cuts: list[TrapezoidalCut], cost_function: CostFunctionService
+        self, cuts: list[TrapezoidalCut]
     ) -> tuple[np.ndarray, list[list[int]]]:
+        # We use 2 * len(cuts) to accomodate weight for both cut directions
         weights = np.zeros((2 * len(cuts), 2 * len(cuts)))
         groups = []
         for i in range(len(cuts)):
             groups.append([2 * i, 2 * i + 1])
-            for k in range(0, i):
-                start_config = i * 2
-                end_config = start_config + 1
-                other_start_config = k * 2
-                other_end_config = other_start_config + 1
+            cut1_configs = cuts[i].configurations()
+            for k in range(i):
+                cut2_configs = cuts[k].configurations()
 
-                weights[start_config, other_start_config] = cost_function.get_cost(
-                    cuts[i].end_configuration(), cuts[k].start_configuration()
-                )
-                weights[start_config, other_end_config] = cost_function.get_cost(
-                    cuts[i].end_configuration(), cuts[k].end_configuration()
-                )
-                weights[end_config, other_start_config] = cost_function.get_cost(
-                    cuts[i].start_configuration(), cuts[k].start_configuration()
-                )
-                weights[end_config, other_end_config] = cost_function.get_cost(
-                    cuts[i].start_configuration(), cuts[k].end_configuration()
-                )
-                weights[other_start_config, start_config] = cost_function.get_cost(
-                    cuts[k].end_configuration(), cuts[i].start_configuration()
-                )
-                weights[other_start_config, end_config] = cost_function.get_cost(
-                    cuts[k].end_configuration(), cuts[i].end_configuration()
-                )
-                weights[other_end_config, start_config] = cost_function.get_cost(
-                    cuts[k].start_configuration(), cuts[i].start_configuration()
-                )
-                weights[other_end_config, end_config] = cost_function.get_cost(
-                    cuts[k].start_configuration(), cuts[i].end_configuration()
-                )
+                for conf1_offset, conf2_offset in product([0, 1], repeat=2):
+                    cut1_weight_idx = 2 * i + conf1_offset
+                    cut2_weight_idx = 2 * k + conf2_offset
+                    # We use cutX_configs[1-confX_offset] because if we start a cut at start_config, we need the distance of end_config to the other cut and vice versa
+                    self._add_weight(
+                        weights,
+                        cut1_weight_idx,
+                        cut2_weight_idx,
+                        cut1_configs[1 - conf1_offset],
+                        cut2_configs[conf2_offset],
+                    )
+                    self._add_weight(
+                        weights,
+                        cut2_weight_idx,
+                        cut1_weight_idx,
+                        cut2_configs[1 - conf2_offset],
+                        cut1_configs[conf1_offset],
+                    )
 
         return (weights, groups)
+
+    def _add_weight(
+        self,
+        matrix: np.ndarray,
+        idx1: int,
+        idx2: int,
+        config1: Configuration,
+        config2: Configuration,
+    ):
+        cost_function = self.cost_function
+        matrix[idx1, idx2] = cost_function.get_cost(config1, config2)
 
     def _tour_to_path(
         self,
