@@ -8,7 +8,10 @@ from core.pipeline.base import Module, Pipeline
 def full_pipeline(frontendInput: FrontendInput, generations: int = 1000) -> Pipeline:
     modules: list[Module] = [
         SVG5DOF_Importer(
-            frontendInput.material_thickness, scaling=frontendInput.scaling
+            frontendInput.material_thickness,
+            scaling=frontendInput.scaling,
+            x_offset=frontendInput.x_offset,
+            y_offset=frontendInput.y_offset,
         )
     ]
     if frontendInput.optimize:
