@@ -24,3 +24,9 @@ class FrontendInput(BaseModel):
     scaling: ScalingType = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm"
     )
+    x_offset: int = Field(
+        description="How many millimeters the svg should be moved alongside the x-axis"
+    )
+    y_offset: int = Field(
+        description="How many millimeters the svg should be moved alongside the y-axis"
+    )
