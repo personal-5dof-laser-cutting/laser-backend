@@ -136,6 +136,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         self,
         material_thickness: float,
         scaling: ScalingType = "mm",
+        x_offset: int = 0,
+        y_offset: int = 0,
     ) -> None:
         super().__init__()
         scaling_factors: dict[str, float] = {
