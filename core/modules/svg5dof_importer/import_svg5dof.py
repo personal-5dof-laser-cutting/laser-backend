@@ -146,10 +146,15 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         }
         self.material_thickness: float = material_thickness
         self.scaling_factor: float = scaling_factors[scaling]
+        self.x_offset = x_offset
+        self.y_offset = y_offset
 
-    def _scale_points(self, points: list[Point2D]) -> list[Point2D]:
+    def _transform_points(self, points: list[Point2D]) -> list[Point2D]:
         return [
-            Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
+            Point2D(
+                p.x * self.scaling_factor + self.x_offset,
+                p.y * self.scaling_factor + self.y_offset,
+            )
             for p in points
         ]
 
@@ -195,8 +200,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     path = paths[0]
                     top_points, bottom_points = svg_paths_to_points(path, path)
                     cuts = points_to_trapezoids(
-                        bottom_points=self._scale_points(bottom_points),
-                        top_points=self._scale_points(top_points),
+                        bottom_points=self._transform_points(bottom_points),
+                        top_points=self._transform_points(top_points),
                         material_height=self.material_thickness,
                     )
                     geometry.add_cuts(cuts)
@@ -234,8 +239,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     )
 
                     cuts = points_to_trapezoids(
-                        self._scale_points(bottom_points),
-                        self._scale_points(top_points),
+                        self._transform_points(bottom_points),
+                        self._transform_points(top_points),
                         cut_depth,
                     )
                     geometry.add_cuts(cuts)
