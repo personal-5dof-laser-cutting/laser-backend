@@ -189,7 +189,15 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         for element in svg_root:
             tag = element.tag.split(svg_namespace)[-1]
             match tag:
-                case "line" | "path" | "rect" | "circle" | "polygon" | "polyline":
+                case (
+                    "line"
+                    | "path"
+                    | "rect"
+                    | "circle"
+                    | "polygon"
+                    | "polyline"
+                    | "ellipse"
+                ):
                     paths, _ = svg.svgstr2paths(  # type: ignore
                         ET.tostring(element, encoding="unicode")
                     )
@@ -204,6 +212,9 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     cut_depth: float = (
                         self._5dof_color_to_percentage(color) * self.material_thickness
                     )
+
+                    if math.isclose(cut_depth, 0):
+                        cut_depth = self.material_thickness
 
                     cuts = points_to_trapezoids(
                         bottom_points=self._transform_points(bottom_points),
@@ -237,6 +248,9 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     bottom_points, top_points = svg_paths_to_points(
                         bottom_path[0], top_path[0]
                     )
+
+                    if len(bottom_points) == 0 and len(top_points) == 0:
+                        continue
 
                     bottom_color = svg_color_to_rgba(bottom_element.attrib["stroke"])
                     cut_depth: float = (
