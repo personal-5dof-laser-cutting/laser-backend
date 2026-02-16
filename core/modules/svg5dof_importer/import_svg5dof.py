@@ -208,7 +208,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     path = paths[0]
                     top_points, bottom_points = svg_paths_to_points(path, path)
 
-                    color = svg_color_to_rgba(element.attrib["stroke"])
+                    color = (
+                        svg_color_to_rgba(element.attrib["stroke"])
+                        if "stroke" in element.attrib
+                        else (0, 0, 0, 255)
+                    )
                     cut_depth: float = (
                         self._5dof_color_to_percentage(color) * self.material_thickness
                     )
