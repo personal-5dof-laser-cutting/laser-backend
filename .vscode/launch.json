@@ -11,6 +11,36 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "Debugger Svg to gcode",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "util.svg_to_gcode",
+            "args": [
+                "7.75", // material thickness
+                "illustrator", // scaling
+                "3", // cut speed in mm/s
+                "6.0", // material constant
+                "/home/edi/Downloads/hidden_joints_small_top.svg",
+                "top2.gcode"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debugger Svg to gcode Ocarina",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "util.svg_to_gcode",
+            "args": [
+                "5", // material thickness
+                "illustrator", // scaling
+                "7", // cut speed in mm/s
+                "7.0", // material constant
+                "/home/edi/Downloads/ocarina_no_fillings_test_newly_scaled.svg",
+                "ocarina.gcode"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
