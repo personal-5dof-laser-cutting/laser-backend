@@ -147,7 +147,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
 
     def _scale_points(self, points: list[Point2D]) -> list[Point2D]:
         return [
-            Point2D(p.x * self.scaling_factor + 100, p.y * self.scaling_factor + 100)
+            Point2D(p.x * self.scaling_factor, p.y * self.scaling_factor)
             for p in points
         ]
 
