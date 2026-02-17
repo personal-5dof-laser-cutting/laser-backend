@@ -1,4 +1,5 @@
 from Geometry3D import (
+    Plane,
     Point,
     Line,
     Vector,
@@ -8,6 +9,7 @@ from Geometry3D import (
     Visualizer,
     Segment,
     origin,
+    z_unit_vector,
 )
 import math
 from copy import copy
@@ -226,6 +228,15 @@ class TrapezoidalCut:
     def cut_depth(self) -> float:
         # The height of the trapezoid
         return self._start_top.z - self._start_bottom.z
+
+    @property
+    def effective_angle_abs(self) -> float:
+        # This is the absolute angle of the laser head in a lazy susan configuration
+        cut_plane: Plane = Plane(self.start_bottom, self.start_top, self.end_bottom)
+        parallel_plane: Plane = Plane(
+            self.start_top, self.top_vector(), z_unit_vector()
+        )
+        return parallel_plane.angle(cut_plane)
 
     def top_segment(self) -> Segment:
         return Segment(self.start_top, self.end_top)
