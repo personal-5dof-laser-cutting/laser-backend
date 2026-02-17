@@ -51,8 +51,11 @@ class GCodeExporter(Module[Geometry, str]):
             return f"{rounded_value:z.{precision}f}".rstrip("0").rstrip(".")
 
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
+        # This calculations assumes that the laser power increases linearly
         depth: float = cut.depth(0.5)
+
         laser_power: float = depth * self.cut_speed * self.material_constant
+
         assert laser_power >= 0
         return laser_power
 
