@@ -1,6 +1,7 @@
 from core.models.geometry import TrapezoidalCut
 from Geometry3D import Point, Segment, Vector
 import pytest
+import math
 
 
 def test_from_points():
@@ -57,3 +58,32 @@ def test_move():
 
     t1_moved = t1.move(Vector(1, 0, 0))
     assert t1_moved.polygon() == t2.polygon()
+
+
+@pytest.mark.parametrize(
+    "cut,expected_angle_deg",
+    [
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(1, 0, 0), Point(0, 0, -1), Point(1, 0, -1)
+            ),
+            0.0,
+        ),
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, -1), Point(1, 1, -1)
+            ),
+            45.0,
+        ),
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(1, 1, 0), Point(0, 0, -1), Point(1, 1, -1)
+            ),
+            0.0,
+        ),
+    ],
+)
+def test_effective_angle(cut: TrapezoidalCut, expected_angle_deg: float):
+    assert cut.effective_angle_abs == pytest.approx(
+        math.radians(abs(expected_angle_deg)), 0.01
+    )
