@@ -140,11 +140,15 @@ class GCodeExporter(Module[Geometry, str]):
 
                 if not self.laser_off:
                     laser_power: float = (
-                        1000
+                        255
                         if self.force_max_laser_power
                         else self.calculate_laser_power(cut)
                     )
-                    if laser_power > 1000:
+
+                    if math.isclose(cut.cut_depth, self.material_height):
+                        laser_power: float = 255
+
+                    if laser_power > 255:
                         raise Exception(
                             "Cut speed to high or laser not powerful enough"
                         )
