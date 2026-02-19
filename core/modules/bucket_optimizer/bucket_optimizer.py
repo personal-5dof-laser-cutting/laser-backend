@@ -1,3 +1,4 @@
+import math
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
@@ -11,6 +12,10 @@ class BucketOptimizerModule(Module[Geometry, Geometry]):
 
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[float, float, float, float]:
         table_angle, laser_head_angle = cut.cutter_angles(unit="radian")
+        # We choose only configuration options with positive table angle for better bucketing
+        if table_angle < 0 and not math.isclose(table_angle, 0):
+            table_angle += math.pi
+            laser_head_angle *= -1
         epsilon = 0.01
         table_angle = self.round_to_epsilon(table_angle, epsilon)
         laser_head_angle = self.round_to_epsilon(laser_head_angle, epsilon)
