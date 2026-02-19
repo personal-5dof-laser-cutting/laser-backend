@@ -259,21 +259,22 @@ class TrapezoidalCut:
         cut_direction: Vector = self.top_vector()
         cut_direction_2D: Vector = Vector(cut_direction[0], cut_direction[1], 0)
         table_angle = cut_direction_2D.angle(y_unit_vector())
+        # We assume that the cutter will always rotate the table by the minimum amount and thus never more than a quarter of a turn
         if table_angle > math.pi / 2:
             table_angle = math.pi - table_angle
 
-        # We check if it cuts towards negative x to see if the table needs to be rotated clockwise
+        # We check if it cuts towards negative x to see if the table will rotated clockwise (negative angle)
         if cut_direction_2D[0] < 0 and not math.isclose(cut_direction_2D[0], 0):
-            # Since the table angles span from -pi to pi, pi is half a turn
             table_angle *= -1
 
-        angle_180_vector = Vector(start_direction[0], start_direction[1], 0)
-        # We flip the angle compare vector if the cut is slanted towards +x or only slanted towards -y (in which case the table rotates 90° counter clockwise) so when subtracting pi/2 the angle is positive
+        angle_compare_vector = Vector(start_direction[0], start_direction[1], 0)
+        # If the cut is slanted towards +x or only slanted towards -y (in which case the table rotates 90° counter clockwise and the head points towards +x),
+        # we flip the angle compare vector to get an angle between -90° and 90°
         if start_direction[0] > 0 or (
             math.isclose(start_direction[0], 0) and start_direction[1] < 0
         ):
-            angle_180_vector = -angle_180_vector
-        laser_head_angle = start_direction.angle(angle_180_vector) - math.pi / 2
+            angle_compare_vector = -angle_compare_vector
+        laser_head_angle = start_direction.angle(angle_compare_vector) - math.pi / 2
 
         if unit == "degree":
             table_angle *= 180 / math.pi
