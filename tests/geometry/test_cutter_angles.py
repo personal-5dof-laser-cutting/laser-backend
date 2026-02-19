@@ -15,10 +15,10 @@ import pytest
         ),
         (
             TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 1, 0), Point(1, 0, -1), Point(2, 1, -1)
+                Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, -1), Point(1, 1, -1)
             ),
-            45,
-            45,
+            90,
+            -45,
         ),
         (
             TrapezoidalCut(
@@ -29,42 +29,42 @@ import pytest
         ),
         (
             TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 1, 0), Point(-1, 0, -1), Point(0, 1, -1)
+                Point(0, 0, 0), Point(0, 1, 0), Point(-1, 0, -1), Point(-1, 1, -1)
             ),
-            45,
+            0,
             -45,
         ),
         (
             TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 1, 0), Point(0, -1, -1), Point(1, 0, -1)
-            ),
-            45,
-            45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, -1, 0), Point(1, 0, -1), Point(0, -1, -1)
-            ),
-            -45,
-            45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, -1, 0), Point(0, 1, -1), Point(-1, 0, -1)
+                Point(0, 0, 0), Point(-1, 1, 0), Point(-1, 0, -1), Point(-2, 1, -1)
             ),
             -45,
             -45,
         ),
         (
             TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, -1, 0), Point(-1, 0, -1), Point(-2, -1, -1)
+                Point(0, 0, 0), Point(-1, 0, 0), Point(0, -1, -1), Point(-1, -1, -1)
             ),
-            -45,
-            -45,
+            90,
+            45,
         ),
         (
             TrapezoidalCut(
                 Point(0, 0, 0), Point(-1, -1, 0), Point(0, -1, -1), Point(-1, -2, -1)
+            ),
+            45,
+            45,
+        ),
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(0, -1, 0), Point(1, 0, -1), Point(1, -1, -1)
+            ),
+            0,
+            45,
+        ),
+        (
+            TrapezoidalCut(
+                Point(0, 0, 0), Point(1, -1, 0), Point(1, 0, -1), Point(2, -1, -1)
             ),
             -45,
             45,
