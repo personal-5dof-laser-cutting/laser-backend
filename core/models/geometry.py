@@ -9,6 +9,7 @@ from Geometry3D import (
     Visualizer,
     Segment,
     origin,
+    z_unit_vector,
 )
 import math
 from copy import copy
@@ -53,10 +54,10 @@ class Configuration:
         Offset in mm on the x axis
     y : float
         Offset in mm on the y axis
-    alpha_deg : float
-        Rotation around the x axis in degrees. 0 points downwards and positive is CCW.
-    beta_deg : float
-        Rotation around the y axis in degrees. 0 points downwards and positve is CCW.
+    alpha : float
+        Rotation around the x axis in radians. 0 points downwards and positive is CCW.
+    beta : float
+        Rotation around the y axis in radians. 0 points downwards and positve is CCW.
     """
 
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
@@ -128,6 +129,11 @@ class Configuration:
         )
 
         return Segment(start_point, direction_vector)
+
+    def direction_vector(self) -> Vector:
+        y = math.tan(self.alpha)
+        x = math.tan(self.beta)
+        return Vector(x, y, 1).normalized()
 
 
 class TrapezoidalCut:
@@ -230,7 +236,17 @@ class TrapezoidalCut:
 
     @property
     def cut_depth(self) -> float:
+        # The height of the trapezoid
         return self._start_top.z - self._start_bottom.z
+
+    @property
+    def effective_angle_abs(self) -> float:
+        # This is the absolute angle of the laser head in a lazy susan configuration
+        cut_plane: Plane = Plane(self.start_bottom, self.start_top, self.end_bottom)
+        parallel_plane: Plane = Plane(
+            self.start_top, self.top_vector(), z_unit_vector()
+        )
+        return parallel_plane.angle(cut_plane)
 
     def top_segment(self) -> Segment:
         return Segment(self.start_top, self.end_top)
@@ -314,6 +330,15 @@ class TrapezoidalCut:
             copy(self.start_bottom).move(v),
             copy(self.end_bottom).move(v),
         )
+
+    def depth(self, x: float) -> float:
+        # For x = 0, this method will return the length of the start segment, for x = 1 it returns the length of the end segment
+        # For x = 0.5 this will return distance between the middle points of the top and bottom line
+        if not 0 <= x <= 1:
+            raise ValueError("x must be between 0 and 1 (inclusive)")
+        upper_point: Point = Point(self.start_top.pv() + self.top_vector() * x)
+        lower_point: Point = Point(self.start_bottom.pv() + self.bottom_vector() * x)
+        return upper_point.distance(lower_point)
 
     def get_slant_angle(self) -> float:
         return self.plane().n[2]
