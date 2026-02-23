@@ -332,7 +332,7 @@ class TrapezoidalCut:
         )
 
     def depth(self, x: float) -> float:
-        # For x = 0, this method will return the length of the start segment, for x = 1 it returns the lnegth of the end segment
+        # For x = 0, this method will return the length of the start segment, for x = 1 it returns the length of the end segment
         # For x = 0.5 this will return distance between the middle points of the top and bottom line
         if not 0 <= x <= 1:
             raise ValueError("x must be between 0 and 1 (inclusive)")
