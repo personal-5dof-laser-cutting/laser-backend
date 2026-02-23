@@ -1,6 +1,10 @@
 from api.models.base import FrontendInput
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
+from core.modules.geometry_visualizer.geometry_visualizer import (
+    GeometryVisualizerModule,
+)
 from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
+from core.modules.naive_nester.naive_nester import NaiveNestingModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.pipeline.base import Module, Pipeline
 
@@ -12,7 +16,10 @@ def full_pipeline(frontendInput: FrontendInput, generations: int = 1000) -> Pipe
             scaling=frontendInput.scaling,
             x_offset=frontendInput.x_offset,
             y_offset=frontendInput.y_offset,
-        )
+        ),
+        GeometryVisualizerModule(),
+        NaiveNestingModule(),
+        GeometryVisualizerModule(),
     ]
     if frontendInput.optimize:
         modules.append(GlobalOptimizerModule(generations=generations))
