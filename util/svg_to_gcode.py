@@ -33,7 +33,7 @@ if __name__ == "__main__":
         cut_speed=cut_speed,
         laser_off=False,
         material_constant=material_constant,
-        jack_up=prop_up,
+        prop_up=prop_up,
     )
     gcode = exporter.process(geo)
     with open(gcode_output, "w") as f:
