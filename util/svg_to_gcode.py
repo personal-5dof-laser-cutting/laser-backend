@@ -1,3 +1,5 @@
+from typing import cast, get_args
+
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from api.models.base import ScalingType
@@ -6,22 +8,30 @@ from Geometry3D import set_sig_figures
 
 if __name__ == "__main__":
     set_sig_figures(4)
-    if len(sys.argv) != 7:
+    if len(sys.argv) not in [8, 10]:
         print(
-            "Usage: material_thickness scaling cut_speed material_constant prop_up svg_file output_file"
+            "Usage: material_thickness scaling cut_speed material_constant prop_up svg_file output_file [x_offset y_offset]"
         )
         sys.exit(1)
+    if sys.argv[2] not in get_args(ScalingType):
+        raise Exception("Invalid scaling")
+
     material_thickness: float = float(sys.argv[1])
-    scaling: str = sys.argv[2]
+    scaling: ScalingType = cast(ScalingType, sys.argv[2])
     cut_speed: float = float(sys.argv[3])
     material_constant: float = float(sys.argv[4])
     prop_up: float = float(sys.argv[5])
-    svg_path: str = sys.argv[7]
-    gcode_output: str = sys.argv[6]
+    svg_path: str = sys.argv[6]
+    gcode_output: str = sys.argv[7]
+    x_offset: int = int(sys.argv[8]) if len(sys.argv) == 10 else 0
+    y_offset: int = int(sys.argv[9]) if len(sys.argv) == 10 else 0
 
-    if scaling not in ScalingType:
-        raise Exception("Invalid scaling")
-    importer = SVG5DOF_Importer(material_thickness=material_thickness, scaling=scaling)  # type: ignore
+    importer = SVG5DOF_Importer(
+        material_thickness=material_thickness,
+        scaling=scaling,
+        x_offset=x_offset,
+        y_offset=y_offset,
+    )
     geo = importer.process(open(svg_path, "r").read())
 
     # vis = GeometryVisualizerModule()
