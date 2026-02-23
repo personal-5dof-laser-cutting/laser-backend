@@ -8,14 +8,15 @@ if __name__ == "__main__":
     set_sig_figures(4)
     if len(sys.argv) != 7:
         print(
-            "Usage: material_thickness scaling cut_speed material_constant svg_file output_file"
+            "Usage: material_thickness scaling cut_speed material_constant prop_up svg_file output_file"
         )
         sys.exit(1)
     material_thickness: float = float(sys.argv[1])
     scaling: str = sys.argv[2]
     cut_speed: float = float(sys.argv[3])
     material_constant: float = float(sys.argv[4])
-    svg_path: str = sys.argv[5]
+    prop_up: float = float(sys.argv[5])
+    svg_path: str = sys.argv[7]
     gcode_output: str = sys.argv[6]
 
     if scaling not in ScalingType:
@@ -32,6 +33,7 @@ if __name__ == "__main__":
         cut_speed=cut_speed,
         laser_off=False,
         material_constant=material_constant,
+        prop_up=prop_up,
     )
     gcode = exporter.process(geo)
     with open(gcode_output, "w") as f:
