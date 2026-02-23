@@ -15,7 +15,7 @@ class GCodeExporter(Module[Geometry, str]):
         material_constant: float = 7.5,
         laser_off: bool = True,
         force_max_laser_power: bool = False,
-        jack_up: float = 0.0,
+        prop_up: float = 0.0,
     ) -> None:
         super().__init__()
         self._gcode: str = ""
@@ -37,7 +37,7 @@ class GCodeExporter(Module[Geometry, str]):
         self.laser_off: bool = laser_off
         self.force_max_laser_power: bool = force_max_laser_power
 
-        self.jack_up: float = jack_up
+        self.prop_up: float = prop_up
 
     def _add_command(self, command: str, comment: str = ""):
         self._gcode += command
@@ -138,7 +138,7 @@ class GCodeExporter(Module[Geometry, str]):
 
                 if last_config != start_config:
                     self._add_command(
-                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.jack_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
+                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
                         "travel move",
                     )  # travel move
 
@@ -167,7 +167,7 @@ class GCodeExporter(Module[Geometry, str]):
                         last_laser = laser_power
 
                 self._add_command(
-                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.jack_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
+                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
                     "cut move",
                 )  # cut
 
