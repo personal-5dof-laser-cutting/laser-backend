@@ -188,87 +188,100 @@ class SVG5DOF_Importer(Module[str, Geometry]):
 
         for element in svg_root:
             tag = element.tag.split(svg_namespace)[-1]
-            match tag:
-                case (
-                    "line"
-                    | "path"
-                    | "rect"
-                    | "circle"
-                    | "polygon"
-                    | "polyline"
-                    | "ellipse"
-                ):
-                    paths, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(element, encoding="unicode")
-                    )
-                    if len(paths) != 1:
-                        raise Exception(
-                            f"SVG element '{element}' does not contain exactly one svg element"
+            try:
+                match tag:
+                    case (
+                        "line"
+                        | "path"
+                        | "rect"
+                        | "circle"
+                        | "polygon"
+                        | "polyline"
+                        | "ellipse"
+                    ):
+                        paths, _ = svg.svgstr2paths(  # type: ignore
+                            ET.tostring(element, encoding="unicode")
                         )
-                    path = paths[0]
-                    top_points, bottom_points = svg_paths_to_points(path, path)
+                        if len(paths) != 1:
+                            raise Exception(
+                                f"SVG element '{element}' does not contain exactly one svg element"
+                            )
+                        path = paths[0]
+                        top_points, bottom_points = svg_paths_to_points(path, path)
 
-                    color = (
-                        svg_color_to_rgba(element.attrib["stroke"])
-                        if "stroke" in element.attrib
-                        else (0, 0, 0, 255)
-                    )
-                    cut_depth: float = (
-                        self._5dof_color_to_percentage(color) * self.material_thickness
-                    )
-
-                    if math.isclose(cut_depth, 0):
-                        cut_depth = self.material_thickness
-
-                    cuts = points_to_trapezoids(
-                        bottom_points=self._transform_points(bottom_points),
-                        top_points=self._transform_points(top_points),
-                        material_height=self.material_thickness,
-                    )
-                    geometry.add_cuts(cuts)
-                case "g":
-                    if len(element) != 2:
-                        raise ValueError(
-                            f"Group contains {len(element)} elements, not 2."
+                        color = (
+                            svg_color_to_rgba(element.attrib["stroke"])
+                            if "stroke" in element.attrib
+                            else (0, 0, 0, 255)
+                        )
+                        cut_depth: float = (
+                            self._5dof_color_to_percentage(color)
+                            * self.material_thickness
                         )
 
-                    elem1, elem2 = element
-                    second_is_top: bool = (
-                        compare_rgba_tuples(
-                            svg_color_to_rgba(elem2.attrib["stroke"]), TOP_COLOR
+                        if math.isclose(cut_depth, 0):
+                            cut_depth = self.material_thickness
+
+                        cuts = points_to_trapezoids(
+                            bottom_points=self._transform_points(bottom_points),
+                            top_points=self._transform_points(top_points),
+                            material_height=self.material_thickness,
                         )
-                        < 20
-                    )
-                    top_element = elem2 if second_is_top else elem1
-                    bottom_element = elem1 if second_is_top else elem2
+                        geometry.add_cuts(cuts)
+                    case "g":
+                        if len(element) != 2:
+                            raise ValueError(
+                                f"Group contains {len(element)} elements, not 2."
+                            )
 
-                    top_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(top_element, encoding="unicode")
-                    )
-                    bottom_path, _ = svg.svgstr2paths(  # type: ignore
-                        ET.tostring(bottom_element, encoding="unicode")
-                    )
+                        elem1, elem2 = element
+                        second_is_top: bool = (
+                            compare_rgba_tuples(
+                                svg_color_to_rgba(elem2.attrib["stroke"]), TOP_COLOR
+                            )
+                            < 20
+                        )
+                        top_element = elem2 if second_is_top else elem1
+                        bottom_element = elem1 if second_is_top else elem2
 
-                    bottom_points, top_points = svg_paths_to_points(
-                        bottom_path[0], top_path[0]
-                    )
+                        top_path, _ = svg.svgstr2paths(  # type: ignore
+                            ET.tostring(top_element, encoding="unicode")
+                        )
+                        bottom_path, _ = svg.svgstr2paths(  # type: ignore
+                            ET.tostring(bottom_element, encoding="unicode")
+                        )
 
-                    if len(bottom_points) == 0 and len(top_points) == 0:
-                        continue
+                        bottom_points, top_points = svg_paths_to_points(
+                            bottom_path[0], top_path[0]
+                        )
 
-                    bottom_color = svg_color_to_rgba(bottom_element.attrib["stroke"])
-                    cut_depth: float = (
-                        self._5dof_color_to_percentage(bottom_color)
-                        * self.material_thickness
-                    )
+                        if len(bottom_points) == 0 and len(top_points) == 0:
+                            continue
 
-                    cuts = points_to_trapezoids(
-                        self._transform_points(bottom_points),
-                        self._transform_points(top_points),
-                        cut_depth,
-                    )
-                    geometry.add_cuts(cuts)
-                case _:
-                    raise ValueError(f"Unknown tag {tag}")
+                        bottom_color = svg_color_to_rgba(
+                            bottom_element.attrib["stroke"]
+                        )
+                        cut_depth: float = (
+                            self._5dof_color_to_percentage(bottom_color)
+                            * self.material_thickness
+                        )
 
+                        cuts = points_to_trapezoids(
+                            self._transform_points(bottom_points),
+                            self._transform_points(top_points),
+                            cut_depth,
+                        )
+                        geometry.add_cuts(cuts)
+                    case _:
+                        raise ValueError(f"Unknown tag {tag}")
+            except Exception as e:
+                if element.tag != "g":
+                    element.attrib["stroke"] = "red"
+                else:
+                    for el in element:
+                        el.attrib["stroke"] = "red"
+                tree = ET.ElementTree(svg_root)
+                tree.write("error.svg")
+
+                raise e
         return geometry
