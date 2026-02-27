@@ -1,5 +1,6 @@
 from typing import cast, get_args
 
+from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from api.models.base import ScalingType
@@ -34,6 +35,8 @@ if __name__ == "__main__":
     )
     geo = importer.process(open(svg_path, "r").read())
 
+    optimizer = BucketOptimizerModule()
+    optimized_geo = optimizer.process(geo)
     # vis = GeometryVisualizerModule()
     # vis.process(geo)
     exporter = GCodeExporter(
@@ -45,6 +48,6 @@ if __name__ == "__main__":
         material_constant=material_constant,
         prop_up=prop_up,
     )
-    gcode = exporter.process(geo)
+    gcode = exporter.process(optimized_geo)
     with open(gcode_output, "w") as f:
         f.write(gcode)
