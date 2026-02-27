@@ -15,14 +15,14 @@ class BucketOptimizerModule(Module[Geometry, Geometry]):
         return optimized_geo
 
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[int, int, int, int]:
-        table_angle, laser_head_angle = cut.cutter_angles(unit="radian")
+        start_config = cut.start_configuration()
+        table_angle, laser_head_angle = start_config.get_cutter_angles(unit="radian")
         # We choose only configuration options with positive table angle for better bucketing
         if table_angle < 0 and not math.isclose(table_angle, 0):
             table_angle += math.pi
             laser_head_angle *= -1
         table_angle_bucket = self.get_bucket_index(table_angle)
         laser_head_angle_bucket = self.get_bucket_index(laser_head_angle)
-        start_config = cut.start_configuration()
         x_pos_bucket = self.get_bucket_index(start_config.x)
         y_pos_bucket = self.get_bucket_index(start_config.y)
         return (table_angle_bucket, laser_head_angle_bucket, x_pos_bucket, y_pos_bucket)
