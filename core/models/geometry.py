@@ -56,9 +56,9 @@ class Configuration:
     y : float
         Offset in mm on the y axis
     alpha : float
-        Rotation around the x axis in radians. 0 points downwards and positive is CCW.
+        Rotation around the x axis in radians. 0 points downwards and positive points towards positive y.
     beta : float
-        Rotation around the y axis in radians. 0 points downwards and positve is CCW.
+        Rotation around the y axis in radians. 0 points downwards and positve points towards positive x.
     """
 
     def __init__(self, x: float, y: float, alpha: float, beta: float) -> None:
@@ -80,7 +80,7 @@ class Configuration:
             )
 
     @classmethod
-    def from_segment(cls, segment: Segment) -> "Configuration":
+    def from_segment(cls, segment: Segment) -> Configuration:
         direction_vector: Vector = Vector(segment.start_point, segment.end_point)
         start_point: Point = segment.start_point
         x, y, z = direction_vector
@@ -134,7 +134,62 @@ class Configuration:
     def direction_vector(self) -> Vector:
         y = math.tan(self.alpha)
         x = math.tan(self.beta)
-        return Vector(x, y, 1).normalized()
+        return Vector(x, y, -1).normalized()
+
+    def get_cutter_angles(
+        self, unit: Literal["radian", "degree"] = "radian"
+    ) -> Tuple[float, float]:
+        """
+        Returns the angle that the table and laser head would change by to assume the configuration, if both are currently 0.
+        A laser cutter with a turn table has two theoretically possible angle pairs, where the table angle differs by half a turn and the laser head angle's sign is flipped.
+        This function returns the angle pair with the minimal angle change, meaning that pair with the table angle is closest to 0
+        """
+        if math.isclose(self.alpha, 0) and math.isclose(self.beta, 0):
+            return (0, 0)
+
+        if math.isclose(self.alpha, 0):
+            if unit == "degree":
+                return (0, math.degrees(self.beta))
+            return (0, self.beta)
+
+        if math.isclose(self.beta, 0):
+            if unit == "degree":
+                return (90, -math.degrees(self.alpha))
+            return (math.radians(90), -self.alpha)
+
+        direction = self.direction_vector()
+        # We use the negative angle to get the rotation needed to assume the configuration, instead of the applied rotation that lead to the configuration
+        table_angle = -math.atan2(direction[1], direction[0])
+
+        sin = math.sin(table_angle)
+        cos = math.cos(table_angle)
+        rotated_direction = Vector(
+            direction[0] * cos - direction[1] * sin,
+            direction[0] * sin + direction[1] * cos,
+            direction[2],
+        )
+        laser_head_angle = math.atan2(rotated_direction[0], -rotated_direction[2])
+
+        if table_angle > math.radians(90) and not math.isclose(
+            table_angle, math.radians(90)
+        ):
+            table_angle -= math.radians(180)
+            laser_head_angle *= -1
+        elif table_angle < -math.radians(90) and not math.isclose(
+            table_angle, -math.radians(90)
+        ):
+            table_angle += math.radians(180)
+            laser_head_angle *= -1
+
+        if unit == "degree":
+            table_angle = math.degrees(table_angle)
+            laser_head_angle = math.degrees(laser_head_angle)
+
+        if math.isclose(table_angle, 0):
+            table_angle = 0
+        if math.isclose(laser_head_angle, 0):
+            laser_head_angle = 0
+        return (table_angle, laser_head_angle)
 
 
 class TrapezoidalCut:
