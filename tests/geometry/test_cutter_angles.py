@@ -1,77 +1,38 @@
-import math
-from core.models.geometry import TrapezoidalCut, Point
+from core.models.geometry import Configuration
 import pytest
+import math
 
 
 @pytest.mark.parametrize(
-    "cut, expected_table, expected_head",
+    "conf, expected_table, expected_head",
     [
+        (Configuration(0, 0, 0, math.radians(45)), 0, 45),
         (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 1, 0), Point(0, 0, -1), Point(1, 1, -1)
-            ),
-            0,
-            0,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, -1), Point(1, 1, -1)
-            ),
-            90,
+            Configuration(0, 0, math.radians(45), math.radians(45)),
             -45,
+            math.degrees(math.acos(1 / math.sqrt(3))),
         ),
+        (Configuration(0, 0, math.radians(45), 0), 90, -45),
         (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(1, 1, 0), Point(0, 1, -1), Point(1, 2, -1)
-            ),
+            Configuration(0, 0, math.radians(45), math.radians(-45)),
             45,
+            -math.degrees(math.acos(1 / math.sqrt(3))),
+        ),
+        (Configuration(0, 0, 0, math.radians(-45)), 0, -45),
+        (
+            Configuration(0, 0, math.radians(-45), math.radians(-45)),
             -45,
+            -math.degrees(math.acos(1 / math.sqrt(3))),
         ),
+        (Configuration(0, 0, math.radians(-45), 0), 90, 45),
         (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(0, 1, 0), Point(-1, 0, -1), Point(-1, 1, -1)
-            ),
-            0,
-            -45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, 1, 0), Point(-1, 0, -1), Point(-2, 1, -1)
-            ),
-            -45,
-            -45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, 0, 0), Point(0, -1, -1), Point(-1, -1, -1)
-            ),
-            90,
+            Configuration(0, 0, math.radians(-45), math.radians(45)),
             45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(-1, -1, 0), Point(0, -1, -1), Point(-1, -2, -1)
-            ),
-            45,
-            45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(0, -1, 0), Point(1, 0, -1), Point(1, -1, -1)
-            ),
-            0,
-            45,
-        ),
-        (
-            TrapezoidalCut(
-                Point(0, 0, 0), Point(1, -1, 0), Point(1, 0, -1), Point(2, -1, -1)
-            ),
-            -45,
-            45,
+            math.degrees(math.acos(1 / math.sqrt(3))),
         ),
     ],
 )
-def test_angle(cut: TrapezoidalCut, expected_table: float, expected_head: float):
-    table, laser_head = cut.cutter_angles(unit="degree")
-    assert math.isclose(table, expected_table)
-    assert math.isclose(laser_head, expected_head)
+def test_angles(conf: Configuration, expected_table: float, expected_head: float):
+    table, laser_head = conf.get_cutter_angles(unit="degree")
+    assert table == pytest.approx(expected_table, 0.01)
+    assert laser_head == pytest.approx(expected_head, 0.01)
