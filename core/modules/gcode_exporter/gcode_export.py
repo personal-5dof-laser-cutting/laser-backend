@@ -155,7 +155,7 @@ class GCodeExporter(Module[Geometry, str]):
                         laser_power: float = 255
 
                     if laser_power > 255:
-                        raise Exception(
+                        print(
                             "Cut speed to high or laser not powerful enough"
                         )
 
@@ -178,5 +178,6 @@ class GCodeExporter(Module[Geometry, str]):
 
         if not self.laser_off:
             self._add_command("M8.1", "air assist off")  # air assist off
+        self._add_command("G0 X200 Y300 A0 B0", "go to rest position")
         self._add_command("M2", "end")  # end of program
         return self._gcode
