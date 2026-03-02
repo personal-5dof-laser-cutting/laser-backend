@@ -136,12 +136,6 @@ class GCodeExporter(Module[Geometry, str]):
             for cut in self._discretize_cut(raw_cut):
                 start_config = cut.start_configuration()
 
-                if last_config != start_config:
-                    self._add_command(
-                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
-                        "travel move",
-                    )  # travel move
-
                 end_config = cut.end_configuration()
 
                 if not self.laser_off:
@@ -165,6 +159,12 @@ class GCodeExporter(Module[Geometry, str]):
                             "laser on",
                         )  # laser on dynamic power
                         last_laser = laser_power
+
+                if last_config != start_config:
+                    self._add_command(
+                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
+                        "travel move",
+                    )  # travel move
 
                 self._add_command(
                     f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
