@@ -25,7 +25,7 @@ class BucketOptimizerModule(Module[Geometry, Geometry]):
         laser_head_angle_bucket = self.get_bucket_index(laser_head_angle)
         x_pos_bucket = self.get_bucket_index(start_config.x)
         y_pos_bucket = self.get_bucket_index(start_config.y)
-        return (table_angle_bucket, laser_head_angle_bucket, x_pos_bucket, y_pos_bucket)
+        return (laser_head_angle_bucket, table_angle_bucket, x_pos_bucket, y_pos_bucket)
 
     def get_bucket_index(self, value: float) -> int:
         return round(value / self.epsilon)
