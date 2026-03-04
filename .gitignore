@@ -1,6 +1,10 @@
 # GCode
 *.gcode
 
+# SVG5DOF
+*.svg
+*.ai
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -146,6 +150,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# macOS
+.DS_Store
 
 # Spyder project settings
 .spyderproject
