@@ -6,6 +6,8 @@ import threading
 import numpy as np
 from mock import Mock
 
+from util.calibrate_laser_power import sort_cuts
+
 MAX_POWER = 1000
 interface: CorgiInterface
 material_height: float
@@ -41,6 +43,10 @@ def cut(x: float, y: float, a: float = 0, b: float = 0):
     # print(f"Cut {x} {y} {a} {b}")
 
 
+def super_range(min: int, max: int, steps: int):
+    return (np.array(range(0, steps + 2)) / (steps + 1) * (max - min) + min).tolist()
+
+
 class Cut:
     def __init__(
         self,
@@ -71,94 +77,40 @@ class Cut:
         laser_off()
 
 
-def cut_half_groove(
-    x: float,
-    y: float,
-    angle_deg: float,
-    width: float,
-    length: float,
-    laser_power: float,
-    margin: float = 0,
-) -> list[Cut]:
-    offset: float = math.sin(math.radians(angle_deg)) * length
-
-    # |  /
-    # | / depth
-    # |/
-    # |  angle
-    # |
-    return [
-        Cut(
-            x + offset,
-            y - margin,
-            0,
-            -angle_deg,
-            x + offset,
-            y + width + margin,
-            0,
-            -angle_deg,
-            laser_power,
-        ),  # angled cut
-        Cut(x, y, 0, 0, x, y + width, 0, 0, 255),  # parallel to angled cut
-        Cut(x, y + width, 0, 0, x + offset + margin, y + width, 0, 0, 255),
-        Cut(x, y, 0, 0, x + offset + margin, y, 0, 0, 255),
-    ]
-
-
-def power_1dgrid(x, y, range: list[float], angle_deg, depth):
-    cuts = []
-    for power in range:
-        print(power)
-        cuts.extend(cut_half_groove(x, y, angle_deg, 5, depth, power))
-        y += 10
-    return cuts
-
-
-def sort_cuts(cuts: list[Cut]):
-    cuts.sort(key=lambda a: (a.start_a, a.start_b, a.start_y, a.start_x))
-
-
-def cut_v_groove(x: float, y: float, angle_deg: float, width: float, length: float):
-    offset: float = math.sin(math.radians(angle_deg)) * length
-
-    move(x - offset, y, 0, angle_deg)
-    cut(x - offset, y + width, 0, angle_deg)
-
-    move(x + offset, y + width, 0, -angle_deg)
-    cut(x + offset, y, 0, -angle_deg)
-
-    move(x - offset, y + width)
-    cut(x + offset, y + width)
-
-    move(x - offset, y)
-    cut(x + offset, y)
-
-
-def super_range(min: int, max: int, steps: int):
-    return (np.array(range(0, steps + 2)) / (steps + 1) * (max - min) + min).tolist()
-
-
 if __name__ == "__main__":
     address = sys.argv[1]
     material_height = float(sys.argv[2])
 
-    interface = CorgiInterface(GCodeInterface(address))
+    interface = CorgiInterface(address)
     threading.Thread(target=interface.main_loop, daemon=True).start()
     # interface = Mock()
 
     if input("Needs homing? y/n") == "y":
         home()
 
-    set_feedrate(240)
-
-    x = 100
-    y = 100
-
+    set_feedrate(600)
+    x = 200
+    y = 200
     if input(f"Go to x={x} y={y}? y/n") == "y":
         laser_off()
         move(x, y)
 
-    cuts = power_1dgrid(100, 100, super_range(10, 180, 10), angle_deg=18, depth=5)
-    sort_cuts(cuts)
+    input("Start?")
+    cuts = []
+    diff = 1.5
+    power = 15
+
+    delta_0 = 0
+    # - 0.18125
+
+    length = 5
+
+    cuts.append(Cut(x - diff, y, 0, -45, x - diff, y + length, 0, -45 + delta_0, power))
+    cuts.append(Cut(x, y, 0, 0, x, y + length, 0, 0 + delta_0, power))
+    cuts.append(Cut(x + diff, y, 0, 45, x + diff, y + length, 0, 45 + delta_0, power))
+
+    # sort_cuts(cuts)
+
     for c in cuts:
         c.do()
+    input("done?")
