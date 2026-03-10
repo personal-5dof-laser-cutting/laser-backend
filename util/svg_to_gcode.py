@@ -1,3 +1,4 @@
+import math
 from typing import cast, get_args
 
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
@@ -35,6 +36,24 @@ if __name__ == "__main__":
         y_offset=y_offset,
     )
     geo = importer.process(open(svg_path, "r").read())
+
+    max_angle: float = max([c.effective_angle_abs for c in geo.cuts])
+    print(f"Max angle: {math.degrees(max_angle)}")
+
+    min_x: float = 1000
+    max_x: float = -1000
+    min_y: float = 1000
+    max_y: float = -1000
+
+    for c in geo.cuts:
+        min_x = min(c.start_bottom.x, c.start_top.x, c.end_bottom.x, c.end_top.x)
+        max_x = max(c.start_bottom.x, c.start_top.x, c.end_bottom.x, c.end_top.x)
+        min_y = min(c.start_bottom.y, c.start_top.y, c.end_bottom.y, c.end_top.y)
+        max_y = max(c.start_bottom.y, c.start_top.y, c.end_bottom.y, c.end_top.y)
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+
+    print(f"Center: {center_x} {center_y}")
 
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
