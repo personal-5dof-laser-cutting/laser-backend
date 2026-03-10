@@ -39,7 +39,7 @@ if __name__ == "__main__":
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
     vis = DebugVisualizerModule(material_thickness)
-    vis.process(geo)
+    geo = vis.process(geo)
     exporter = GCodeExporter(
         material_thickness,
         gcode_comments=False,
