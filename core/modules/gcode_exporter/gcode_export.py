@@ -149,9 +149,7 @@ class GCodeExporter(Module[Geometry, str]):
                         laser_power: float = 255
 
                     if laser_power > 255:
-                        print(
-                            "Cut speed to high or laser not powerful enough"
-                        )
+                        print("Cut speed to high or laser not powerful enough")
 
                     if laser_power != last_laser:
                         self._add_command(

@@ -1,8 +1,8 @@
 from core.services.config_service import ConfigService, ConfigServiceImpl
 from core.services.laser_service import LaserService, LaserServiceImpl
-from core.services.cost_function_service import (
-    CostFunctionService,
-    CostFunctionServiceImpl,
+from core.services.laser_config_service import (
+    LaserConfigService,
+    LaserConfigServiceImpl,
 )
 
 
@@ -15,4 +15,4 @@ class Container:
 
     laser_service: LaserService = LaserServiceImpl()
 
-    cost_function: CostFunctionService = CostFunctionServiceImpl()
+    laser_config: LaserConfigService = LaserConfigServiceImpl()

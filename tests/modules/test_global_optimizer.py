@@ -3,9 +3,9 @@ from Geometry3D import Point
 from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.service_container import Container
-from core.services.cost_function_service import (
-    CostFunctionService,
-    CostFunctionServiceImpl,
+from core.services.laser_config_service import (
+    LaserConfigService,
+    LaserConfigServiceImpl,
 )
 
 SQUARE_PARAMS = [
@@ -19,7 +19,7 @@ SQUARE_PARAMS = [
 @pytest.mark.parametrize("cuts, tour", [(SQUARE_PARAMS, [0, 2, 4, 6])])
 def test_tour_to_path(cuts: list[TrapezoidalCut], tour: list[int]):
     optimizer = GlobalOptimizerModule()
-    trapezoid_path = optimizer._tour_to_path(tour, cuts, Container.cost_function)
+    trapezoid_path = optimizer._tour_to_path(tour, cuts, Container.laser_config)
     for i in range(len(cuts)):
         # tour_to_path tries to eliminate the most costly travel move. Since they're all 0 it eliminates the first travel move by left-shifting the array
         assert trapezoid_path[i] == cuts[(i + 1) % len(cuts)]
@@ -44,10 +44,10 @@ def test_global_optimizer(cuts: list[TrapezoidalCut]):
 
 def _calculate_path_cost(
     path: list[TrapezoidalCut],
-    cost_function: CostFunctionService = Container.cost_function,
+    cost_function: LaserConfigService = Container.laser_config,
 ):
     total_cost = 0
-    cost_function = CostFunctionServiceImpl()
+    cost_function = LaserConfigServiceImpl()
     for i in range(len(path) - 1):
         total_cost += cost_function.get_cost(
             path[i].end_configuration(), path[i + 1].start_configuration()

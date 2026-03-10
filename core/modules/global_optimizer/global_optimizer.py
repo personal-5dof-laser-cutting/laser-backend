@@ -6,7 +6,7 @@ from math import inf
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
-from core.services.cost_function_service import CostFunctionService
+from core.services.laser_config_service import LaserConfigService
 from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
@@ -18,9 +18,9 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
     def process(
         self,
         data: Geometry,
-        cost_function: CostFunctionService = Container.cost_function,
+        laser_config: LaserConfigService = Container.laser_config,
     ) -> Geometry:
-        self.cost_function = cost_function
+        self.laser_config = laser_config
         cuts: list[TrapezoidalCut] = data.cuts
         weights, groups = self._generate_weights(data.cuts)
         gtsp = GTSP(weights, groups)
@@ -35,7 +35,7 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
             do_head_reopt=True,
         )
         tour = gtsp.decode(best_chrom)
-        trapezoid_path = self._tour_to_path(tour, cuts, cost_function)
+        trapezoid_path = self._tour_to_path(tour, cuts, laser_config)
         data.cuts = trapezoid_path
 
         return data
@@ -81,14 +81,14 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         config1: Configuration,
         config2: Configuration,
     ):
-        cost_function = self.cost_function
-        matrix[idx1, idx2] = cost_function.get_cost(config1, config2)
+        laser_config = self.laser_config
+        matrix[idx1, idx2] = laser_config.get_cost(config1, config2)
 
     def _tour_to_path(
         self,
         tour: list[int],
         cuts: list[TrapezoidalCut],
-        cost_function: CostFunctionService,
+        laser_config: LaserConfigService,
     ) -> list[TrapezoidalCut]:
         if len(tour) != len(cuts):
             raise ArgumentError("Every cut has to be included in the tour.")
@@ -102,7 +102,7 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         max_dist = -inf
         idx_max = 0
         for i in range(len(cut_list)):
-            dist = cost_function.get_cost(
+            dist = laser_config.get_cost(
                 cut_list[i].end_configuration(),
                 cut_list[(i + 1) % len(cut_list)].start_configuration(),
             )
