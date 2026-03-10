@@ -18,6 +18,7 @@ dependencies = [
     "websockets>=16.0",
     "mpl-interactions>=0.24.2",
     "setuptools<81",
+    "pyserial>=3.5",
 ]
 
 [dependency-groups]
