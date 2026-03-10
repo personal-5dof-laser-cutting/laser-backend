@@ -1,4 +1,5 @@
 from time import sleep
+import serial
 
 
 def str_len(string: str) -> int:
@@ -8,11 +9,10 @@ def str_len(string: str) -> int:
 class CorgiInterface:
     def __init__(
         self,
-        interface,
+        serial_port: str,
         buffer_size: int = 128,
     ):
-        self._interface = interface
-        self._interface.open()
+        self._interface = serial.Serial(serial_port, timeout=0.1, baudrate=115200)
 
         self.buffer_size: int = buffer_size
         self.buffer_used: int = 0
@@ -32,14 +32,16 @@ class CorgiInterface:
             self.send_line(line)
 
     def _send_to_corgi(self, string: str):
+        # print(f"DEBUG: {string}", end=)
         byte_count: int = str_len(string)
-        self._interface.send(string)
+        self._interface.write(string.encode())
         self.buffer_corgi.append(string)
         self.buffer_used += byte_count
 
     def main_loop(self):
         while True:
-            if (msg := self._interface.recv()) is not None:
+            if (msg := self._interface.readline().decode()) != "":
+                # print(msg, end="")
                 if msg.strip() == "ok" and len(self.buffer_corgi) > 0:
                     processed_command: str = self.buffer_corgi.pop(0)
                     byte_count: int = str_len(processed_command)
