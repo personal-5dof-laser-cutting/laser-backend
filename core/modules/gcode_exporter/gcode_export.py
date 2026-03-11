@@ -160,12 +160,12 @@ class GCodeExporter(Module[Geometry, str]):
 
                 if last_config != start_config:
                     self._add_command(
-                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
+                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(-start_config.beta) + 0.0)}",
                         "travel move",
                     )  # travel move
 
                 self._add_command(
-                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
+                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(-end_config.beta) + 0.0)}",
                     "cut move",
                 )  # cut
 
