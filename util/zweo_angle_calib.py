@@ -1,12 +1,8 @@
-import math
 from core.corgi_interface import CorgiInterface
-from gcode_lib.gcode_interface import GCodeInterface
 import sys
 import threading
 import numpy as np
-from mock import Mock
 
-from util.calibrate_laser_power import sort_cuts
 
 MAX_POWER = 1000
 interface: CorgiInterface

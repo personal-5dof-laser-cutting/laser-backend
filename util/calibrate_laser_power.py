@@ -4,7 +4,6 @@ from gcode_lib.gcode_interface import GCodeInterface
 import sys
 import threading
 import numpy as np
-from mock import Mock
 
 MAX_POWER = 1000
 interface: CorgiInterface
