@@ -153,7 +153,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         return [
             Point2D(
                 p.x * self.scaling_factor + self.x_offset,
-                p.y * self.scaling_factor + self.y_offset,
+                -p.y * self.scaling_factor + self.y_offset,
             )
             for p in points
         ]
