@@ -2,6 +2,7 @@ from typing import get_args
 
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
+from core.modules.local_optimizer.local_optimizer import LocalOptimizer
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from api.models.base import ScalingType
@@ -12,7 +13,7 @@ if __name__ == "__main__":
     set_sig_figures(2)
     if len(sys.argv) not in [8, 10]:
         print(
-            "Usage: material_thickness dpi cut_speed material_constant prop_up svg_file output_file [x_offset y_offset]"
+            "Usage: material_thickness dpi cut_speed material_constant prop_up svg_file output_file"
         )
         print(
             "DPI values:\n- 72 (adobe Illustrator)\n- 96 (Inkscape, others)\n\nmaterial_constant = -1 for max power"
@@ -26,8 +27,6 @@ if __name__ == "__main__":
     prop_up: float = float(sys.argv[5])
     svg_path: str = sys.argv[6]
     gcode_output: str = sys.argv[7]
-    x_offset: int = int(sys.argv[8]) if len(sys.argv) == 10 else 0
-    y_offset: int = int(sys.argv[9]) if len(sys.argv) == 10 else 0
 
     importer = SVG5DOF_Importer(
         material_thickness=material_thickness,
@@ -36,8 +35,12 @@ if __name__ == "__main__":
     geo = importer.process(open(svg_path, "r").read())
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
+
+    local_optimizer = LocalOptimizer()
+    no_sweep_geo = local_optimizer.process(optimized_geo)
+
     vis = DebugVisualizerModule(material_thickness)
-    optimized_geo = vis.process(optimized_geo)
+    result_geo = vis.process(no_sweep_geo)
     exporter = GCodeExporter(
         material_thickness,
         gcode_comments=False,
@@ -48,7 +51,6 @@ if __name__ == "__main__":
         prop_up=prop_up,
         force_max_laser_power=material_constant == -1,
     )
-    gcode = exporter.process(geo)
-    gcode = exporter.process(optimized_geo)
+    gcode = exporter.process(result_geo)
     with open(gcode_output, "w") as f:
         f.write(gcode)
