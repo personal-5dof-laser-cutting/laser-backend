@@ -1,3 +1,4 @@
+import math
 from typing import cast, get_args
 
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
@@ -36,10 +37,13 @@ if __name__ == "__main__":
     )
     geo = importer.process(open(svg_path, "r").read())
 
+    max_angle: float = max([c.effective_angle_abs for c in geo.cuts])
+    print(f"Max angle: {math.degrees(max_angle)}")
+
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
     vis = DebugVisualizerModule(material_thickness)
-    geo = vis.process(geo)
+    optimized_geo = vis.process(optimized_geo)
     exporter = GCodeExporter(
         material_thickness,
         gcode_comments=False,
