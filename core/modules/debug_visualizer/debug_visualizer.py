@@ -62,7 +62,6 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.max_y = 0
         self.min_x = -1
         self.min_y = -1
-
         # Draw gantry dimensions rectangle
         gantry_x, gantry_y = self.gantry_dim
         self.ax.plot(
@@ -107,6 +106,9 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.ax.set_xlim(self.min_x, max(gantry_x + 1, self.max_x + 5))
         self.ax.set_ylim(self.min_y, max(gantry_y + 1, self.max_y + 5))
         self.ax.set_aspect("equal")
+        self.fig.suptitle(
+            "Offset X: " + str(self.offset_x) + "Y: " + str(self.offset_y)
+        )
         self.fig.canvas.draw()
 
     def _on_key_press(self, event):
@@ -126,6 +128,8 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self.geometry.cuts[i] = cut.move(move_vector)
 
         # Apply offset to bbox
+        self.offset_x += dx
+        self.offset_y += dy
         if self.bbox:
             xmin, xmax, ymin, ymax = self.bbox
             self.bbox = (xmin + dx, xmax + dx, ymin + dy, ymax + dy)
