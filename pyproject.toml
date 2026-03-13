@@ -19,6 +19,7 @@ dependencies = [
     "mpl-interactions>=0.24.2",
     "setuptools<81",
     "pyserial>=3.5",
+    "svgelements>=1.9.6",
 ]
 
 [dependency-groups]

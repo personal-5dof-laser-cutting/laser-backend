@@ -41,6 +41,22 @@
                 "ocarina.gcode"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debugger SVG to GCODE The GUY",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "util.svg_to_gcode",
+            "args": [
+                "6", // material thickness
+                "72", // scaling
+                "7", // cut speed in mm/s
+                "3.2", // material constant
+                "5",
+                "/home/edi/Downloads/the-guy-test.svg",
+                "the-real-guy.gcode"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

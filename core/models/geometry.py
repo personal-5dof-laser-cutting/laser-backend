@@ -260,6 +260,9 @@ class TrapezoidalCut:
                 "The upper and lower points do not form two parallel lines."
             )
 
+        if self.top_vector().normalized() != self.bottom_vector().normalized():
+            raise ValueError("The top and bottom lines point in different directions!")
+
     def _validate_cut(self) -> None:
         self._validate_trapezoid()
 
