@@ -43,19 +43,23 @@ class LocalOptimizer(Module[Geometry, Geometry]):
                 )
             else:  # \
                 start_bottom.move(
-                    -self._calculate_move_vector(angle, left.length(), top)
+                    -self._calculate_move_vector(
+                        math.radians(90) - angle, left.length(), top
+                    )
                 )
 
             if (angle := top.angle(right)) > math.radians(90):  # \
                 end_bottom.move(
-                    -self._calculate_move_vector(
+                    self._calculate_move_vector(
                         angle - math.radians(90), right.length(), top
                     )
                 )
             else:  # /
                 end_top.move(
-                    -self._calculate_move_vector(angle, right.length(), top)
-                )  # /
+                    self._calculate_move_vector(
+                        math.radians(90) - angle, right.length(), top
+                    )
+                )
 
             new_cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
             result.add_cut(new_cut)
