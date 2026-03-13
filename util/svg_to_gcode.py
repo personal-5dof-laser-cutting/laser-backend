@@ -13,7 +13,7 @@ if __name__ == "__main__":
     set_sig_figures(2)
     if len(sys.argv) not in [8, 10]:
         print(
-            "Usage: material_thickness dpi cut_speed material_constant prop_up svg_file output_file"
+            "Usage: material_thickness dpi cut_speed material_constant prop_up local_optimizer global_optimizer svg_file output_file"
         )
         print(
             "DPI values:\n- 72 (adobe Illustrator)\n- 96 (Inkscape, others)\n\nmaterial_constant = -1 for max power"
@@ -25,22 +25,27 @@ if __name__ == "__main__":
     cut_speed: float = float(sys.argv[3])
     material_constant: float = float(sys.argv[4])
     prop_up: float = float(sys.argv[5])
-    svg_path: str = sys.argv[6]
-    gcode_output: str = sys.argv[7]
+    local_optimizer_on = bool(sys.argv[6])
+    global_optimizer_on = bool(sys.argv[7])
+    svg_path: str = sys.argv[8]
+    gcode_output: str = sys.argv[9]
 
     importer = SVG5DOF_Importer(
         material_thickness=material_thickness,
         dpi=dpi,
     )
     geo = importer.process(open(svg_path, "r").read())
-    optimizer = BucketOptimizerModule()
-    optimized_geo = optimizer.process(geo)
 
-    local_optimizer = LocalOptimizer()
-    no_sweep_geo = local_optimizer.process(optimized_geo)
+    if global_optimizer_on:
+        optimizer = BucketOptimizerModule()
+        geo = optimizer.process(geo)
+
+    if local_optimizer_on:
+        local_optimizer = LocalOptimizer()
+        geo = local_optimizer.process(geo)
 
     vis = DebugVisualizerModule(material_thickness)
-    result_geo = vis.process(no_sweep_geo)
+    result_geo = vis.process(geo)
     exporter = GCodeExporter(
         material_thickness,
         gcode_comments=False,
@@ -51,6 +56,7 @@ if __name__ == "__main__":
         prop_up=prop_up,
         force_max_laser_power=material_constant == -1,
     )
+    gcode = exporter.process(result_geo)
     gcode = exporter.process(result_geo)
     with open(gcode_output, "w") as f:
         f.write(gcode)
