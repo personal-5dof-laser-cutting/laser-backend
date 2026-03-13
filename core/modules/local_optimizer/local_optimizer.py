@@ -8,31 +8,54 @@ class LocalOptimizer(Module[Geometry, Geometry]):
     def __init__(self) -> None:
         super().__init__()
 
+    def _calculate_move_vector(
+        self, angle: float, side_length: float, dv: Vector
+    ) -> Vector:
+        #                   ->
+        #                   dv
+        #          angle ________
+        #               /|
+        # side_length  / |
+        #             /__|_______
+        #
+        #             --->
+        #           return value
+        #
+        return dv.normalized() * math.sin(angle) * side_length
+
     def process(self, data: Geometry) -> Geometry:
         result = Geometry()
         for cut in data.cuts:
             top = cut.top_vector()
             left = cut.start_vector()
             right = cut.end_vector()
-            bottom = cut.bottom_vector()
 
             start_top = cut.start_top
             end_top = cut.end_top
             start_bottom = cut.start_bottom
             end_bottom = cut.end_bottom
 
-            left_flat = Vector(left[0], left[1], 0)
-            right_flat = Vector(right[0], right[1], 0)
+            if (angle := top.angle(left)) > math.radians(90):  # /
+                start_top.move(
+                    -self._calculate_move_vector(
+                        angle - math.radians(90), left.length(), top
+                    )
+                )
+            else:  # \
+                start_bottom.move(
+                    -self._calculate_move_vector(angle, left.length(), top)
+                )
 
-            if top.angle(left) > math.radians(90):  # type: ignore
-                start_top.move(left_flat)
-            else:
-                start_bottom.move(-left_flat)
-
-            if top.angle(right) > math.radians(90):
-                end_bottom.move(-right_flat)
-            else:
-                end_top.move(right_flat)
+            if (angle := top.angle(right)) > math.radians(90):  # \
+                end_bottom.move(
+                    -self._calculate_move_vector(
+                        angle - math.radians(90), right.length(), top
+                    )
+                )
+            else:  # /
+                end_top.move(
+                    -self._calculate_move_vector(angle, right.length(), top)
+                )  # /
 
             new_cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
             result.add_cut(new_cut)
