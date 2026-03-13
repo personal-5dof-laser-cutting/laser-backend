@@ -2,9 +2,6 @@ from typing import get_args
 
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
-from core.modules.geometry_visualizer.geometry_visualizer import (
-    GeometryVisualizerModule,
-)
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from api.models.base import ScalingType
@@ -29,6 +26,8 @@ if __name__ == "__main__":
     prop_up: float = float(sys.argv[5])
     svg_path: str = sys.argv[6]
     gcode_output: str = sys.argv[7]
+    x_offset: int = int(sys.argv[8]) if len(sys.argv) == 10 else 0
+    y_offset: int = int(sys.argv[9]) if len(sys.argv) == 10 else 0
 
     importer = SVG5DOF_Importer(
         material_thickness=material_thickness,
@@ -38,7 +37,7 @@ if __name__ == "__main__":
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
     vis = DebugVisualizerModule(material_thickness)
-    optimized_geo = vis.process(geo)
+    optimized_geo = vis.process(optimized_geo)
     exporter = GCodeExporter(
         material_thickness,
         gcode_comments=False,
@@ -50,5 +49,6 @@ if __name__ == "__main__":
         force_max_laser_power=material_constant == -1,
     )
     gcode = exporter.process(geo)
+    gcode = exporter.process(optimized_geo)
     with open(gcode_output, "w") as f:
         f.write(gcode)
