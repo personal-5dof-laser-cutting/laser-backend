@@ -114,9 +114,7 @@ class GCodeExporter(Module[Geometry, str]):
             != cut.end_configuration().direction_vector()
             and not math.isclose(cut.cut_depth, self.material_height)
         ):
-            raise Exception(
-                "Partial cuts that are not straight are not supported (yet)"
-            )
+            print("Partial cuts that are not straight are not supported (yet)")
         return [cut]
 
     def process(self, data: Geometry) -> str:
