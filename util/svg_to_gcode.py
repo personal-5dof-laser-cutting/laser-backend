@@ -36,10 +36,6 @@ if __name__ == "__main__":
         y_offset=y_offset,
     )
     geo = importer.process(open(svg_path, "r").read())
-
-    max_angle: float = max([c.effective_angle_abs for c in geo.cuts])
-    print(f"Max angle: {math.degrees(max_angle)}")
-
     optimizer = BucketOptimizerModule()
     optimized_geo = optimizer.process(geo)
     vis = DebugVisualizerModule(material_thickness)
