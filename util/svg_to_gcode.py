@@ -11,7 +11,7 @@ from Geometry3D import set_sig_figures
 
 if __name__ == "__main__":
     set_sig_figures(2)
-    if len(sys.argv) not in [8, 10]:
+    if len(sys.argv) != 10:
         print(
             "Usage: material_thickness dpi cut_speed material_constant prop_up local_optimizer global_optimizer svg_file output_file"
         )
@@ -36,13 +36,13 @@ if __name__ == "__main__":
     )
     geo = importer.process(open(svg_path, "r").read())
 
-    if global_optimizer_on:
-        optimizer = BucketOptimizerModule()
-        geo = optimizer.process(geo)
-
     if local_optimizer_on:
         local_optimizer = LocalOptimizer()
         geo = local_optimizer.process(geo)
+
+    if global_optimizer_on:
+        optimizer = BucketOptimizerModule()
+        geo = optimizer.process(geo)
 
     vis = DebugVisualizerModule(material_thickness)
     result_geo = vis.process(geo)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         prop_up=prop_up,
         force_max_laser_power=material_constant == -1,
     )
-    gcode = exporter.process(result_geo)
+
     gcode = exporter.process(result_geo)
     with open(gcode_output, "w") as f:
         f.write(gcode)
