@@ -203,7 +203,9 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                 continue
 
             cuts: list[TrapezoidalCut] = points_to_trapezoids(
-                bottom_points, top_points, cut_depth
+                self._transform_points(bottom_points),
+                self._transform_points(top_points),
+                cut_depth,
             )
 
             geometry.add_cuts(cuts)
