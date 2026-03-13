@@ -1,5 +1,6 @@
 from typing import get_args
 
+from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
 from core.modules.local_optimizer.local_optimizer import LocalOptimizer
@@ -39,6 +40,9 @@ if __name__ == "__main__":
     if local_optimizer_on:
         local_optimizer = LocalOptimizer()
         geo = local_optimizer.process(geo)
+
+    nester = AutoNester(200, 200)
+    geo = nester.process(geo)
 
     if global_optimizer_on:
         optimizer = BucketOptimizerModule()
