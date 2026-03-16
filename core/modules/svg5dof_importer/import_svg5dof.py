@@ -43,16 +43,18 @@ def svg_elem_to_points(
     if len(svg_element) == 0:
         return []
 
-    if len(svg_element) == 1 and isinstance(svg_element[0], Line):
-        num_points = 2
+    # if len(svg_element) == 1 and isinstance(svg_element[0], Line):
+    #    num_points = 2
 
-    num_points = 2
+    # num_points = 2
 
     # segment_lengths: list[float] = [
     #    elem.length() for elem in svg_element if elem.length() > 0
     # ]
-    points_x: list[float] = [t / (num_points - 1) for t in range(num_points)]
-    result = [Point2D.from_complex(svg_element.point(t)) for t in points_x]
+    # points_x: list[float] = [t / (num_points - 1) for t in range(num_points)]
+    # svg_element.points()
+    # result = [Point2D.from_complex(svg_element.point(t)) for t in points_x]
+    result = [Point2D.from_complex(p) for p in svg_element.as_points()]
     return result
 
 
@@ -199,7 +201,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                 bottom_points, top_points = svg_paths_to_points(path, path)
                 cut_depth = self.material_thickness
 
-            if len(bottom_points) == 0 or len(top_points) == 0:
+            if len(bottom_points) < 2 or len(top_points) < 2:
                 continue
 
             cuts: list[TrapezoidalCut] = points_to_trapezoids(
