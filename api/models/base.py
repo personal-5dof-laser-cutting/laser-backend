@@ -24,7 +24,7 @@ class FrontendInput(BaseModel):
         description="If true, the laser will be disabled, but the path will still be walked",
     )
     optimize: bool = Field(
-        description="If true, the global optimizer will approximate an optimized cut order",
+        description="If true, an optimizer will approximate an optimized cut order",
     )
     svg: str = Field(description="Content of the svg file")
     dpi: float = Field(

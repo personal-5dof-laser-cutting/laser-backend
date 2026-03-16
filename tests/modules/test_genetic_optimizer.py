@@ -1,6 +1,6 @@
 import pytest
 from Geometry3D import Point
-from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
+from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.service_container import Container
 from core.services.laser_config_service import (
@@ -18,7 +18,7 @@ SQUARE_PARAMS = [
 
 @pytest.mark.parametrize("cuts, tour", [(SQUARE_PARAMS, [0, 2, 4, 6])])
 def test_tour_to_path(cuts: list[TrapezoidalCut], tour: list[int]):
-    optimizer = GlobalOptimizerModule()
+    optimizer = GeneticOptimizerModule()
     trapezoid_path = optimizer._tour_to_path(tour, cuts, Container.laser_config)
     for i in range(len(cuts)):
         # tour_to_path tries to eliminate the most costly travel move. Since they're all 0 it eliminates the first travel move by left-shifting the array
@@ -26,11 +26,11 @@ def test_tour_to_path(cuts: list[TrapezoidalCut], tour: list[int]):
 
 
 @pytest.mark.parametrize("cuts", [SQUARE_PARAMS])
-def test_global_optimizer(cuts: list[TrapezoidalCut]):
+def test_genetic_optimizer(cuts: list[TrapezoidalCut]):
     geo_rep = Geometry()
     geo_rep.cuts = cuts
 
-    optimizer = GlobalOptimizerModule()
+    optimizer = GeneticOptimizerModule()
     original_costs = _calculate_path_cost(geo_rep.cuts)
     optimized_geo = optimizer.process(geo_rep)
 

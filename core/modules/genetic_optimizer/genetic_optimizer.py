@@ -7,10 +7,10 @@ from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
 from core.services.laser_config_service import LaserConfigService
-from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
+from core.modules.genetic_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
-class GlobalOptimizerModule(Module[Geometry, Geometry]):
+class GeneticOptimizerModule(Module[Geometry, Geometry]):
     def __init__(self, generations: int = 1000) -> None:
         super().__init__()
         self.generations = generations
