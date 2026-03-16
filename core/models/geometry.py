@@ -266,7 +266,7 @@ class TrapezoidalCut:
     def _validate_cut(self) -> None:
         self._validate_trapezoid()
 
-        if self.start_top.z != 0 and self.end_top.z != 0:
+        if self.start_top.z != 0 or self.end_top.z != 0:
             raise ValueError("The upper points must be at z=0.")
 
         # The z-values must be exactly the same; otherwise, other calculations may fail.

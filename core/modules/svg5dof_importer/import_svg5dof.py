@@ -105,7 +105,10 @@ def points_to_trapezoids(
         end_top = end[0].to_point3d(0)  # type: ignore
         start_bottom = start[1].to_point3d(-material_height)  # type: ignore
         end_bottom = end[1].to_point3d(-material_height)  # type: ignore
-        cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
+        try:
+            cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
+        except ValueError:
+            cut = TrapezoidalCut(start_top, end_top, end_bottom, start_bottom)
         trapezoids.append(cut)
 
     return trapezoids
