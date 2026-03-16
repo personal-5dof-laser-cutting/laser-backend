@@ -1,12 +1,9 @@
-from typing import get_args
-
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
 from core.modules.local_optimizer.local_optimizer import LocalOptimizer
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
-from api.models.base import ScalingType
 import sys
 from Geometry3D import set_sig_figures
 
@@ -26,8 +23,8 @@ if __name__ == "__main__":
     cut_speed: float = float(sys.argv[3])
     material_constant: float = float(sys.argv[4])
     prop_up: float = float(sys.argv[5])
-    local_optimizer_on = bool(sys.argv[6])
-    global_optimizer_on = bool(sys.argv[7])
+    local_optimizer_on = sys.argv[6].strip() == "1"
+    global_optimizer_on = sys.argv[7].strip() == "1"
     svg_path: str = sys.argv[8]
     gcode_output: str = sys.argv[9]
 
