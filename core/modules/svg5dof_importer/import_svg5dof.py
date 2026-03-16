@@ -9,7 +9,7 @@ import io
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
-from svgelements import SVG, Group, Shape, Path, Line, Color
+from svgelements import SVG, Group, Shape, Path, Color
 
 
 @dataclass
@@ -147,7 +147,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         return min(percentage, 1.0)
 
     def _find_top_bottom_element(self, elem1: Path, elem2: Path) -> tuple[Path, Path]:
-        if elem1.stroke == Color(r=0, g=0, b=0):
+        if elem1.stroke.lightness == 0:
             return elem2, elem1
         else:
             return elem1, elem2
