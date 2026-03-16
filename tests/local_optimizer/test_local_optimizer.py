@@ -1,5 +1,4 @@
 from Geometry3D import Point
-import pytest
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.modules.local_optimizer.local_optimizer import LocalOptimizer
 

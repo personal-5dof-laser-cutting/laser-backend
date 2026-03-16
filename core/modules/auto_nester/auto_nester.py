@@ -1,9 +1,7 @@
-from ssl import cert_time_to_seconds
 
-from core.models.geometry import Geometry, TrapezoidalCut
+from core.models.geometry import Geometry
 from core.pipeline.base import Module
 from Geometry3D import Vector
-import math
 
 
 class AutoNester(Module[Geometry, Geometry]):
