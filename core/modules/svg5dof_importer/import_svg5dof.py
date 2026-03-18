@@ -9,7 +9,19 @@ import io
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
-from svgelements import SVG, Group, Shape, Path, Color
+from svgelements import (
+    SVG,
+    Group,
+    Shape,
+    Path,
+    Color,
+    Line,
+    Arc,
+    CubicBezier,
+    QuadraticBezier,
+    Move,
+    Close,
+)
 
 
 @dataclass
@@ -36,28 +48,6 @@ class Point2D:
         )
 
 
-def svg_elem_to_points(
-    svg_element: Path,
-    num_points: int = 2,
-) -> list[Point2D]:
-    if len(svg_element) == 0:
-        return []
-
-    # if len(svg_element) == 1 and isinstance(svg_element[0], Line):
-    #    num_points = 2
-
-    # num_points = 2
-
-    # segment_lengths: list[float] = [
-    #    elem.length() for elem in svg_element if elem.length() > 0
-    # ]
-    # points_x: list[float] = [t / (num_points - 1) for t in range(num_points)]
-    # svg_element.points()
-    # result = [Point2D.from_complex(svg_element.point(t)) for t in points_x]
-    result = [Point2D.from_complex(p) for p in svg_element.as_points()]
-    return result
-
-
 def svg_element_to_path(element: Path | Shape) -> Path:
     if isinstance(element, Shape):
         path = Path(element)
@@ -66,18 +56,55 @@ def svg_element_to_path(element: Path | Shape) -> Path:
     return element
 
 
-def path_total_length(element: Path) -> float:
-    return sum([e.length() for e in element])
+def filter_svg_path(element: Path) -> list[Arc | QuadraticBezier | CubicBezier]:
+    return [
+        seg for seg in element if not (isinstance(seg, Move) or isinstance(seg, Close))
+    ]
 
 
 def svg_paths_to_points(
     bottom_path: Path, top_path: Path, resolution_mm=1
 ) -> tuple[list[Point2D], list[Point2D]]:
-    max_length: float = max(path_total_length(top_path), path_total_length(bottom_path))
-    num_segments: int = math.ceil(max_length / resolution_mm)
 
-    top_points = svg_elem_to_points(top_path, num_points=num_segments)
-    bottom_points = svg_elem_to_points(bottom_path, num_points=num_segments)
+    bottom_path.direct_close()
+    top_path.direct_close()
+    bottom_path.validate_connections()
+    top_path.validate_connections()
+
+    bottom_segments: list = filter_svg_path(bottom_path)
+    top_segments: list = filter_svg_path(top_path)
+    if (b := len(bottom_segments)) != (t := len(top_segments)):
+        raise ValueError(
+            f"Top and bottom path do not have the same number of segments. ({t} != {b})"
+        )
+    bottom_points = []
+    top_points = []
+    for bottom_segment, top_segment in zip(bottom_segments, top_segments):
+        if isinstance(bottom_segment, Line) and isinstance(top_segment, Line):
+            bottom_points.extend([Point2D.from_complex(p) for p in bottom_segment])
+            top_points.extend([Point2D.from_complex(p) for p in top_segment])
+        elif (
+            (isinstance(bottom_segment, Arc) and isinstance(top_segment, Arc))
+            or (
+                isinstance(bottom_segment, CubicBezier)
+                and isinstance(top_segment, CubicBezier)
+            )
+            or (
+                isinstance(bottom_segment, QuadraticBezier)
+                and isinstance(top_segment, QuadraticBezier)
+            )
+        ):
+            max_len: float = max(bottom_segment.length(), top_segment.length())
+            num_points: int = max(math.ceil(max_len / resolution_mm), 2)
+            points_x: list[float] = [t / (num_points - 1) for t in range(num_points)]
+            bottom_points.extend([bottom_segment.point(x) for x in points_x])
+            top_points.extend([top_segment.point(x) for x in points_x])
+        elif isinstance(bottom_segment, Move) and isinstance(top_segment, Move):
+            continue
+        elif isinstance(bottom_segment, Close) and isinstance(top_segment, Close):
+            continue
+        else:
+            raise ValueError(f"This is bad. {type(bottom_segment)} {type(top_segment)}")
 
     return (bottom_points, top_points)
 
