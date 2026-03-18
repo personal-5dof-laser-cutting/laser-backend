@@ -15,6 +15,8 @@ from Geometry3D import (
 import math
 from copy import copy
 
+from numpy import sign
+
 
 def segment_to_line(seg: Segment) -> Line:
     return Line(seg.start_point, seg.end_point)
@@ -260,8 +262,15 @@ class TrapezoidalCut:
                 "The upper and lower points do not form two parallel lines."
             )
 
-        if self.top_vector().normalized() != self.bottom_vector().normalized():
-            raise ValueError("The top and bottom lines point in different directions!")
+        top_dv: Vector = self.top_vector().normalized()
+        bottom_dv: Vector = self.bottom_vector().normalized()
+        for a, b in zip(top_dv, bottom_dv):
+            if math.isclose(a, 0) or math.isclose(b, 0):
+                continue
+            if sign(a) != sign(b):
+                raise ValueError(
+                    "The top and bottom lines point in different directions!"
+                )
 
     def _validate_cut(self) -> None:
         self._validate_trapezoid()
