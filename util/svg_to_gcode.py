@@ -1,6 +1,9 @@
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
+from core.modules.geometry_visualizer.geometry_visualizer import (
+    GeometryVisualizerModule,
+)
 from core.modules.local_optimizer.local_optimizer import LocalOptimizer
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
@@ -8,7 +11,7 @@ import sys
 from Geometry3D import set_sig_figures
 
 if __name__ == "__main__":
-    set_sig_figures(2)
+    set_sig_figures(4)
     if len(sys.argv) != 10:
         print(
             "Usage: material_thickness dpi cut_speed material_constant prop_up local_optimizer global_optimizer svg_file output_file"
