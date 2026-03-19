@@ -133,9 +133,15 @@ def points_to_trapezoids(
         start_bottom = start[1].to_point3d(-material_height)  # type: ignore
         end_bottom = end[1].to_point3d(-material_height)  # type: ignore
         try:
-            cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
-        except ValueError:
-            cut = TrapezoidalCut(start_top, end_top, end_bottom, start_bottom)
+            try:
+                cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
+            except ValueError:
+                cut = TrapezoidalCut(start_top, end_top, end_bottom, start_bottom)
+        except Exception as e:
+            print(
+                f"Warning: Skipped points because they do not form valid trapezoids: {e}"
+            )
+            continue
         trapezoids.append(cut)
 
     return trapezoids
