@@ -1,5 +1,9 @@
 from abc import ABC
+from math import cos, isclose
 from typing import Tuple
+
+from numpy import sign
+import yaml
 
 from core.services.base import BaseService
 from core.models.geometry import Configuration
@@ -16,13 +20,60 @@ class LaserConfigService(ABC, BaseService):
 
 
 class LaserConfigServiceImpl(LaserConfigService):
+    def __init__(self) -> None:
+        super().__init__()
+        with open("config.yaml") as config_file:
+            config = yaml.safe_load(config_file)
+        self.rotation_offset = config["Kinematics"]["rotating_table_five_axis"][
+            "rotation_offset"
+        ]
+        self.focus_offset = config["Kinematics"]["rotating_table_five_axis"][
+            "focus_offset"
+        ]
+        self.max_rate: dict[str, int] = {
+            "x": config["axes"]["x"]["max_rate_mm_per_min"],
+            "y": config["axes"]["y"]["max_rate_mm_per_min"],
+            "z": config["axes"]["z"]["max_rate_mm_per_min"],
+            "a": config["axes"]["a"]["max_rate_mm_per_min"],
+            "b": config["axes"]["b"]["max_rate_mm_per_min"],
+        }
+        self.center_x = config["Kinematics"]["rotating_table_five_axis"]["center_x"]
+        self.center_y = config["Kinematics"]["rotating_table_five_axis"]["center_y"]
+        self.focus_offset = config["Kinematics"]["rotating_table_five_axis"][
+            "focus_offset"
+        ]
+        self.rotation_offset = config["Kinematics"]["rotating_table_five_axis"][
+            "rotation_offset"
+        ]
+        self.max_z_mm = config["Kinematics"]["rotating_table_five_axis"]["max_z_mm"]
+
     def get_cost(self, conf1: Configuration, conf2: Configuration) -> float:
-        return ((conf1.x - conf2.x) ** 2 + (conf1.y - conf2.y) ** 2) ** (1 / 2) + (
-            (conf1.alpha - conf2.alpha) ** 2 + (conf1.beta - conf2.beta) ** 2
-        ) ** (1 / 2)
+        distances = {}
+        distances["x"] = abs(conf1.x - conf2.x)
+        distances["y"] = abs(conf1.y - conf2.y)
+        rotation_to_material_dist = self.rotation_offset + self.focus_offset
+        conf1_angles = conf1.get_cutter_angles()
+        conf2_angles = conf1.get_cutter_angles()
+        distances["z"] = _z_extension(
+            conf1_angles[1], conf2_angles[1], rotation_to_material_dist
+        )
+        distances["a"] = abs(conf1_angles[0] - conf2_angles[0])
+        distances["b"] = abs(conf1_angles[1] - conf2_angles[1])
+        max_distance = 0
+        for axis, distance in distances.items():
+            max_distance = max(max_distance, distance * self.max_rate[axis])
+        return max_distance
 
     def gantry_height_mm(self) -> float:
         return 130
 
     def gantry_dim_mm(self) -> Tuple[float, float]:
         return 400, 400
+
+
+def _z_extension(angle1: float, angle2: float, zero_z_extension: float) -> float:
+    if sign(angle1) == sign(angle2) or isclose(angle1, 0) or isclose(angle2, 0):
+        return abs(zero_z_extension / cos(angle1) - zero_z_extension / cos(angle2))
+    return _z_extension(angle1, 0, zero_z_extension) + _z_extension(
+        0, angle2, zero_z_extension
+    )
