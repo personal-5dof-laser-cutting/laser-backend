@@ -1,6 +1,7 @@
+from core.models.geometry import Configuration
 from core.modules.auto_nester.auto_nester import AutoNester
-from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
+from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.modules.local_optimizer.local_optimizer import LocalOptimizer
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     geo = nester.process(geo)
 
     if global_optimizer_on:
-        optimizer = BucketOptimizerModule()
+        optimizer = GreedyOptimizerModule(Configuration(200, 200, 0, 0))
         geo = optimizer.process(geo)
 
     vis = DebugVisualizerModule(material_thickness)
