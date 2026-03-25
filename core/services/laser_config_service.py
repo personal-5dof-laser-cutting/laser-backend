@@ -48,17 +48,14 @@ class LaserConfigServiceImpl(LaserConfigService):
         self.max_z_mm = config["Kinematics"]["rotating_table_five_axis"]["max_z_mm"]
 
     def get_cost(self, conf1: Configuration, conf2: Configuration) -> float:
-        distances = {}
-        distances["x"] = abs(conf1.x - conf2.x)
-        distances["y"] = abs(conf1.y - conf2.y)
-        rotation_to_material_dist = self.rotation_offset + self.focus_offset
-        conf1_angles = conf1.get_cutter_angles()
-        conf2_angles = conf1.get_cutter_angles()
-        distances["z"] = _z_extension(
-            conf1_angles[1], conf2_angles[1], rotation_to_material_dist
+        distances = conf1.distance_to(
+            conf2,
+            self.center_x,
+            self.center_y,
+            self.focus_offset,
+            self.rotation_offset,
+            self.max_z_mm,
         )
-        distances["a"] = abs(conf1_angles[0] - conf2_angles[0])
-        distances["b"] = abs(conf1_angles[1] - conf2_angles[1])
         max_distance = 0
         for axis, distance in distances.items():
             max_distance = max(max_distance, distance * self.max_rate[axis])
