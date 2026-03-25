@@ -193,6 +193,130 @@ class Configuration:
             laser_head_angle = 0
         return (table_angle, laser_head_angle)
 
+    def cutter_position(
+        self,
+        center_x: float,
+        center_y: float,
+        focus_offset: float,
+        rotation_offset: float,
+        max_z: float,
+    ) -> tuple[dict, dict]:
+        direction = self.direction_vector()
+
+        if math.isclose(self.alpha, 0) and math.isclose(self.beta, 0):
+            table_angle = 0
+        else:
+            table_angle = math.atan2(direction[1], direction[0])
+        rotated_direction = self._rotate_z(direction, table_angle)
+        laser_head_angle = math.atan2(rotated_direction[0], -rotated_direction[2])
+        x_offset = rotated_direction[0]
+        position = Vector(self.x, self.y, 0)
+        center_position = Vector(center_x, center_y, 0)
+        rotated_position = self._rotate_z(position, table_angle, center_position)
+
+        z_pos = rotated_position.length() - (focus_offset + rotation_offset)
+        z_pos = max(0, min(z_pos, max_z))
+
+        m1 = {
+            "x": rotated_position[0] - x_offset,
+            "y": rotated_position[1],
+            "z": z_pos,
+            "a": table_angle,
+            "b": laser_head_angle,
+        }
+
+        rotated_position_right = self._rotate_z(
+            position, math.pi + table_angle, center_position
+        )
+        table_angle_right = table_angle + math.radians(180)
+        if table_angle_right >= math.radians(360):
+            table_angle_right -= math.radians(360)
+        m2 = {
+            "x": rotated_position_right[0] + x_offset,
+            "y": rotated_position_right[1],
+            "z": m1["z"],
+            "a": table_angle_right,
+            "b": -laser_head_angle,
+        }
+        return (m1, m2)
+
+    def distance_to(
+        self,
+        other: Configuration,
+        center_x: float,
+        center_y: float,
+        focus_offset: float,
+        rotation_offset: float,
+        max_z: float,
+    ) -> dict:
+        current_position = self.cutter_position(
+            center_x, center_y, focus_offset, rotation_offset, max_z
+        )[0]
+        other_1, other_2 = other.cutter_position(
+            center_x, center_y, focus_offset, rotation_offset, max_z
+        )
+        d1 = self._angle_distance(current_position["a"], other_1["a"])
+        d2 = self._angle_distance(current_position["a"], other_2["a"])
+        if abs(d1) < abs(d2):
+            closest = other_1
+            closest["a"] += d1
+        else:
+            closest = other_2
+            closest["a"] += d2
+
+        return {
+            "x": abs(current_position["x"] - closest["x"]),
+            "y": abs(current_position["y"] - closest["y"]),
+            "z": abs(current_position["z"] - closest["z"]),
+            "a": abs(current_position["a"] - closest["a"]),
+            "b": abs(current_position["b"] - closest["b"]),
+        }
+
+    def _angle_distance(self, angle1: float, angle2: float):
+        diff = (
+            (angle2 - angle1 + math.radians(180)) % math.radians(360)
+        ) - math.radians(180)
+        if diff < -math.radians(180):
+            return diff + math.radians(360)
+        else:
+            return diff
+
+    def _rotate_z(
+        self, vector: Vector, angle: float, pivot: Vector | None = None
+    ) -> Vector:
+        if pivot is not None:
+            vector -= pivot
+
+        angle *= -1
+        sin = math.sin(angle)
+        cos = math.cos(angle)
+        rotated_direction = Vector(
+            vector[0] * cos - vector[1] * sin,
+            vector[0] * sin + vector[1] * cos,
+            vector[2],
+        )
+
+        if pivot is not None:
+            rotated_direction += pivot
+
+        return rotated_direction
+
+    def cutter_z_pos(self):
+        rotation_offset = 0
+        focus_offset = 0
+        z_height = 0
+        material_height = 0
+        h = rotation_offset + z_height - material_height
+        z_pos = (
+            math.sqrt(
+                h**2 + (math.tan(self.alpha) * h) ** 2 + (math.tan(self.beta) * h) ** 2
+            )
+            - rotation_offset
+            - focus_offset
+        )
+        clamped_z_pos = max(0, min(40, z_pos))
+        return clamped_z_pos
+
 
 class TrapezoidalCut:
     """
