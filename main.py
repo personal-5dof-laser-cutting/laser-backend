@@ -1,5 +1,6 @@
 import Geometry3D
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import uvicorn
 from api.routers.base_router import router
 from api.routers.ws_router import ws_router
@@ -19,6 +20,14 @@ def app_factory():
         allow_headers=["*"],
         expose_headers=["Content-Disposition"],
     )
+
+    @api.exception_handler(Exception)
+    async def generic_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=500,
+            content={"error": type(exc).__name__, "detail": str(exc)},
+        )
+
     api.include_router(router)
     api.include_router(ws_router)
     print(f"#{'-' * 11}#")
