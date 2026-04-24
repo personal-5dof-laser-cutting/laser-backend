@@ -1,7 +1,5 @@
-from typing import Any, Literal
+from typing import Any
 from pydantic import BaseModel, Field
-
-ScalingType = Literal["mm", "illustrator"]
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
 
@@ -21,7 +19,7 @@ class FrontendInput(BaseModel):
         description="If true, the global optimizer will approximate an optimized cut order",
     )
     svg: str = Field(description="Content of the svg file")
-    scaling: ScalingType = Field(
+    dpi: float = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm",
     )
     x_offset: int = Field(

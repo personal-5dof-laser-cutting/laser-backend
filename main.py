@@ -21,15 +21,16 @@ def app_factory():
         expose_headers=["Content-Disposition"],
     )
 
+    api.include_router(router)
+    api.include_router(ws_router)
+
     @api.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):
         return JSONResponse(
             status_code=500,
-            content={"error": type(exc).__name__, "detail": str(exc)},
+            content={"type": "error", "content": type(exc).__name__},
         )
 
-    api.include_router(router)
-    api.include_router(ws_router)
     print(f"#{'-' * 11}#")
     return api
 
