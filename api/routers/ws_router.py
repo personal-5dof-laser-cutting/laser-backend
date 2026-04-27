@@ -1,10 +1,12 @@
+from queue import PriorityQueue, Queue
+from typing import Tuple
+
 from fastapi import APIRouter, WebSocket
 from pydantic import ValidationError
 
-from api.models.base import FrontendInput
+from api.models.base import CorgiOutput, FrontendInput, WebsocketInput
 from core.corgi_interface import CorgiInterface
 from core.pipeline.pipeline import full_pipeline
-from gcode_lib.gcode_interface import GCodeInterface
 
 import threading
 
@@ -24,6 +26,10 @@ async def ws_cut_svg(ws: WebSocket):
         return
     pipeline = full_pipeline(frontendInput)
     result: str = pipeline.run(data["svg"])
-    corgi_interface = CorgiInterface(GCodeInterface("192.168.2.67:81"))
+    incoming_messages: PriorityQueue[Tuple[int, WebsocketInput]] = PriorityQueue()
+    outgoing_messages: Queue[CorgiOutput] = Queue()
+    corgi_interface = CorgiInterface(
+        "192.168.2.67:81", incoming_messages, outgoing_messages
+    )
     threading.Thread(target=corgi_interface.main_loop, daemon=True).start()
     corgi_interface.send_lines(("$h\n" + result).split("\n"))
