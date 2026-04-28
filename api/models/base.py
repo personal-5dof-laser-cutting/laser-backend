@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
@@ -31,4 +31,17 @@ class FrontendInput(BaseModel):
     y_offset: int = Field(
         description="How many millimeters the svg should be moved alongside the y-axis",
         default=0,
+    )
+
+
+class WebsocketMessage(BaseModel):
+    type: Literal[
+        "info",
+        "error",
+        "abort",
+        "update",
+        "job_id",
+    ] = Field(description="Message Type")
+    content: str = Field(
+        description="Message content. Can by a singular value or a JSON String"
     )
