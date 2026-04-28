@@ -1,4 +1,3 @@
-
 from core.models.geometry import Geometry
 from core.pipeline.base import Module
 from Geometry3D import Vector

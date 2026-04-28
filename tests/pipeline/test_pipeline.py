@@ -11,7 +11,7 @@ def test_full_pipeline():
         laser_off=True,
         optimize=False,
         svg=open("tests/svg5dof/svgs/circle_2.svg").read(),
-        scaling="mm",
+        dpi=96,
     )
 
     pipeline = full_pipeline(input)
