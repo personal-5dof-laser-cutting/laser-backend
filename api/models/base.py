@@ -10,6 +10,12 @@ class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
 
 
+class JobOutput(BaseModel):
+    job_id: str = Field(
+        description="Job ID used to create a websocket connection (/ws/{job_id})"
+    )
+
+
 class FrontendInput(BaseModel):
     material: str = Field(description="Material type")
     material_thickness: float = Field(description="Material thickness in mm")
