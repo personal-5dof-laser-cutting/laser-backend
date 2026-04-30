@@ -3,14 +3,18 @@ from math import inf
 from core.pipeline.base import Module
 from core.models.geometry import Configuration, Geometry
 from core.service_container import Container
-from core.services.laser_config_service import LaserConfigService
 
 
 class GreedyOptimizerModule(Module[Geometry, Geometry]):
-    def __init__(self, start_location: Configuration = Configuration(0, 0, 0, 0)):
+    def __init__(
+        self,
+        material_height: float,
+        start_location: Configuration = Configuration(0, 0, 0, 0),
+    ):
         super().__init__
+        self.material_height = material_height
         self.start_location = start_location
-        self.laser_config: LaserConfigService = Container.laser_config
+        self.get_cost = Container.laser_cost.get_cost
 
     def process(self, data: Geometry) -> Geometry:
         next_cost = inf
@@ -20,14 +24,16 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         for i in range(0, len(data.cuts)):
             for neighbour in range(i, len(data.cuts)):
                 cut = data.cuts[neighbour]
-                cost = self.laser_config.get_cost(
-                    current_conf, cut.start_configuration()
+                cost = self.get_cost(
+                    current_conf, cut.start_configuration(), self.material_height
                 )
                 if cost < next_cost:
                     next_cost = cost
                     next_cut = neighbour
                     flipped = False
-                cost = self.laser_config.get_cost(current_conf, cut.end_configuration())
+                cost = self.get_cost(
+                    current_conf, cut.end_configuration(), self.material_height
+                )
                 if cost < next_cost:
                     next_cost = cost
                     next_cut = neighbour
@@ -35,6 +41,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
             if flipped:
                 data.cuts[next_cut] = data.cuts[next_cut].flip_direction()
+
             data.cuts[i], data.cuts[next_cut] = (
                 data.cuts[next_cut],
                 data.cuts[i],

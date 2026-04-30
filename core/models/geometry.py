@@ -318,6 +318,63 @@ class Configuration:
         return clamped_z_pos
 
 
+class MotorPosition:
+    """
+    Motor position of a laser cutter configuration with a rotating cut rotation axes.
+
+    Attributes
+    ----------
+    x : float
+        Offset in mm on the x axis
+    y : float
+        Offset in mm on the y axis
+    z : float
+        Offset in mm on the z axis
+    table_rotation : float
+        Rotation of the table in radians.
+    laser_rotation : float
+        Rotation of the laser head in radians. 0 points downwards and positve points towards positive x.
+    """
+
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        z: float,
+        alpha: float,
+        beta: float,
+        isRadians: bool = True,
+    ) -> None:
+        if not isRadians:
+            alpha = math.radians(alpha)
+            beta = math.radians(beta)
+
+        self.x: float = x
+        self.y: float = y
+        self.z: float = z
+        self.a: float = alpha % math.radians(360)
+        self.b: float = beta % math.radians(360)
+
+    def __eq__(self, value: object) -> bool:
+        if type(value) is not MotorPosition:
+            return False
+        return all(
+            [
+                math.isclose(self.x, value.x),
+                math.isclose(self.y, value.y),
+                math.isclose(self.z, value.z),
+                math.isclose(self.a, value.a),
+                math.isclose(self.b, value.b),
+            ]
+        )
+
+    def __sub__(self, other: MotorPosition) -> MotorPosition:
+        args = []
+        for arg_s, arg_o in zip(vars(self).values(), vars(other).values()):
+            args.append(abs(arg_o - arg_s))
+        return MotorPosition(*args)
+
+
 class TrapezoidalCut:
     """
     Represents a trapezoidal cut through a material, defined by four corner points.
