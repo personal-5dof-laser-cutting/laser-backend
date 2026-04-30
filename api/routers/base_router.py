@@ -40,7 +40,7 @@ def generate_gcode(inp: FrontendInput) -> StreamingResponse:
     "/cut_svg",
     responses={
         202: {
-            "content": {"string"},
+            "content": {"application/json": {}},
             "description": "Creates a job",
         },
     },
