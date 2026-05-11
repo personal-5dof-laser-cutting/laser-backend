@@ -35,7 +35,7 @@ class LaserCostServiceImpl(LaserCostService):
                 *[
                     distance / self.max_rates[axis]
                     for axis, distance in delta.axes_dict().items()
-                ],
+                ]
             )
             min_time = min(min_time, chebyshev_dist)
         return min_time
