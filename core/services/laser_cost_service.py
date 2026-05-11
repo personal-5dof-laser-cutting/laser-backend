@@ -1,4 +1,5 @@
 from abc import ABC
+from math import inf
 
 from core.models.geometry import Configuration
 from core.services.base import BaseService
@@ -26,14 +27,15 @@ class LaserCostServiceImpl(LaserCostService):
     ) -> float:
         conf1_pos1, conf1_pos2 = self.kinematics.get_positions(conf1, material_height)
         conf2_pos1, conf2_pos2 = self.kinematics.get_positions(conf2, material_height)
-        deltas = [conf1_pos1 - conf2_pos1, conf1_pos1 - conf2_pos2]
-        max_distance = 0.0
+        deltas = [conf1_pos1.delta(conf2_pos1), conf1_pos1.delta(conf2_pos2)]
+        min_time = inf
+
         for delta in deltas:
-            max_distance = max(
-                max_distance,
+            chebyshev_dist = max(
                 *[
-                    distance * self.max_rates[axis]
-                    for axis, distance in vars(delta).items()
+                    distance / self.max_rates[axis]
+                    for axis, distance in delta.axes_dict().items()
                 ],
             )
-        return max_distance
+            min_time = min(min_time, chebyshev_dist)
+        return min_time
