@@ -181,11 +181,11 @@ class MotorPosition:
             alpha = math.radians(alpha)
             beta = math.radians(beta)
 
-        self.x: float = x
-        self.y: float = y
-        self.z: float = z
-        self.a: float = alpha % math.radians(360)
-        self.b: float = beta % math.radians(360)
+        self.x: float = float(x)
+        self.y: float = float(y)
+        self.z: float = float(z)
+        self.a: float = float(alpha) % math.radians(360)  # table motor
+        self.b: float = float(beta) % math.radians(360)  # laser head motor
 
     def __eq__(self, value: object) -> bool:
         if type(value) is not MotorPosition:
