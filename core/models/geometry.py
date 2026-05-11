@@ -200,11 +200,28 @@ class MotorPosition:
             ]
         )
 
-    def __sub__(self, other: MotorPosition) -> MotorPosition:
-        args = []
-        for arg_s, arg_o in zip(vars(self).values(), vars(other).values()):
-            args.append(abs(arg_o - arg_s))
-        return MotorPosition(*args)
+    def axes_dict(self) -> dict[str, float]:
+        return {
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "a": self.a,
+            "b": self.b,
+        }
+
+    def delta(self, other: MotorPosition) -> MotorPosition:
+        d_x = abs(self.x - other.x)
+        d_y = abs(self.y - other.y)
+        if sign(self.a) != sign(other.a):
+            d_z = self.z + other.z
+        else:
+            d_z = abs(self.z - other.z)
+
+        d_a = abs(self.a - other.a)
+        if d_a > math.radians(180):
+            d_a = math.radians(360) - (d_a % math.radians(360))
+        d_b = abs(self.b - other.b)
+        return MotorPosition(d_x, d_y, d_z, d_a, d_b)
 
 
 class TrapezoidalCut:
