@@ -17,37 +17,33 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         self.get_cost = Container.laser_cost.get_cost
 
     def process(self, data: Geometry) -> Geometry:
+        self.best_first()
+        return data
+        cuts = self.geometry.cuts
         next_cost = inf
         next_cut = -1
         flipped = False
-        current_conf = self.start_location
-        for i in range(0, len(data.cuts)):
-            for neighbour in range(i, len(data.cuts)):
-                cut = data.cuts[neighbour]
-                cost = self.get_cost(
-                    current_conf, cut.start_configuration(), self.material_height
-                )
+        for i in range(0, len(cuts)):
+            for neighbour in range(i, len(cuts)):
+                cost = self.get_cost(cuts[i - 1], cuts[neighbour])
                 if cost < next_cost:
                     next_cost = cost
                     next_cut = neighbour
                     flipped = False
-                cost = self.get_cost(
-                    current_conf, cut.end_configuration(), self.material_height
-                )
+                cost = self.get_cost(cuts[i - 1], cuts[neighbour].flipped_direction())
                 if cost < next_cost:
                     next_cost = cost
                     next_cut = neighbour
                     flipped = True
 
             if flipped:
-                data.cuts[next_cut] = data.cuts[next_cut].flip_direction()
+                cuts[next_cut] = cuts[next_cut].flipped_direction()
 
-            data.cuts[i], data.cuts[next_cut] = (
-                data.cuts[next_cut],
-                data.cuts[i],
+            cuts[i], cuts[next_cut] = (
+                cuts[next_cut],
+                cuts[i],
             )
 
-            current_conf = data.cuts[i].end_configuration()
             next_cost = inf
 
         return data

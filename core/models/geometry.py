@@ -379,7 +379,7 @@ class TrapezoidalCut:
     def end_vector(self) -> Vector:
         return self.end_bottom.pv() - self.end_top.pv()
 
-    def flip_direction(self) -> TrapezoidalCut:
+    def flipped_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
         return TrapezoidalCut(
             self.end_top,
@@ -388,7 +388,7 @@ class TrapezoidalCut:
             self.start_bottom,
         )
 
-    def flip_vertical(self) -> TrapezoidalCut:
+    def flipped_vertical(self) -> TrapezoidalCut:
         """Swap top and bottom edge"""
         return TrapezoidalCut(
             self.start_bottom, self.end_bottom, self.start_top, self.end_top
