@@ -22,9 +22,17 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
+        self.build_cache()
         self.best_first()
         self.two_opt()
         return data
+
+    def build_cache(self):
+        cuts: list[TrapezoidalCut] = self.geometry.cuts
+        configurations: list[Configuration] = [
+            config for cut in cuts for config in cut.configurations()
+        ]
+        self.kinematics.generate_cache(configurations, self.material_height)
 
     def best_first(self):
         cuts = self.geometry.cuts
