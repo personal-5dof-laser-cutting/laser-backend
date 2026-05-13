@@ -1,5 +1,5 @@
 from itertools import combinations
-from math import inf
+from math import inf, isclose
 
 from core.pipeline.base import Module
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
@@ -116,7 +116,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
                 )
                 two_opt_delta = self._edge_swap_delta(cut1, cut2)
 
-                if two_opt_delta >= 0 or not (flip_1 or flip_2):
+                if two_opt_delta >= 0 and flip_delta >= 0:
                     continue
 
                 found_improvement = True
@@ -161,6 +161,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         ) + self.get_cost(cuts[cut_idx].flipped_direction(), cuts[cut_next])
 
         flip_delta = new_edges_cost - old_edges_cost
+        if isclose(flip_delta, 0):
+            flip_delta = 0
 
         return flip_delta
 
@@ -182,6 +184,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         ) + self.get_cost(cuts[cut1_next].flipped_direction(), cuts[cut2_next])
 
         swap_delta = new_edges_cost - old_edges_cost
+        if isclose(swap_delta, 0):
+            swap_delta = 0
         return swap_delta
 
     def _apply_best_improvement(
@@ -205,18 +209,15 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             return flip_delta
 
     def _two_opt_swap(self, cut1_idx: int, cut2_idx: int):
-        cuts = self.geometry.cuts
-        if cut1_idx == cut2_idx:
+        # If the indices are the same or one apart, swapping the edges won't change the tour
+        if abs(cut1_idx - cut2_idx) <= 1:
             return
 
         # Set cut1_idx to the smaller index so we don't have to write the swap operation twice
         if cut1_idx > cut2_idx:
             cut1_idx, cut2_idx = cut2_idx, cut1_idx
 
-        # This case wouldn't change the tour
-        if cut2_idx == cut1_idx + 1:
-            return
-
+        cuts = self.geometry.cuts
         i = cut1_idx + 1
         j = cut2_idx
         while i < j:
