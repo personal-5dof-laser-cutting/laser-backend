@@ -21,23 +21,6 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         self.start_location = start_location
         self.max_iterations = max_iterations
 
-        self.get_cost = lambda x, y: x.travel_time_to(y, self.material_height)
-
-    def _travel_time(self, cut1_idx: int, cut2_idx: int) -> float:
-        if cut1_idx == cut2_idx:
-            return 0.0
-
-        if cut1_idx == -1:
-            conf1: Configuration = self.start_location
-        else:
-            conf1: Configuration = self.geometry.cuts[cut1_idx].end_configuration()
-        if cut2_idx == -1:
-            conf2: Configuration = self.start_location
-        else:
-            conf2: Configuration = self.geometry.cuts[cut2_idx].start_configuration()
-
-        return conf1.travel_time_to(conf2, self.material_height)
-
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
         self._build_cache()
@@ -167,6 +150,9 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         return flip_delta
 
+    def _get_cost(self, cut1: TrapezoidalCut, cut2: TrapezoidalCut) -> float:
+        return cut1.travel_time_to(cut2, self.material_height)
+
     def _edge_swap_delta(self, cut1_idx: int, cut2_idx: int) -> float:
         # If the indices are the same or one apart, swapping the edges won't change the tour
         if abs(cut1_idx - cut2_idx) <= 1:
@@ -176,13 +162,13 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         cut1_next: int = (cut1_idx + 1) % len(cuts)
         cut2_next: int = (cut2_idx + 1) % len(cuts)
 
-        old_edges_cost = self.get_cost(cuts[cut1_idx], cuts[cut1_next]) + self.get_cost(
-            cuts[cut2_idx], cuts[cut2_next]
-        )
+        old_edges_cost = self._get_cost(
+            cuts[cut1_idx], cuts[cut1_next]
+        ) + self._get_cost(cuts[cut2_idx], cuts[cut2_next])
 
-        new_edges_cost = self.get_cost(
+        new_edges_cost = self._get_cost(
             cuts[cut1_idx], cuts[cut2_idx].flipped_direction()
-        ) + self.get_cost(cuts[cut1_next].flipped_direction(), cuts[cut2_next])
+        ) + self._get_cost(cuts[cut1_next].flipped_direction(), cuts[cut2_next])
 
         swap_delta = new_edges_cost - old_edges_cost
         if isclose(swap_delta, 0):
@@ -234,9 +220,9 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         cuts = self.geometry.cuts
         number_cuts = len(cuts)
         longest_edge_idx: int = 0
-        longest_edge: float = self.get_cost(cuts[-1], cuts[0])
+        longest_edge: float = self._get_cost(cuts[-1], cuts[0])
         for i in range(1, number_cuts):
-            current_cost = self.get_cost(cuts[i - 1], cuts[i])
+            current_cost = self._get_cost(cuts[i - 1], cuts[i])
             if current_cost < longest_edge:
                 longest_edge_idx = i
                 longest_edge = current_cost
