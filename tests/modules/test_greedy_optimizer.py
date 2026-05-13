@@ -14,7 +14,7 @@ def test_optimizer():
     dof = SVG5DOF_Importer(6, 72)
     geometry: Geometry = dof.process(open(svg).read())
     opt = GreedyOptimizerModule(6)
-    previous_costs = geometry.calculate_travel_cost(6)
+    previous_costs = geometry.calculate_travel_cost(6, False)
     optimized = opt.process(geometry)
-    optimized_costs = optimized.calculate_travel_cost(6)
+    optimized_costs = optimized.calculate_travel_cost(6, False)
     assert previous_costs >= optimized_costs
