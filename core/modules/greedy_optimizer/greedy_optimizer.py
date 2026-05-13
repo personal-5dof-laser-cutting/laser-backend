@@ -43,6 +43,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         self._build_cache()
         self._best_first()
         self._two_opt()
+        self._tour_to_shortest_path()
         return data
 
     def _build_cache(self):
@@ -224,3 +225,23 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             cuts[i], cuts[j] = cuts[j].flipped_direction(), cuts[i].flipped_direction()
             i += 1
             j -= 1
+
+    def _tour_to_shortest_path(self):
+        longest_incoming_edge_idx = self._find_longest_edge()
+        self._left_rotate(longest_incoming_edge_idx)
+
+    def _find_longest_edge(self) -> int:
+        cuts = self.geometry.cuts
+        number_cuts = len(cuts)
+        longest_edge_idx: int = 0
+        longest_edge: float = self.get_cost(cuts[-1], cuts[0])
+        for i in range(1, number_cuts):
+            current_cost = self.get_cost(cuts[i - 1], cuts[i])
+            if current_cost < longest_edge:
+                longest_edge_idx = i
+                longest_edge = current_cost
+        return longest_edge_idx
+
+    def _left_rotate(self, i: int):
+        cuts = self.geometry.cuts
+        cuts = cuts[i:] + cuts[:i]
