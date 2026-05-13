@@ -117,17 +117,49 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def _calculate_flip_improvement(
         self, cut1: int, cut2: int
     ) -> tuple[bool, bool, float]:
-        cut1_flip_delta = self._cut_flip_delta(cut1)
-        cut2_flip_delta = self._cut_flip_delta(cut2)
-
-        flip_1: bool = cut1_flip_delta < 0
-        flip_2: bool = cut2_flip_delta < 0
-
         flip_delta: float = 0.0
+
+        cut1_flip_delta = self._cut_flip_delta(cut1)
+        flip_1: bool = cut1_flip_delta < 0
         if flip_1:
             flip_delta += cut1_flip_delta
+
+        if cut2 == cut1:
+            # If they are equal, flip_2 should be False so an algorithm won't flip the cut twice if flip_1 == True
+            return flip_1, False, flip_delta
+
+        cut2_flip_delta = self._cut_flip_delta(cut2)
+        flip_2: bool = cut2_flip_delta < 0
         if flip_2:
             flip_delta += cut2_flip_delta
+
+        if abs(cut2 - cut1) == 1 and flip_1 and flip_2:
+            # Since the cuts are subsequent, adding the flip deltas seperately counts some travel moves twice, some unneccesarily and doesn't count others
+            cuts = self.geometry.cuts
+            direct_move_cost = self._get_cost(cuts[cut1], cuts[cut2])  # counted twice
+            flip_1_direct_move_cost = self._get_cost(
+                cuts[cut1].flipped_direction(), cuts[cut2]
+            )  # counted unnecessarily
+            flip_2_direct_move_cost = self._get_cost(
+                cuts[cut1], cuts[cut2].flipped_direction()
+            )  # counted unnecessarily
+            flip_both_direct_move_cost = self._get_cost(
+                cuts[cut1].flipped_direction(), cuts[cut2].flipped_direction()
+            )  # didn't count
+            inaccuracy = (
+                direct_move_cost
+                + flip_both_direct_move_cost
+                - flip_1_direct_move_cost
+                - flip_2_direct_move_cost
+            )
+
+            fixed_delta = flip_delta + inaccuracy
+            if fixed_delta < min(cut1_flip_delta, cut2_flip_delta):
+                return True, True, fixed_delta
+            elif cut1_flip_delta < cut2_flip_delta:
+                return True, False, cut1_flip_delta
+            else:
+                return False, True, cut2_flip_delta
 
         return flip_1, flip_2, flip_delta
 
