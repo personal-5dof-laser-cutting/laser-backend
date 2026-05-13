@@ -103,10 +103,12 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def two_opt(self):
         cuts = self.geometry.cuts
         found_improvement: bool = True
-        previous_cost: float = self.geometry.calculate_travel_cost(self.material_height)
-        improvement: float = 0.0
         iterations: int = 0
         while found_improvement and iterations < self.max_iterations:
+            previous_cost: float = self.geometry.calculate_travel_cost(
+                self.material_height, True
+            )
+            improvement: float = 0.0
             found_improvement = False
             for cut1, cut2 in combinations(range(len(cuts)), 2):
                 flip_1, flip_2, flip_delta = self._calculate_flip_improvement(
