@@ -1,8 +1,11 @@
-from core.models.geometry import Configuration, Geometry, TrapezoidalCut
+from matplotlib.axes import Axes
+
+from core.models.geometry import Configuration, Geometry, MotorPosition, TrapezoidalCut
 from core.modules.debug_visualizer.geo_bbox import geo_bbox
 from core.pipeline.base import Module
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.widgets as widgets
 from matplotlib.animation import FuncAnimation
 from Geometry3D import Point, Vector
@@ -17,6 +20,10 @@ from core.services.laser_config_service import LaserConfigService
 class VisualizerFlags(IntFlag):
     SHOW_AREA = 0b01
     SHOW_ORDER = 0b10
+
+
+# Labels for the 4 configuration panels (row-major, top-left → top-right → bottom-left → bottom-right)
+_PANEL_LABELS = ["prev end", "cur start", "cur end", "next start"]
 
 
 class DebugVisualizerModule(Module[Geometry, Geometry]):
@@ -55,11 +62,31 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
         self.bbox = geo_bbox(data)
+        Container.kinematics_service.generate_cache(
+            [conf for cut in self.geometry.cuts for conf in cut.configurations()],
+            self.material_height,
+        )
         self._current_cut = len(self.geometry.cuts)
 
-        # Leave extra vertical space at the bottom for widgets
-        self.fig, self.ax = plt.subplots()
+        self.fig = plt.figure()
         self.fig.subplots_adjust(bottom=0.22)
+
+        # Main gantry plot: left ~65% of the figure
+        self.ax = self.fig.add_axes((0.05, 0.22, 0.58, 0.72))
+
+        # 2x2 grid of motor-position panels on the right
+        # (left, bottom, width, height) in figure coordinates
+        panel_w, panel_h = 0.16, 0.30
+        left_col = 0.68
+        right_col = 0.84
+        top_row = 0.58
+        bot_row = 0.22
+        self._panel_axes: list[Axes] = [
+            self.fig.add_axes((left_col, top_row, panel_w, panel_h)),  # prev end
+            self.fig.add_axes((right_col, top_row, panel_w, panel_h)),  # cur start
+            self.fig.add_axes((left_col, bot_row, panel_w, panel_h)),  # cur end
+            self.fig.add_axes((right_col, bot_row, panel_w, panel_h)),  # next start
+        ]
 
         self._build_widgets()
         self.fig.canvas.mpl_connect("key_press_event", self._on_key_press)
@@ -68,10 +95,14 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         plt.show()
         return self.geometry
 
-    def _build_widgets(self):
+    # ------------------------------------------------------------------
+    # Widget construction
+    # ------------------------------------------------------------------
+
+    def _build_widgets(self) -> None:
         n = len(self.geometry.cuts)
 
-        ax_scroll_bar = self.fig.add_axes((0.12, 0.08, 0.65, 0.04))
+        ax_scroll_bar = self.fig.add_axes((0.05, 0.08, 0.65, 0.04))
         self._scroll_bar = widgets.Slider(
             ax=ax_scroll_bar,
             label="Cuts",
@@ -89,7 +120,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         )
         self._btn_play.on_clicked(self._on_play_clicked)
 
-        ax_speed = self.fig.add_axes((0.12, 0.02, 0.65, 0.03))
+        ax_speed = self.fig.add_axes((0.05, 0.02, 0.65, 0.03))
         self._slider_speed = widgets.Slider(
             ax=ax_speed,
             label="Speed",
@@ -99,30 +130,36 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             valstep=50,
             color="#d9a44a",
         )
-
         self._slider_speed.ax.invert_xaxis()
         self._slider_speed.on_changed(self._on_speed_changed)
-
         ax_speed.set_xlabel("← faster   slower →", fontsize=7, labelpad=1)
 
-    def _on_scroll_bar_changed(self, val: float):
+    # ------------------------------------------------------------------
+    # Widget callbacks
+    # ------------------------------------------------------------------
+
+    def _on_scroll_bar_changed(self, val: float) -> None:
         self._stop_playback()
-        self._current_cut = val
+        self._current_cut = int(val)
         self._redraw()
 
-    def _on_speed_changed(self, val: float):
+    def _on_speed_changed(self, val: float) -> None:
         self._play_interval_ms = val
         if self._is_playing:
             self._stop_playback()
             self._start_playback()
 
-    def _on_play_clicked(self, event):
+    def _on_play_clicked(self, event) -> None:
         if self._is_playing:
             self._stop_playback()
         else:
             self._start_playback()
 
-    def _start_playback(self):
+    # ------------------------------------------------------------------
+    # Playback
+    # ------------------------------------------------------------------
+
+    def _start_playback(self) -> None:
         n = len(self.geometry.cuts)
         if n == 0:
             return
@@ -135,7 +172,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
         self._animation = FuncAnimation(
             self.fig,
-            self._animation_step,  # type: ignore | since blit=False
+            self._animation_step,  # type: ignore[arg-type]
             blit=False,
             interval=self._play_interval_ms,
             repeat=False,
@@ -152,7 +189,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self._redraw()
         self._current_cut += 1
 
-    def _stop_playback(self):
+    def _stop_playback(self) -> None:
         if self._animation is not None:
             self._animation.event_source.stop()
             self._animation = None
@@ -161,7 +198,11 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self._btn_play.label.set_text("▶ Play")
             self.fig.canvas.draw_idle()
 
-    def _redraw(self):
+    # ------------------------------------------------------------------
+    # Main redraw
+    # ------------------------------------------------------------------
+
+    def _redraw(self) -> None:
         self.ax.clear()
         self.max_x = 0
         self.max_y = 0
@@ -172,12 +213,12 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         visible_count = self._current_cut
         visible_cuts = self.geometry.cuts[:visible_count]
 
-        # Update slider without firing the callback (avoid recursion)
+        # Sync slider
         self._scroll_bar.eventson = False
         self._scroll_bar.set_val(self._current_cut)
         self._scroll_bar.eventson = True
 
-        # Draw gantry dimensions rectangle
+        # Gantry rectangle
         gantry_x, gantry_y = self.gantry_dim
         self.ax.plot(
             [0, gantry_x, gantry_x, 0, 0],
@@ -188,7 +229,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             label="Gantry",
         )
 
-        # Draw bounding box with offset
+        # Bounding box
         if self.bbox:
             xmin, xmax, ymin, ymax = self.bbox
             self.ax.plot(
@@ -213,7 +254,6 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
                         visible_cuts[i + 1].start_configuration(),
                     )
 
-        # Set plot limits
         self.ax.set_xlim(self.min_x, max(gantry_x + 1, self.max_x + 5))
         self.ax.set_ylim(self.min_y, max(gantry_y + 1, self.max_y + 5))
         self.ax.set_aspect("equal")
@@ -221,9 +261,133 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             f"Offset X: {self.offset_x}  Y: {self.offset_y}"
             f"   [{visible_count}/{n} cuts]"
         )
+
+        self._redraw_config_panels()
         self.fig.canvas.draw_idle()
 
-    def _on_key_press(self, event):
+    # ------------------------------------------------------------------
+    # Configuration panels
+    # ------------------------------------------------------------------
+
+    def _get_panel_configurations(self) -> list[Configuration | None]:
+        """Return [prev_end, cur_start, cur_end, next_start]; None where out of range."""
+        cuts = self.geometry.cuts
+        c = self._current_cut - 1  # 0-indexed index of the current (last visible) cut
+
+        prev_end = cuts[c - 1].end_configuration() if c - 1 >= 0 else None
+        cur_start = cuts[c].start_configuration()
+        cur_end = cuts[c].end_configuration()
+        next_start = cuts[c + 1].start_configuration() if c + 1 < len(cuts) else None
+
+        return [prev_end, cur_start, cur_end, next_start]
+
+    def _redraw_config_panels(self) -> None:
+        configurations = self._get_panel_configurations()
+        for ax, config, label in zip(self._panel_axes, configurations, _PANEL_LABELS):
+            self._draw_config_panel(ax, config, label)
+
+    def _to_motor_position(self, config: Configuration) -> MotorPosition:
+        motor_pos, _ = Container.kinematics_service.get_positions(
+            config, self.material_height
+        )
+        return motor_pos
+
+    def _draw_config_panel(
+        self, ax: Axes, config: Configuration | None, label: str
+    ) -> None:
+        ax.clear()
+        # Panel coordinate space is always [0, 1] x [0, 1]
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.set_aspect("equal")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_title(label, fontsize=8, pad=3)
+
+        # ── Disk: fixed at centre, fills most of the panel ────────────
+        # Always drawn regardless of config so the panel never looks empty
+        disk_cx, disk_cy = 0.5, 0.5
+        disk_r = 0.42  # nearly fills the [0,1]x[0,1] space
+        disk = mpatches.Circle(
+            (disk_cx, disk_cy),
+            disk_r,
+            facecolor="#ddeeff",
+            edgecolor="steelblue",
+            linewidth=1.5,
+            zorder=1,
+        )
+        ax.add_patch(disk)
+
+        if config is None:
+            return
+
+        motor_pos = self._to_motor_position(config)
+        gantry_w, gantry_h = self.gantry_dim
+
+        # ── Radial marker on disk (table rotation, motor_pos.a) ───────
+        # a is in [0, 2π), 0 → up, increases clockwise.
+        # matplotlib CCW from +x → angle_mpl = π/2 − a
+        marker_angle_mpl = math.pi / 2 - motor_pos.a
+        ax.plot(
+            [disk_cx, disk_cx + disk_r * math.cos(marker_angle_mpl)],
+            [disk_cy, disk_cy + disk_r * math.sin(marker_angle_mpl)],
+            color="steelblue",
+            linewidth=2,
+            zorder=2,
+        )
+
+        # ── Arrow (laser angle + position) ────────────────────────────
+        # x, y normalised into [0, 1] panel space
+        x_norm = motor_pos.x / gantry_w
+        y_norm = motor_pos.y / gantry_h
+        in_bounds = (0.0 <= x_norm <= 1.0) and (0.0 <= y_norm <= 1.0)
+
+        if in_bounds:
+            # b=0 → down (−y), b=−π/2 → −x, b=+π/2 → +x
+            # angle_mpl = −π/2 − b
+            max_arrow_len = 0.25
+            arrow_len = (motor_pos.z / self.material_height) * max_arrow_len
+            arrow_angle_mpl = -math.pi / 2 - motor_pos.b
+            dx = arrow_len * math.cos(arrow_angle_mpl)
+            dy = arrow_len * math.sin(arrow_angle_mpl)
+
+            ax.annotate(
+                "",
+                xy=(x_norm + dx, y_norm + dy),
+                xytext=(x_norm, y_norm),
+                arrowprops=dict(arrowstyle="-|>", color="tomato", lw=1.5),
+                zorder=3,
+            )
+            ax.plot(x_norm, y_norm, "o", color="tomato", markersize=3, zorder=3)
+        else:
+            ax.text(
+                0.5,
+                0.5,
+                "✕",
+                ha="center",
+                va="center",
+                fontsize=14,
+                color="#888",
+                zorder=3,
+            )
+
+        # Numeric readout just below the panel title (top of axes)
+        ax.text(
+            0.5,
+            0.02,
+            f"a={math.degrees(motor_pos.a):.1f}°  b={math.degrees(motor_pos.b):.1f}°"
+            f"  z={motor_pos.z:.1f}",
+            ha="center",
+            va="bottom",
+            fontsize=6,
+            zorder=3,
+        )
+
+    # ------------------------------------------------------------------
+    # Key press (pan)
+    # ------------------------------------------------------------------
+
+    def _on_key_press(self, event) -> None:
         dx, dy = 0, 0
         if event.key == "up":
             dy += self.step_size
@@ -234,7 +398,9 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         if event.key == "right":
             dx += self.step_size
 
-        # Apply offset to geometry
+        if dx == 0 and dy == 0:
+            return
+
         move_vector = Vector(dx, dy, 0)
         for i, cut in enumerate(self.geometry.cuts):
             self.geometry.cuts[i] = cut.move(move_vector)
@@ -247,13 +413,21 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
         self._redraw()
 
-    def _draw_cut(self, cut: TrapezoidalCut, cut_number: int):
+    # ------------------------------------------------------------------
+    # Cut drawing helpers
+    # ------------------------------------------------------------------
+
+    def _draw_cut(self, cut: TrapezoidalCut, cut_number: int) -> None:
         start_top = cut.top_segment().start_point
         end_top = cut.top_segment().end_point
         start_bottom = cut.bottom_segment().start_point
         end_bottom = cut.bottom_segment().end_point
 
-        self._draw_line(start_top, end_top, "black")
+        if cut_number == self._current_cut - 1:
+            line_color = "red"
+        else:
+            line_color = "black"
+        self._draw_line(start_top, end_top, line_color)
         if not cut.is_straight_cut():
             self._draw_line(
                 start_bottom, end_bottom, self._get_grey_color(-start_bottom.z)
@@ -290,7 +464,9 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self.min_y, start_top.y, end_top.y, start_bottom.y, end_bottom.y
         )
 
-    def _draw_travel_move(self, from_config: Configuration, to_config: Configuration):
+    def _draw_travel_move(
+        self, from_config: Configuration, to_config: Configuration
+    ) -> None:
         self.ax.arrow(
             from_config.x,
             from_config.y,
@@ -302,7 +478,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             width=self.arrow_width * 3 / 4,
         )
 
-    def _draw_connecting_lines(self, cut: TrapezoidalCut):
+    def _draw_connecting_lines(self, cut: TrapezoidalCut) -> None:
         color = "#bbe"
         linestyle = "dashdot"
         self._draw_line(cut.start_top, cut.start_bottom, color, linestyle)
@@ -316,7 +492,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
     def _draw_line(
         self, start: Point, end: Point, color: str, linestyle: str = "solid"
-    ):
+    ) -> None:
         self.ax.plot(
             (start.x, end.x), (start.y, end.y), color=color, linestyle=linestyle
         )
