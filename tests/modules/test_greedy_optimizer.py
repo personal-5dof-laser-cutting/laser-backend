@@ -11,10 +11,11 @@ def test_optimizer():
         "/home/leonarddf/Uni/IT-Systems_Engineering/HCI-BP/models-to-cut/archive/the-guy-for-real.svg",
         "/home/leonarddf/Uni/IT-Systems_Engineering/HCI-BP/models-to-cut/archive/the-guy-front.svg",
     ][1]
-    dof = SVG5DOF_Importer(6, 72)
+    material_height = 6
+    dof = SVG5DOF_Importer(material_height, 72)
     geometry: Geometry = dof.process(open(svg).read())
-    opt = GreedyOptimizerModule(6)
-    previous_costs = geometry.calculate_travel_cost(6, False)
+    opt = GreedyOptimizerModule(material_height)
+    previous_costs = geometry.calculate_travel_cost(material_height, False)
     optimized = opt.process(geometry)
-    optimized_costs = optimized.calculate_travel_cost(6, False)
+    optimized_costs = optimized.calculate_travel_cost(material_height, False)
     assert previous_costs >= optimized_costs
