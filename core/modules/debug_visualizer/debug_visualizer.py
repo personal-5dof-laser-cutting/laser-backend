@@ -3,6 +3,8 @@ from core.modules.debug_visualizer.geo_bbox import geo_bbox
 from core.pipeline.base import Module
 
 import matplotlib.pyplot as plt
+import matplotlib.widgets as widgets
+from matplotlib.animation import FuncAnimation
 from Geometry3D import Point, Vector
 from enum import IntFlag
 
@@ -45,16 +47,119 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.offset_y = 0
         self.step_size = 3.0
 
+        self._current_cut = 1
+        self._animation: FuncAnimation | None = None
+        self._is_playing = False
+        self._play_interval_ms = 400
+
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
         self.bbox = geo_bbox(data)
+        self._current_cut = len(self.geometry.cuts)
 
+        # Leave extra vertical space at the bottom for widgets
         self.fig, self.ax = plt.subplots()
+        self.fig.subplots_adjust(bottom=0.22)
+
+        self._build_widgets()
         self.fig.canvas.mpl_connect("key_press_event", self._on_key_press)
 
         self._redraw()
         plt.show()
         return self.geometry
+
+    def _build_widgets(self):
+        n = len(self.geometry.cuts)
+
+        ax_scroll_bar = self.fig.add_axes((0.12, 0.08, 0.65, 0.04))
+        self._scroll_bar = widgets.Slider(
+            ax=ax_scroll_bar,
+            label="Cuts",
+            valmin=1,
+            valmax=n,
+            valinit=self._current_cut,
+            valstep=1,
+            color="#4a90d9",
+        )
+        self._scroll_bar.on_changed(self._on_scroll_bar_changed)
+
+        ax_play = self.fig.add_axes((0.80, 0.065, 0.08, 0.055))
+        self._btn_play = widgets.Button(
+            ax_play, "▶ Play", color="#e8f4e8", hovercolor="#c8eac8"
+        )
+        self._btn_play.on_clicked(self._on_play_clicked)
+
+        ax_speed = self.fig.add_axes((0.12, 0.02, 0.65, 0.03))
+        self._slider_speed = widgets.Slider(
+            ax=ax_speed,
+            label="Speed",
+            valmin=50,
+            valmax=2000,
+            valinit=self._play_interval_ms,
+            valstep=50,
+            color="#d9a44a",
+        )
+
+        self._slider_speed.ax.invert_xaxis()
+        self._slider_speed.on_changed(self._on_speed_changed)
+
+        ax_speed.set_xlabel("← faster   slower →", fontsize=7, labelpad=1)
+
+    def _on_scroll_bar_changed(self, val: float):
+        self._stop_playback()
+        self._current_cut = val
+        self._redraw()
+
+    def _on_speed_changed(self, val: float):
+        self._play_interval_ms = val
+        if self._is_playing:
+            self._stop_playback()
+            self._start_playback()
+
+    def _on_play_clicked(self, event):
+        if self._is_playing:
+            self._stop_playback()
+        else:
+            self._start_playback()
+
+    def _start_playback(self):
+        n = len(self.geometry.cuts)
+        if n == 0:
+            return
+        if self._current_cut >= n:
+            self._current_cut = 1
+
+        self._is_playing = True
+        self._btn_play.label.set_text("⏸ Pause")
+        self._redraw()
+
+        self._animation = FuncAnimation(
+            self.fig,
+            self._animation_step,  # type: ignore | since blit=False
+            blit=False,
+            interval=self._play_interval_ms,
+            repeat=False,
+            cache_frame_data=False,
+        )
+        self.fig.canvas.draw_idle()
+
+    def _animation_step(self, frame) -> None:
+        n = len(self.geometry.cuts)
+        if self._current_cut > n:
+            self._stop_playback()
+            return
+
+        self._redraw()
+        self._current_cut += 1
+
+    def _stop_playback(self):
+        if self._animation is not None:
+            self._animation.event_source.stop()
+            self._animation = None
+        self._is_playing = False
+        if hasattr(self, "_btn_play"):
+            self._btn_play.label.set_text("▶ Play")
+            self.fig.canvas.draw_idle()
 
     def _redraw(self):
         self.ax.clear()
@@ -62,6 +167,16 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.max_y = 0
         self.min_x = -1
         self.min_y = -1
+
+        n = len(self.geometry.cuts)
+        visible_count = self._current_cut
+        visible_cuts = self.geometry.cuts[:visible_count]
+
+        # Update slider without firing the callback (avoid recursion)
+        self._scroll_bar.eventson = False
+        self._scroll_bar.set_val(self._current_cut)
+        self._scroll_bar.eventson = True
+
         # Draw gantry dimensions rectangle
         gantry_x, gantry_y = self.gantry_dim
         self.ax.plot(
@@ -89,27 +204,24 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self.min_x = min(self.min_x, xmin - 5)
             self.min_y = min(self.min_y, ymin - 5)
 
-        for i, cut in enumerate(self.geometry.cuts):
+        for i, cut in enumerate(visible_cuts):
             self._draw_cut(cut, i)
-            if i != len(self.geometry.cuts) - 1:
-                if (
-                    self.geometry.cuts[i + 1].start_configuration()
-                    != cut.end_configuration()
-                ):
+            if i != len(visible_cuts) - 1:
+                if visible_cuts[i + 1].start_configuration() != cut.end_configuration():
                     self._draw_travel_move(
                         cut.end_configuration(),
-                        self.geometry.cuts[i + 1].start_configuration(),
+                        visible_cuts[i + 1].start_configuration(),
                     )
 
-        # Set plot limits to always show the full gantry dimensions
-        gantry_x, gantry_y = self.gantry_dim
+        # Set plot limits
         self.ax.set_xlim(self.min_x, max(gantry_x + 1, self.max_x + 5))
         self.ax.set_ylim(self.min_y, max(gantry_y + 1, self.max_y + 5))
         self.ax.set_aspect("equal")
         self.fig.suptitle(
-            "Offset X: " + str(self.offset_x) + "Y: " + str(self.offset_y)
+            f"Offset X: {self.offset_x}  Y: {self.offset_y}"
+            f"   [{visible_count}/{n} cuts]"
         )
-        self.fig.canvas.draw()
+        self.fig.canvas.draw_idle()
 
     def _on_key_press(self, event):
         dx, dy = 0, 0
@@ -127,7 +239,6 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         for i, cut in enumerate(self.geometry.cuts):
             self.geometry.cuts[i] = cut.move(move_vector)
 
-        # Apply offset to bbox
         self.offset_x += dx
         self.offset_y += dy
         if self.bbox:
@@ -139,7 +250,6 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
     def _draw_cut(self, cut: TrapezoidalCut, cut_number: int):
         start_top = cut.top_segment().start_point
         end_top = cut.top_segment().end_point
-
         start_bottom = cut.bottom_segment().start_point
         end_bottom = cut.bottom_segment().end_point
 
