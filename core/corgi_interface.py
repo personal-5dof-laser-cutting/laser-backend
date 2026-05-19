@@ -41,8 +41,10 @@ class CorgiInterface:
     def __init__(
         self,
         address: str,
-        incoming_messages: PriorityQueue[Tuple[int, WebsocketMessage]],
-        outgoing_messages: Queue[WebsocketMessage],
+        incoming_messages: PriorityQueue[
+            Tuple[int, WebsocketMessage]
+        ] = PriorityQueue(),
+        outgoing_messages: Queue[WebsocketMessage] = Queue(),
         buffer_size: int = 128,
     ):
         self.address = address
