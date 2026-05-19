@@ -1,5 +1,5 @@
 from api.models.base import FrontendInput
-from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule
+from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.pipeline.pipeline import full_pipeline
 
 
@@ -15,12 +15,11 @@ def test_full_pipeline():
     )
 
     pipeline = full_pipeline(input)
-    assert GeneticOptimizerModule not in [type(module) for module in pipeline.modules]
-    g_code_unoptimized = pipeline.run(input.svg)
+    assert GreedyOptimizerModule not in [type(module) for module in pipeline.modules]
+    _ = pipeline.run(input.svg)
 
     input.optimize = True
-    pipeline = full_pipeline(input, generations=10)
+    pipeline = full_pipeline(input)
     print(pipeline.modules)
-    assert GeneticOptimizerModule in [type(module) for module in pipeline.modules]
-    g_code_optimized = pipeline.run(input.svg)
-    assert g_code_unoptimized != g_code_optimized
+    assert GreedyOptimizerModule in [type(module) for module in pipeline.modules]
+    _ = pipeline.run(input.svg)

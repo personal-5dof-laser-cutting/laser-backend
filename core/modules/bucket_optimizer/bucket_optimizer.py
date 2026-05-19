@@ -1,11 +1,13 @@
 import math
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.pipeline.base import Module
+from core.service_container import Container
 
 
 class BucketOptimizerModule(Module[Geometry, Geometry]):
-    def __init__(self, epsilon: float = 0.01) -> None:
-        self.epsilon = epsilon
+    def __init__(self, material_height: float, epsilon: float = 0.01) -> None:
+        self.material_height: float = material_height
+        self.epsilon: float = epsilon
         super().__init__()
 
     def process(self, data: Geometry) -> Geometry:
@@ -16,11 +18,13 @@ class BucketOptimizerModule(Module[Geometry, Geometry]):
 
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[int, int, int, int]:
         start_config = cut.start_configuration()
-        table_angle, laser_head_angle = start_config.get_cutter_angles(unit="radian")
+        mpos1, mpos2 = Container.kinematics_service.get_positions(
+            start_config, self.material_height
+        )
+        table_angle, laser_head_angle = mpos1.a, mpos1.b
         # We choose only configuration options with positive table angle for better bucketing
         if table_angle < 0 and not math.isclose(table_angle, 0):
-            table_angle += math.pi
-            laser_head_angle *= -1
+            table_angle, laser_head_angle = mpos2.a, mpos2.b
         table_angle_bucket = self.get_bucket_index(table_angle)
         laser_head_angle_bucket = self.get_bucket_index(laser_head_angle)
         x_pos_bucket = self.get_bucket_index(start_config.x)

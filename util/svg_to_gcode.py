@@ -43,7 +43,9 @@ if __name__ == "__main__":
     geo = nester.process(geo)
 
     if global_optimizer_on:
-        optimizer = GreedyOptimizerModule(Configuration(200, 200, 0, 0))
+        optimizer = GreedyOptimizerModule(
+            material_thickness, start_location=Configuration(200, 200, 0, 0)
+        )
         geo = optimizer.process(geo)
 
     vis = DebugVisualizerModule(material_thickness)
