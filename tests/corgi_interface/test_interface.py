@@ -1,5 +1,9 @@
+from queue import PriorityQueue, Queue
+from typing import Tuple
+
 from gcode_lib.gcode_interface import GCodeInterface
 
+from api.models.base import WebsocketMessage
 from core.corgi_interface import CorgiInterface
 import threading
 from time import time, sleep
@@ -9,11 +13,14 @@ BUFFER_SIZE = 10
 
 
 def test_buffer(mocker: MockerFixture):
-    # TODO: Adapt test to new CorgiInterface
-    return
     mock_interface = mocker.Mock(spec=GCodeInterface)
     mock_interface.recv.return_value = "ok"
-    corgi_interface = CorgiInterface(mock_interface, buffer_size=BUFFER_SIZE)
+    incoming_messages: PriorityQueue[Tuple[int, WebsocketMessage]] = PriorityQueue()
+    outgoing_messages: Queue = Queue()
+    corgi_interface = CorgiInterface(
+        "127.0.0.1", incoming_messages, outgoing_messages, buffer_size=BUFFER_SIZE
+    )
+    corgi_interface._interface = mock_interface
     t = threading.Thread(target=corgi_interface.main_loop, daemon=True)
     t.start()
 

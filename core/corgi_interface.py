@@ -15,8 +15,13 @@ def str_len(string: str) -> int:
 
 
 class SerialInterface:
+    _interface: serial.Serial
+
     def __init__(self, port: str):
         self._interface = serial.Serial(port)
+
+    def open(self):
+        pass
 
     def send(self, message: str):
         self._interface.write(message.encode())
@@ -79,18 +84,18 @@ class CorgiInterface:
 
     def _try_connect(self) -> bool:
         try:
-            serial_port = self._find_serial_port()
-
-            if serial_port:
-                self._interface = SerialInterface(serial_port)
-            else:
-                self._interface = GCodeInterface(self.address)
-                self._interface.open()
-
+            self._interface.open()
             self.connected = True
             self.buffer_used = 0
             self.buffer_corgi.clear()
             print("Connected to corgi")
+        except AttributeError:
+            serial_port = self._find_serial_port()
+            if serial_port:
+                self._interface = SerialInterface(serial_port)
+            else:
+                self._interface = GCodeInterface(self.address)
+            self._try_connect()
         except Exception as e:
             print(f"Could not connect to corgi: {e}")
             self.connected = False
