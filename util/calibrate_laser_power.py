@@ -1,6 +1,5 @@
 import math
 from core.corgi_interface import CorgiInterface
-from gcode_lib.gcode_interface import GCodeInterface
 import sys
 import threading
 import numpy as np
@@ -141,7 +140,7 @@ if __name__ == "__main__":
     address = sys.argv[1]
     material_height = float(sys.argv[2])
 
-    interface = CorgiInterface(GCodeInterface(address))
+    interface = CorgiInterface(address)
     threading.Thread(target=interface.main_loop, daemon=True).start()
     # interface = Mock()
 

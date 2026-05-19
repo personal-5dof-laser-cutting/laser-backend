@@ -264,7 +264,7 @@ class TrapezoidalCut:
 
         top_dv: Vector = self.top_vector().normalized()
         bottom_dv: Vector = self.bottom_vector().normalized()
-        for a, b in zip(top_dv, bottom_dv):
+        for a, b in zip(top_dv, bottom_dv):  # pyright: ignore[reportArgumentType] | .normalized() always returns a Vector
             if math.isclose(a, 0) or math.isclose(b, 0):
                 continue
             if sign(a) != sign(b):

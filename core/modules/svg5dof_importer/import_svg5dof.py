@@ -65,7 +65,6 @@ def filter_svg_path(element: Path) -> list[Arc | QuadraticBezier | CubicBezier]:
 def svg_paths_to_points(
     bottom_path: Path, top_path: Path, resolution_mm=1
 ) -> tuple[list[Point2D], list[Point2D]]:
-
     bottom_path.direct_close()
     top_path.direct_close()
     bottom_path.validate_connections()
@@ -231,6 +230,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
                     svg_element_to_path(element[1]),
                 )
                 bottom_points, top_points = svg_paths_to_points(bottom, top)
+                cut_depth *= self._5dof_color_to_percentage(bottom.stroke)
 
             elif isinstance(element, Shape) or isinstance(element, Path):
                 path = svg_element_to_path(element)

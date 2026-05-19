@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 from typing import Any, Literal
 from pydantic import BaseModel, Field
-
-ScalingType = Literal["mm", "illustrator"]
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
 
 
 class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
+
+
+class JobOutput(BaseModel):
+    job_id: str = Field(
+        description="Job ID used to create a websocket connection (/ws/{job_id})"
+    )
 
 
 class FrontendInput(BaseModel):
@@ -21,7 +27,7 @@ class FrontendInput(BaseModel):
         description="If true, the global optimizer will approximate an optimized cut order",
     )
     svg: str = Field(description="Content of the svg file")
-    scaling: ScalingType = Field(
+    dpi: float = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm",
     )
     x_offset: int = Field(
@@ -31,4 +37,17 @@ class FrontendInput(BaseModel):
     y_offset: int = Field(
         description="How many millimeters the svg should be moved alongside the y-axis",
         default=0,
+    )
+
+
+class WebsocketMessage(BaseModel):
+    type: Literal[
+        "info",
+        "error",
+        "abort",
+        "update",
+        "job_id",
+    ] = Field(description="Message Type")
+    content: str = Field(
+        description="Message content. Can by a singular value or a JSON String"
     )

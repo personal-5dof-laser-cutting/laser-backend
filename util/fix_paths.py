@@ -1359,8 +1359,6 @@ def _generate_offset_segment(
     if b_cmd == "L":
         # Offset line: compute normal (constant for a line)
         nx, ny = _segment_normal(b_cmd, b_args, b_sx, b_sy, 0.0)
-        new_sx = b_sx + offset * nx
-        new_sy = b_sy + offset * ny
         new_ex = b_args[0] + offset * nx
         new_ey = b_args[1] + offset * ny
         # Return as L, keeping start point implicit (it's carried over)
@@ -1804,13 +1802,15 @@ def validate_groups(groups: list[dict]) -> list[dict]:
 
 
 def generate_error_svg(
-    tree: ET.ElementTree,
+    tree: ET.ElementTree[ET.Element[str]],
     groups: list[dict],
     issues: list[dict],
     output_path: str,
 ):
     """Write an error.svg with problematic paths color-coded."""
     root = copy.deepcopy(tree.getroot())
+    if root is None:
+        return
 
     # Build lookup: group_index -> issue
     issue_map = {iss["group_index"]: iss for iss in issues}
@@ -1936,7 +1936,7 @@ def generate_error_svg(
 
 
 def generate_fixed_svg(
-    tree: ET.ElementTree,
+    tree: ET.ElementTree[ET.Element[str]],
     groups: list[dict],
     output_path: str,
     discretize_n: int | None = None,
@@ -1948,6 +1948,8 @@ def generate_fixed_svg(
     points per arc.
     """
     root = copy.deepcopy(tree.getroot())
+    if root is None:
+        return
 
     # Re-find groups in the copy
     copy_groups = []
@@ -2138,7 +2140,7 @@ def generate_fixed_svg(
 
 
 def cmd_validate(args):
-    tree = ET.parse(args.input)
+    tree: ET.ElementTree[ET.Element[str]] = ET.parse(args.input)
     groups = find_groups(tree.getroot())
     print(f"Found {len(groups)} black/gray path groups.")
 
@@ -2173,7 +2175,7 @@ def cmd_validate(args):
 
 
 def cmd_generate(args):
-    tree = ET.parse(args.input)
+    tree: ET.ElementTree[ET.Element[str]] = ET.parse(args.input)
     groups = find_groups(tree.getroot())
     print(f"Found {len(groups)} black/gray path groups.\n")
     generate_fixed_svg(tree, groups, args.output, discretize_n=args.discretize)
