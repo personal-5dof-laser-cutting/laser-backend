@@ -4,6 +4,7 @@
 # SVG5DOF
 *.svg
 *.ai
+!tests/modules/svgs/*.svg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

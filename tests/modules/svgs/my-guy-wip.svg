@@ -1,0 +1,1081 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="Layer_1"
+   version="1.1"
+   viewBox="0 0 340.15726 311.81082"
+   sodipodi:docname="my-guy-wip.svg"
+   width="120mm"
+   height="110mm"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs373" />
+  <sodipodi:namedview
+     id="namedview373"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.7138736"
+     inkscape:cx="212.96786"
+     inkscape:cy="210.63397"
+     inkscape:window-width="1625"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="340.15726"
+       height="311.81082"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <!-- Generator: Adobe Illustrator 30.1.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 136)  -->
+  <g
+     id="plate_6"
+     transform="rotate(94.168099,1400.5823,258.59347)">
+    <polygon
+       points="1426.57,1492.24 1428.11,1380.21 1517.64,1348.83 1525.25,1439.85 "
+       fill="#f4dd11"
+       fill-opacity="0.5"
+       id="polygon53" />
+    <g
+       id="g54">
+      <line
+         x1="1525.25"
+         y1="1439.85"
+         x2="1422.79"
+         y2="1483.34"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line53" />
+      <line
+         x1="1529.02"
+         y1="1448.75"
+         x2="1426.5699"
+         y2="1492.24"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line54" />
+      <text
+         transform="translate(1472,1464.26)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text54"><tspan
+           x="0"
+           y="0"
+           id="tspan54">18</tspan></text>
+    </g>
+    <g
+       id="g56">
+      <line
+         x1="1426.5699"
+         y1="1492.24"
+         x2="1426.5699"
+         y2="1373.48"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line55" />
+      <line
+         x1="1426.5699"
+         y1="1492.24"
+         x2="1426.5699"
+         y2="1373.48"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line56" />
+      <text
+         transform="translate(1423.42,1432.86)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text56"><tspan
+           x="0"
+           y="0"
+           id="tspan56">52</tspan></text>
+    </g>
+    <g
+       id="g58">
+      <path
+         id="line57"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-miterlimit:11.34"
+         d="m 1422.0201,1381.6026 111.79,-25.5626"
+         sodipodi:nodetypes="cc" />
+      <line
+         x1="1426.5699"
+         y1="1373.48"
+         x2="1532.27"
+         y2="1349.3101"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line58" />
+      <text
+         transform="translate(1477.34,1366.11)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text58"><tspan
+           x="0"
+           y="0"
+           id="tspan58">17</tspan></text>
+    </g>
+    <g
+       id="g60">
+      <line
+         x1="1517.64"
+         y1="1348.83"
+         x2="1514.4"
+         y2="1448.27"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line59" />
+      <line
+         x1="1532.27"
+         y1="1349.3101"
+         x2="1529.02"
+         y2="1448.75"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line60" />
+      <text
+         transform="translate(1517.26,1398.69)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text60"><tspan
+           x="0"
+           y="0"
+           id="tspan60">14</tspan></text>
+    </g>
+    <text
+       transform="translate(1471.24,1415.28)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text61"><tspan
+         x="0"
+         y="0"
+         id="tspan61">6</tspan></text>
+  </g>
+  <g
+     id="plate_30"
+     transform="rotate(-24.43913,-1278.6141,816.99072)">
+    <polygon
+       points="222.1,633.96 254.35,732.7 167.08,748.89 "
+       fill="#e51919"
+       fill-opacity="0.5"
+       id="polygon61" />
+    <g
+       id="g62">
+      <line
+         x1="222.10001"
+         y1="633.96002"
+         x2="254.35001"
+         y2="748.26001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line61" />
+      <line
+         x1="222.10001"
+         y1="633.96002"
+         x2="254.35001"
+         y2="748.26001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line62" />
+      <text
+         transform="translate(235.07,691.11)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text62"><tspan
+           x="0"
+           y="0"
+           id="tspan62">39</tspan></text>
+    </g>
+    <g
+       id="g64">
+      <line
+         x1="254.35001"
+         y1="732.70001"
+         x2="165.78999"
+         y2="732.70001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line63" />
+      <line
+         x1="254.35001"
+         y1="748.26001"
+         x2="165.78999"
+         y2="748.26001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line64" />
+      <text
+         transform="translate(206.92,737.36)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text64"><tspan
+           x="0"
+           y="0"
+           id="tspan64">16</tspan></text>
+    </g>
+    <g
+       id="g66">
+      <line
+         x1="167.08"
+         y1="748.89001"
+         x2="223.39"
+         y2="634.59998"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line65" />
+      <line
+         x1="165.78999"
+         y1="748.26001"
+         x2="222.10001"
+         y2="633.96002"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line66" />
+      <text
+         transform="translate(191.69,691.55)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text66"><tspan
+           x="0"
+           y="0"
+           id="tspan66">17</tspan></text>
+    </g>
+    <text
+       transform="translate(208.2,705.18)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text67"><tspan
+         x="0"
+         y="0"
+         id="tspan67">30</tspan></text>
+  </g>
+  <g
+     id="plate_38"
+     transform="translate(-251.14954,-221.80641)">
+    <polygon
+       points="444.76,247 444.76,414.11 354.27,328.38 "
+       fill="#8c5628"
+       fill-opacity="0.5"
+       id="polygon99" />
+    <g
+       id="g100">
+      <line
+         x1="444.76001"
+         y1="414.10999"
+         x2="350.20999"
+         y2="323.35001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line99" />
+      <line
+         x1="444.76001"
+         y1="414.10999"
+         x2="350.20999"
+         y2="323.35001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line100" />
+      <text
+         transform="translate(394.33,368.73)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text100"><tspan
+           x="0"
+           y="0"
+           id="tspan100">85</tspan></text>
+    </g>
+    <g
+       id="g102">
+      <line
+         x1="354.26999"
+         y1="328.38"
+         x2="448.82001"
+         y2="252.02"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line101" />
+      <line
+         x1="350.20999"
+         y1="323.35001"
+         x2="444.76001"
+         y2="247"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line102" />
+      <text
+         transform="translate(397.17,288.69)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text102"><tspan
+           x="0"
+           y="0"
+           id="tspan102">53</tspan></text>
+    </g>
+    <g
+       id="g104">
+      <line
+         x1="444.76001"
+         y1="247"
+         x2="444.76001"
+         y2="414.10999"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line103" />
+      <line
+         x1="444.76001"
+         y1="247"
+         x2="444.76001"
+         y2="414.10999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line104" />
+      <text
+         transform="translate(441.61,330.55)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text104"><tspan
+           x="0"
+           y="0"
+           id="tspan104">54</tspan></text>
+    </g>
+    <text
+       transform="translate(408.29,329.83)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text105"><tspan
+         x="0"
+         y="0"
+         id="tspan105">38</tspan></text>
+  </g>
+  <g
+     id="plate_14"
+     transform="rotate(168.93474,681.76669,488.43966)">
+    <polygon
+       points="1173.85,768.61 1175.51,944.79 1127.43,798.17 "
+       fill="#9366bc"
+       fill-opacity="0.5"
+       id="polygon119" />
+    <g
+       id="g120">
+      <line
+         x1="1173.85"
+         y1="768.60999"
+         x2="1173.85"
+         y2="945.32001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line119" />
+      <line
+         x1="1173.85"
+         y1="768.60999"
+         x2="1173.85"
+         y2="945.32001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line120" />
+      <text
+         transform="translate(1170.69,856.96)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text120"><tspan
+           x="0"
+           y="0"
+           id="tspan120">93</tspan></text>
+    </g>
+    <g
+       id="g122">
+      <line
+         x1="1175.51"
+         y1="944.78998"
+         x2="1129.1"
+         y2="797.64001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line121" />
+      <line
+         x1="1173.85"
+         y1="945.32001"
+         x2="1127.4301"
+         y2="798.16998"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line122" />
+      <text
+         transform="translate(1148.65,871.38)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text122"><tspan
+           x="0"
+           y="0"
+           id="tspan122">82</tspan></text>
+    </g>
+    <g
+       id="g124">
+      <line
+         x1="1127.4301"
+         y1="798.16998"
+         x2="1173.85"
+         y2="768.60999"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line123" />
+      <line
+         x1="1127.4301"
+         y1="798.16998"
+         x2="1173.85"
+         y2="768.60999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line124" />
+      <text
+         transform="translate(1147.49,783.39)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text124"><tspan
+           x="0"
+           y="0"
+           id="tspan124">83</tspan></text>
+    </g>
+    <text
+       transform="translate(1152.63,837.19)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text125"><tspan
+         x="0"
+         y="0"
+         id="tspan125">14</tspan></text>
+  </g>
+  <g
+     id="plate_41"
+     transform="translate(-333.47693,-13.807294)">
+    <polygon
+       points="624.57,176.09 656.29,29.03 671.3,325.4 "
+       fill="#3399ff"
+       fill-opacity="0.5"
+       id="polygon149" />
+    <g
+       id="g150">
+      <line
+         x1="624.57001"
+         y1="176.09"
+         x2="672.96002"
+         y2="29.58"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line149" />
+      <line
+         x1="622.91998"
+         y1="175.53999"
+         x2="671.29999"
+         y2="29.030001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line150" />
+      <text
+         transform="translate(645.11,102.67)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text150"><tspan
+           x="0"
+           y="0"
+           id="tspan150">65</tspan></text>
+    </g>
+    <g
+       id="g152">
+      <line
+         x1="656.28998"
+         y1="29.030001"
+         x2="656.28998"
+         y2="325.39999"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line151" />
+      <line
+         x1="671.29999"
+         y1="29.030001"
+         x2="671.29999"
+         y2="325.39999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line152" />
+      <text
+         transform="translate(657.64,177.22)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text152"><tspan
+           x="0"
+           y="0"
+           id="tspan152">63</tspan></text>
+    </g>
+    <g
+       id="g154">
+      <line
+         x1="671.29999"
+         y1="325.39999"
+         x2="622.91998"
+         y2="175.53999"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line153" />
+      <line
+         x1="671.29999"
+         y1="325.39999"
+         x2="622.91998"
+         y2="175.53999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line154" />
+      <text
+         transform="translate(643.95,250.47)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text154"><tspan
+           x="0"
+           y="0"
+           id="tspan154">82</tspan></text>
+    </g>
+    <text
+       transform="translate(644.41,176.84)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text155"><tspan
+         x="0"
+         y="0"
+         id="tspan155">41</tspan></text>
+  </g>
+  <g
+     id="plate_40"
+     transform="translate(126.19308,-1398.9372)">
+    <polygon
+       points="82.79,1423.7 170.14,1402.34 170.65,1476.97 89.69,1532.13 "
+       fill="#e51919"
+       fill-opacity="0.5"
+       id="polygon277" />
+    <g
+       id="g278">
+      <line
+         x1="170.64999"
+         y1="1476.97"
+         x2="77.169998"
+         y2="1519.91"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line277" />
+      <line
+         x1="176.25999"
+         y1="1489.1899"
+         x2="82.790001"
+         y2="1532.13"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line278" />
+      <text
+         transform="translate(122.44,1502.1)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text278"><tspan
+           x="0"
+           y="0"
+           id="tspan278">70</tspan></text>
+    </g>
+    <g
+       id="g280">
+      <line
+         x1="89.690002"
+         y1="1532.13"
+         x2="89.690002"
+         y2="1423.7"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line279" />
+      <line
+         x1="82.790001"
+         y1="1532.13"
+         x2="82.790001"
+         y2="1423.7"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line280" />
+      <text
+         transform="translate(84.47,1477.91)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text280"><tspan
+           x="0"
+           y="0"
+           id="tspan280">51</tspan></text>
+    </g>
+    <g
+       id="g282">
+      <line
+         x1="82.790001"
+         y1="1423.7"
+         x2="179.52"
+         y2="1402.6899"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line281" />
+      <line
+         x1="82.790001"
+         y1="1423.7"
+         x2="179.52"
+         y2="1402.6899"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line282" />
+      <text
+         transform="translate(128,1413.2)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text282"><tspan
+           x="0"
+           y="0"
+           id="tspan282">52</tspan></text>
+    </g>
+    <g
+       id="g284">
+      <line
+         x1="170.14"
+         y1="1402.34"
+         x2="166.88"
+         y2="1488.84"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line283" />
+      <line
+         x1="179.52"
+         y1="1402.6899"
+         x2="176.25999"
+         y2="1489.1899"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line284" />
+      <text
+         transform="translate(168.17,1445.69)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text284"><tspan
+           x="0"
+           y="0"
+           id="tspan284">74</tspan></text>
+    </g>
+    <text
+       transform="translate(122.01,1458.78)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text285"><tspan
+         x="0"
+         y="0"
+         id="tspan285">40</tspan></text>
+  </g>
+  <g
+     id="plate_23"
+     transform="rotate(-11.40653,740.96031,1009.0991)">
+    <polygon
+       points="279.19,29.03 282.75,196.14 177.43,182.26 184.95,73.04 "
+       fill="#ffa500"
+       fill-opacity="0.5"
+       id="polygon301" />
+    <g
+       id="g302">
+      <path
+         id="line301"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-miterlimit:11.34"
+         d="M 181.14999,40.799999 279.19,29.03"
+         sodipodi:nodetypes="cc" />
+      <line
+         x1="181.14999"
+         y1="40.799999"
+         x2="281.10999"
+         y2="29.030001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line302" />
+      <text
+         transform="translate(230.64,57.48)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text302"><tspan
+           x="0"
+           y="0"
+           id="tspan302">33</tspan></text>
+    </g>
+    <g
+       id="g304">
+      <line
+         x1="279.19"
+         y1="29.030001"
+         x2="279.19"
+         y2="204.25999"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line303" />
+      <line
+         x1="281.10999"
+         y1="29.030001"
+         x2="281.10999"
+         y2="204.25999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line304" />
+      <text
+         transform="translate(276.61,116.65)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text304"><tspan
+           x="0"
+           y="0"
+           id="tspan304">26</tspan></text>
+    </g>
+    <g
+       id="g306">
+      <line
+         x1="282.75"
+         y1="196.14"
+         x2="166.81"
+         y2="172.74001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line305" />
+      <line
+         x1="281.10999"
+         y1="204.25999"
+         x2="165.17"
+         y2="180.86"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line306" />
+      <text
+         transform="translate(221.13,186.88)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text306"><tspan
+           x="0"
+           y="0"
+           id="tspan306">25</tspan></text>
+    </g>
+    <g
+       id="g308">
+      <path
+         id="line307"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-miterlimit:11.34"
+         d="M 177.42999,182.25999 193.73767,39.317837"
+         sodipodi:nodetypes="cc" />
+      <line
+         x1="165.17"
+         y1="180.86"
+         x2="181.14999"
+         y2="40.799999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line308" />
+      <text
+         transform="translate(178.59,111.81)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text308"><tspan
+           x="0"
+           y="0"
+           id="tspan308">31</tspan></text>
+    </g>
+    <text
+       transform="translate(224.77,120.12)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text309"><tspan
+         x="0"
+         y="0"
+         id="tspan309">23</tspan></text>
+  </g>
+  <g
+     id="plate_16"
+     transform="rotate(-90.184534,-32.100991,412.19097)">
+    <polygon
+       points="377.48,624.64 288.07,544.21 372.91,449.13 "
+       fill="#f4dd11"
+       fill-opacity="0.5"
+       id="polygon367" />
+    <g
+       id="g368">
+      <line
+         x1="372.91"
+         y1="449.13"
+         x2="372.91"
+         y2="629.20001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line367" />
+      <line
+         x1="372.91"
+         y1="449.13"
+         x2="372.91"
+         y2="629.20001"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line368" />
+      <text
+         transform="translate(369.75,539.17)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text368"><tspan
+           x="0"
+           y="0"
+           id="tspan368">39</tspan></text>
+    </g>
+    <g
+       id="g370">
+      <line
+         x1="377.48001"
+         y1="624.64001"
+         x2="291.57999"
+         y2="538.66998"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line369" />
+      <line
+         x1="372.91"
+         y1="629.20001"
+         x2="287.01001"
+         y2="543.23999"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line370" />
+      <text
+         transform="translate(330,583.02)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text370"><tspan
+           x="0"
+           y="0"
+           id="tspan370">53</tspan></text>
+    </g>
+    <g
+       id="g372">
+      <line
+         x1="288.07001"
+         y1="544.21002"
+         x2="373.97"
+         y2="450.10001"
+         fill="none"
+         stroke="#000000"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line371" />
+      <line
+         x1="287.01001"
+         y1="543.23999"
+         x2="372.91"
+         y2="449.13"
+         fill="none"
+         stroke="#cccccc"
+         stroke-miterlimit="11.34"
+         stroke-width="1.42"
+         id="line372" />
+      <text
+         transform="translate(327.55,496.86)"
+         fill="#666666"
+         font-family="Helvetica, Helvetica"
+         font-size="5.67px"
+         isolation="isolate"
+         id="text372"><tspan
+           x="0"
+           y="0"
+           id="tspan372">40</tspan></text>
+    </g>
+    <text
+       transform="translate(339.85,539.32)"
+       fill="#333333"
+       font-family="Helvetica-Bold, Helvetica"
+       font-size="11.34px"
+       font-weight="700"
+       isolation="isolate"
+       id="text373"><tspan
+         x="0"
+         y="0"
+         id="tspan373">16</tspan></text>
+  </g>
+</svg>
