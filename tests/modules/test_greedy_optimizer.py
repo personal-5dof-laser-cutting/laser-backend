@@ -1,19 +1,24 @@
 import Geometry3D
+import pytest
 from core.models.geometry import Geometry
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 
 
-def test_optimizer():
+@pytest.mark.parametrize(
+    "svg_string,material_height",
+    [
+        (
+            open("tests/modules/svgs/my-guy-wip.svg").read(),
+            6,
+        ),
+    ],
+)
+def test_optimizer(svg_string: str, material_height: float):
     # TODO: write a proper test
     Geometry3D.set_sig_figures(4)
-    svg = [
-        "/home/leonarddf/Uni/IT-Systems_Engineering/HCI-BP/models-to-cut/archive/the-guy-for-real.svg",
-        "/home/leonarddf/Uni/IT-Systems_Engineering/HCI-BP/models-to-cut/archive/the-guy-front.svg",
-    ][1]
-    material_height = 6
     dof = SVG5DOF_Importer(material_height, 72)
-    geometry: Geometry = dof.process(open(svg).read())
+    geometry: Geometry = dof.process(svg_string)
     opt = GreedyOptimizerModule(material_height)
     previous_costs = geometry.calculate_travel_cost(material_height, False)
     optimized = opt.process(geometry)
