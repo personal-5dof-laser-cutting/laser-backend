@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from math import inf
 
 from core.models.geometry import Configuration
@@ -9,6 +9,7 @@ from core.services.kinematics_service import KinematicsService
 class LaserCostService(ABC, BaseService):
     """Service that calculates the cost between two configurations"""
 
+    @abstractmethod
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
     ) -> float: ...

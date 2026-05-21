@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import ctypes
 
 from typing import Tuple
@@ -11,10 +11,12 @@ from core.services.base import BaseService
 class KinematicsService(ABC, BaseService):
     """Service that can use kinematics functions"""
 
+    @abstractmethod
     def get_positions(
         self, cartesian: Configuration, material_height: float
     ) -> Tuple[MotorPosition, MotorPosition]: ...
 
+    @abstractmethod
     def generate_cache(
         self, configurations: list[Configuration], material_height: float
     ): ...
