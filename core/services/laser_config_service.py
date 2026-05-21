@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Tuple
 
 import yaml
@@ -9,12 +9,16 @@ from core.services.base import BaseService
 class LaserConfigService(ABC, BaseService):
     """Service that provides configuration details"""
 
+    @abstractmethod
     def gantry_height_mm(self) -> float: ...
 
+    @abstractmethod
     def gantry_dim_mm(self) -> Tuple[float, float]: ...  # w, h
 
+    @abstractmethod
     def get_config(self) -> dict: ...
 
+    @abstractmethod
     def get_max_rates(self) -> dict[str, int]: ...
 
 
