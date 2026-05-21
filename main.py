@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import logging
+from logging.config import dictConfig
 from queue import PriorityQueue, Queue
 from threading import Thread
 
@@ -11,6 +13,18 @@ from api.routers.ws_router import ws_router
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.corgi_interface import CorgiInterface
+
+logging_config = dict(
+    version=1,
+    formatters={
+        "f": {"format": "%(asctime)s [%(name)s %(levelname)s] %(message)s"},
+    },
+    handlers={
+        "h": {"class": "logging.StreamHandler", "formatter": "f", "level": logging.INFO}
+    },
+    root={"handlers": ["h"], "level": logging.INFO},
+)
+dictConfig(logging_config)
 
 
 @asynccontextmanager
