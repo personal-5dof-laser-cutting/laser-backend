@@ -58,6 +58,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self._animation: FuncAnimation | None = None
         self._is_playing = False
         self._play_interval_ms = 400
+        self._previous: MotorPosition | None = None
 
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
@@ -287,10 +288,19 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self._draw_config_panel(ax, config, label)
 
     def _to_motor_position(self, config: Configuration) -> MotorPosition:
-        motor_pos, _ = Container.kinematics_service.get_positions(
+        closest, furthest = Container.kinematics_service.get_positions(
             config, self.material_height
         )
-        return motor_pos
+        if self._previous is None:
+            return closest
+        closest_cost = Container.laser_cost.chebyshev_distance(self._previous, closest)
+        furthest_cost = Container.laser_cost.chebyshev_distance(
+            self._previous, furthest
+        )
+        if closest_cost <= furthest_cost:
+            return closest
+        else:
+            return furthest
 
     def _draw_config_panel(
         self, ax: Axes, config: Configuration | None, label: str
@@ -322,6 +332,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             return
 
         motor_pos = self._to_motor_position(config)
+        self._previous = motor_pos
         gantry_w, gantry_h = self.gantry_dim
 
         # ── Radial marker on disk (table rotation, motor_pos.a) ───────
