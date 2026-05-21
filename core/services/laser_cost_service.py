@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from math import inf
 
-from core.models.geometry import Configuration
+from core.models.geometry import Configuration, MotorPosition
 from core.services.base import BaseService
 from core.services.kinematics_service import KinematicsService
 
@@ -12,6 +11,11 @@ class LaserCostService(ABC, BaseService):
     @abstractmethod
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
+    ) -> float: ...
+
+    @abstractmethod
+    def chebyshev_distance(
+        self, mpos1: MotorPosition, mpos2: MotorPosition
     ) -> float: ...
 
 
@@ -26,17 +30,21 @@ class LaserCostServiceImpl(LaserCostService):
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
     ) -> float:
-        conf1_pos1, conf1_pos2 = self.kinematics.get_positions(conf1, material_height)
+        conf1_pos1, _ = self.kinematics.get_positions(conf1, material_height)
         conf2_pos1, conf2_pos2 = self.kinematics.get_positions(conf2, material_height)
-        deltas = [conf1_pos1.delta(conf2_pos1), conf1_pos1.delta(conf2_pos2)]
-        min_time = inf
+        min_time = min(
+            self.chebyshev_distance(conf1_pos1, conf2_pos1),
+            self.chebyshev_distance(conf1_pos1, conf2_pos2),
+        )
 
-        for delta in deltas:
-            chebyshev_dist = max(
-                *[
-                    distance / self.max_rates[axis]
-                    for axis, distance in delta.axes_dict().items()
-                ]
-            )
-            min_time = min(min_time, chebyshev_dist)
         return min_time
+
+    def chebyshev_distance(self, mpos1: MotorPosition, mpos2: MotorPosition) -> float:
+        delta = mpos1.delta(mpos2)
+        chebyshevd_dist = max(
+            [
+                distance / self.max_rates[axis]
+                for axis, distance in delta.axes_dict().items()
+            ]
+        )
+        return chebyshevd_dist
