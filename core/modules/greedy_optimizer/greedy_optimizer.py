@@ -30,6 +30,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         self._build_cache()
         if self.show_statistics:
             self._create_plot()
+            self._append_stats("Original")
         self._best_first()
         self._two_opt()
         self._tour_to_shortest_path()
@@ -50,7 +51,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         start_idx, flip_cut = self._find_closest_cut(self.start_location, 0)
         if flip_cut:
-            cuts[start_idx] = cuts[start_idx].flipped_direction()
+            cuts[start_idx].flip_direction()
         cuts[0], cuts[start_idx] = cuts[start_idx], cuts[0]
 
         for i in range(1, len(cuts) - 1):
@@ -59,7 +60,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             )
 
             if flip_cut:
-                cuts[next_cut] = cuts[next_cut].flipped_direction()
+                cuts[next_cut].flip_direction()
 
             cuts[i], cuts[next_cut] = (
                 cuts[next_cut],
@@ -125,6 +126,11 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             iterations += 1
             if self.show_statistics:
                 self._append_stats(f"Two Opt It. {iterations}")
+            if abs(improvement) / previous_cost <= 0.05:
+                print(
+                    f"Improved by less than 5%: {abs(improvement) / previous_cost:.4}"
+                )
+                break
             previous_cost += improvement
             improvement = 0
 
@@ -244,9 +250,9 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             return two_opt_delta
         else:
             if flip_1:
-                cuts[cut1] = cuts[cut1].flipped_direction()
+                cuts[cut1].flip_direction()
             if flip_2:
-                cuts[cut2] = cuts[cut2].flipped_direction()
+                cuts[cut2].flip_direction()
             return flip_delta
 
     def _two_opt_swap(self, cut1_idx: int, cut2_idx: int):
@@ -266,7 +272,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             i += 1
             j -= 1
         if i == j:
-            cuts[i] = cuts[i].flipped_direction()
+            cuts[i].flip_direction()
 
     def _tour_to_shortest_path(self):
         longest_incoming_edge_idx = self._find_longest_edge()
