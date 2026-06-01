@@ -164,9 +164,9 @@ class MotorPosition:
         Offset in mm on the y axis
     z : float
         Offset in mm on the z axis
-    table_rotation : float
+    a : float
         Rotation of the table in radians.
-    laser_rotation : float
+    b : float
         Rotation of the laser head in radians. 0 points downwards and positve points towards positive x.
     """
 
@@ -183,11 +183,16 @@ class MotorPosition:
             alpha = math.radians(alpha)
             beta = math.radians(beta)
 
+        if beta < math.radians(-90) or beta > math.radians(90):
+            raise ValueError("b must be between -90° and 90°")
+
         self.x: float = float(x)
         self.y: float = float(y)
         self.z: float = float(z)
-        self.a: float = float(alpha) % math.radians(360)  # table motor
-        self.b: float = float(beta) % math.radians(360)  # laser head motor
+        self.a: float = float(alpha) % math.radians(360) - math.radians(
+            180
+        )  # table motor
+        self.b: float = float(beta)  # laser head motor
 
     def __eq__(self, value: object) -> bool:
         if type(value) is not MotorPosition:
@@ -221,7 +226,7 @@ class MotorPosition:
 
         d_a = abs(self.a - other.a)
         if d_a > math.radians(180):
-            d_a = math.radians(360) - (d_a % math.radians(360))
+            d_a = math.radians(360) - d_a
         d_b = abs(self.b - other.b)
         return MotorPosition(d_x, d_y, d_z, d_a, d_b)
 
