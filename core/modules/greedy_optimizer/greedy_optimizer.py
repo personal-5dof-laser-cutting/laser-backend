@@ -1,3 +1,4 @@
+from functools import lru_cache
 from itertools import combinations
 from math import inf, isclose
 
@@ -158,13 +159,13 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             cuts = self.geometry.cuts
             direct_move_cost = self._get_cost(cuts[cut1], cuts[cut2])  # counted twice
             flip_1_direct_move_cost = self._get_cost(
-                cuts[cut1].flipped_direction(), cuts[cut2]
+                cuts[cut1], cuts[cut2], flip1=True
             )  # counted unnecessarily
             flip_2_direct_move_cost = self._get_cost(
-                cuts[cut1], cuts[cut2].flipped_direction()
+                cuts[cut1], cuts[cut2], flip2=True
             )  # counted unnecessarily
             flip_both_direct_move_cost = self._get_cost(
-                cuts[cut1].flipped_direction(), cuts[cut2].flipped_direction()
+                cuts[cut1], cuts[cut2], True, True
             )  # didn't count
             inaccuracy = (
                 direct_move_cost
@@ -194,19 +195,27 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         return flip_delta
 
-    def _get_cost(self, cut1: TrapezoidalCut, cut2: TrapezoidalCut) -> float:
-        return cut1.travel_time_to(cut2, self.material_height)
+    @lru_cache(None)
+    def _get_cost(
+        self,
+        cut1: TrapezoidalCut,
+        cut2: TrapezoidalCut,
+        flip1: bool = False,
+        flip2: bool = False,
+    ) -> float:
+        from_conf = cut1.start_configuration() if flip1 else cut1.end_configuration()
+        to_conf = cut2.end_configuration() if flip2 else cut2.start_configuration()
+        return from_conf.travel_time_to(to_conf, self.material_height)
 
     def _segment_cost(self, cut_idx: int, flipped: bool = False) -> float:
         cuts = self.geometry.cuts
-        if flipped:
-            cut = cuts[cut_idx].flipped_direction()
-        else:
-            cut = cuts[cut_idx]
+        cut = cuts[cut_idx]
         cut_previous = cuts[(cut_idx - 1) % len(cuts)]
         cut_next = cuts[(cut_idx + 1) % len(cuts)]
 
-        edges_cost = self._get_cost(cut_previous, cut) + self._get_cost(cut, cut_next)
+        edges_cost = self._get_cost(cut_previous, cut, flip2=flipped) + self._get_cost(
+            cut, cut_next, flip1=flipped
+        )
 
         if isclose(edges_cost, 0):
             edges_cost = 0
@@ -227,8 +236,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         ) + self._get_cost(cuts[cut2_idx], cuts[cut2_next])
 
         new_edges_cost = self._get_cost(
-            cuts[cut1_idx], cuts[cut2_idx].flipped_direction()
-        ) + self._get_cost(cuts[cut1_next].flipped_direction(), cuts[cut2_next])
+            cuts[cut1_idx], cuts[cut2_idx], flip2=True
+        ) + self._get_cost(cuts[cut1_next], cuts[cut2_next], flip1=True)
 
         swap_delta = new_edges_cost - old_edges_cost
         if isclose(swap_delta, 0):
