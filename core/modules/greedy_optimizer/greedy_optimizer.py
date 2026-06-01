@@ -1,6 +1,8 @@
 from itertools import combinations
 from math import inf, isclose
 
+from matplotlib import pyplot as plt
+
 from core.pipeline.base import Module
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.service_container import Container
@@ -14,19 +16,26 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         kinematics: KinematicsService = Container.kinematics_service,
         start_location: Configuration = Configuration(0, 0, 0, 0),
         max_iterations: int = 10,
+        show_statistics: bool = False,
     ):
         super().__init__()
         self.kinematics = kinematics
         self.material_height = material_height
         self.start_location = start_location
         self.max_iterations = max_iterations
+        self.show_statistics = show_statistics
 
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
         self._build_cache()
+        if self.show_statistics:
+            self._create_plot()
         self._best_first()
         self._two_opt()
         self._tour_to_shortest_path()
+        if self.show_statistics:
+            plt.ioff()
+            plt.show()
         return data
 
     def _build_cache(self):
@@ -56,6 +65,9 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
                 cuts[next_cut],
                 cuts[i],
             )
+
+        if self.show_statistics:
+            self._append_stats("Best First")
 
     def _find_closest_cut(
         self, start_conf: Configuration, start_idx: int
@@ -111,8 +123,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
                 )
 
             iterations += 1
-            if (abs(improvement) / previous_cost) < 0.1:
-                break
+            if self.show_statistics:
+                self._append_stats(f"Two Opt It. {iterations}")
             previous_cost += improvement
             improvement = 0
 
@@ -259,6 +271,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def _tour_to_shortest_path(self):
         longest_incoming_edge_idx = self._find_longest_edge()
         self._left_rotate(longest_incoming_edge_idx)
+        if self.show_statistics:
+            self._append_stats("Cycle to Path", False)
 
     def _find_longest_edge(self) -> int:
         cuts = self.geometry.cuts
@@ -275,3 +289,27 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def _left_rotate(self, i: int):
         cuts = self.geometry.cuts
         cuts = cuts[i:] + cuts[:i]
+
+    def _create_plot(self):
+        self.fig, self.ax = plt.subplots()
+        self._setup_plot()
+        plt.ion()
+        self.steps: list[str] = []
+        self.results: list[float] = []
+
+    def _setup_plot(self):
+        self.ax.set_xlabel("Step")
+        self.ax.set_ylabel("Path cost")
+        self.ax.set_title("Path Cost Evolution over Time")
+
+    def _append_stats(self, step_name: str, as_cycle: bool = True):
+        self.steps.append(step_name)
+        current_cost = self.geometry.calculate_travel_cost(
+            self.material_height, as_cycle=as_cycle
+        )
+        self.results.append(current_cost)
+
+        self.ax.clear()
+        self.ax.plot(self.steps, self.results, marker="o")
+        self._setup_plot()
+        plt.pause(0.1)
