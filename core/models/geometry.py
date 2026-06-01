@@ -177,7 +177,7 @@ class MotorPosition:
         z: float,
         alpha: float,
         beta: float,
-        isRadians: bool = True,
+        isRadians: bool = False,
     ) -> None:
         if not isRadians:
             alpha = math.radians(alpha)
@@ -214,7 +214,7 @@ class MotorPosition:
     def delta(self, other: MotorPosition) -> MotorPosition:
         d_x = abs(self.x - other.x)
         d_y = abs(self.y - other.y)
-        if sign(self.a) != sign(other.a):
+        if sign(self.b) != sign(other.b):
             d_z = self.z + other.z
         else:
             d_z = abs(self.z - other.z)
