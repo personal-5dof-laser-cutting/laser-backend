@@ -253,6 +253,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             cuts[i], cuts[j] = cuts[j].flipped_direction(), cuts[i].flipped_direction()
             i += 1
             j -= 1
+        if i == j:
+            cuts[i] = cuts[i].flipped_direction()
 
     def _tour_to_shortest_path(self):
         longest_incoming_edge_idx = self._find_longest_edge()
