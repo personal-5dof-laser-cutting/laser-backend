@@ -18,11 +18,11 @@ def test_travel_cost(cuts: list[TrapezoidalCut]):
     geo.cuts = cuts
 
     material_height = 5
-    assert geo.calculate_travel_cost(material_height, as_tour=False) == 0
+    assert geo.calculate_travel_cost(material_height, as_cycle=False) == 0
 
     geo.cuts[1] = geo.cuts[1].flipped_direction()
 
-    assert geo.calculate_travel_cost(material_height, as_tour=False) == geo.cuts[
+    assert geo.calculate_travel_cost(material_height, as_cycle=False) == geo.cuts[
         0
     ].travel_time_to(geo.cuts[1], material_height) + geo.cuts[1].travel_time_to(
         geo.cuts[2], material_height

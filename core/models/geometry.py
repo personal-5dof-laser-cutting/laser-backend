@@ -46,11 +46,11 @@ class Geometry:
         vis.add((origin(), "b", 5))
         vis.show()
 
-    def calculate_travel_cost(self, material_height: float, as_tour: bool) -> float:
+    def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
         running_total: float = 0
         for a, b in pairwise(self.cuts):
             running_total += a.travel_time_to(b, material_height)
-        if as_tour:
+        if as_cycle:
             running_total += self.cuts[-1].travel_time_to(self.cuts[0], material_height)
         return running_total
 
