@@ -1,0 +1,1112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full" height="550.5mm" version="1.1" viewBox="-546.27 -4.48 551.06 550.46" width="551.1mm">
+  <defs/>
+  <g class="plate" id="plate_0">
+    <polygon fill="#e51919" fill-opacity="0.5" points="-494.30325627326965,82.64891058206558 -492.8920269012451,134.26609337329865 -518.441379070282,92.70238876342773 -494.30325627326965,82.64891058206558" stroke="none"/>
+    <g data-tilt="-8.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-494.30325627326965" x2="-494.30325627326965" y1="82.64891058206558" y2="134.58652794361115"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-493.44077706336975" x2="-493.44077706336975" y1="82.64891058206558" y2="134.58652794361115"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-494.0445125102997" y="108.61771926283836">23</text>
+    </g>
+    <g data-tilt="-6.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-492.8920269012451" x2="-518.523097038269" y1="134.26609337329865" y2="90.37309885025024"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-493.44077706336975" x2="-519.0718770027161" y1="134.58652794361115" y2="90.69354087114334"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-505.8721914887428" y="112.41572760045528">55</text>
+    </g>
+    <g data-tilt="-19.34">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-518.441379070282" x2="-492.81027913093567" y1="92.70238876342773" y2="84.65775102376938"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-519.0718770027161" x2="-493.44077706336975" y1="90.69354087114334" y2="82.64891058206558"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-505.81497848033905" y="88.07741664350033">22</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-501.87888741493225" y="103.20579757293065">0</text>
+  </g>
+  <g class="plate" id="plate_1">
+    <polygon fill="#3399ff" fill-opacity="0.5" points="-483.8078022003174,426.8661141395569 -480.9570014476776,476.80190205574036 -509.32377576828003,452.800452709198 -483.8078022003174,426.8661141395569" stroke="none"/>
+    <g data-tilt="-8.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-483.8078022003174" x2="-483.807772397995" y1="426.8661141395569" y2="478.80372405052185"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.9453229904175" x2="-482.9452931880951" y1="426.8661141395569" y2="478.80372405052185"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-483.5490435361862" y="452.83491909503937">10</text>
+    </g>
+    <g data-tilt="-25.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-480.9570014476776" x2="-508.69983434677124" y1="476.80190205574036" y2="449.24622774124146"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.9452931880951" x2="-510.6881260871887" y1="478.80372405052185" y2="451.24804973602295"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-495.42490541934967" y="463.62461149692535">9</text>
+    </g>
+    <g data-tilt="-19.01">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-509.32377576828003" x2="-481.5809726715088" y1="452.800452709198" y2="428.41851711273193"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-510.6881260871887" x2="-482.9453229904175" y1="451.24804973602295" y2="426.8661141395569"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-495.861679315567" y="440.14376401901245">22</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-491.362859805425" y="452.1561563014984">1</text>
+  </g>
+  <g class="plate" id="plate_28">
+    <polygon fill="#8c5628" fill-opacity="0.5" points="-490.0853931903839,193.42300295829773 -502.03222036361694,155.3262323141098 -457.8421711921692,161.06142103672028 -455.57108521461487,204.98515665531158 -490.0853931903839,193.42300295829773" stroke="none"/>
+    <g data-tilt="-28.21">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-490.0853931903839" x2="-498.66971373558044" y1="193.42300295829773" y2="153.27991545200348"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-493.23225021362305" x2="-501.8165707588196" y1="194.0959393978119" y2="153.95285189151764"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-495.3216105699539" y="173.55334013700485">9</text>
+    </g>
+    <g data-tilt="-13.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-502.03222036361694" x2="-456.76344633102417" y1="155.3262323141098" y2="162.43480145931244"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-501.8165707588196" x2="-456.5477967262268" y1="153.95285189151764" y2="161.06142103672028"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-479.33313846588135" y="158.46850275993347">2</text>
+    </g>
+    <g data-tilt="-12.17">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-457.8421711921692" x2="-457.8421711921692" y1="161.06142103672028" y2="207.6321691274643"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-456.5477967262268" x2="-456.5477967262268" y1="161.06142103672028" y2="207.6321691274643"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-457.4538588523865" y="184.34679508209229">1</text>
+    </g>
+    <g data-tilt="-25.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-455.57108521461487" x2="-492.2555387020111" y1="204.98515665531158" y2="191.44892692565918"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-456.5477967262268" x2="-493.23225021362305" y1="207.6321691274643" y2="194.0959393978119"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-474.20632541179657" y="199.0111455321312">6</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-476.3827174901962" y="178.69895324110985">28</text>
+  </g>
+  <g class="plate" id="plate_25">
+    <polygon fill="#00ced1" fill-opacity="0.5" points="-499.6396005153656,48.20036515593529 -524.9794125556946,51.50497332215309 -534.5001816749573,8.385688066482544 -502.7449131011963,9.252138435840607 -499.6396005153656,48.20036515593529" stroke="none"/>
+    <g data-tilt="-19.34">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-499.6396005153656" x2="-526.4649987220764" y1="48.20036515593529" y2="49.63791370391846"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-499.5269179344177" x2="-526.3523459434509" y1="50.30281841754913" y2="51.7403669655323"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-513.018499314785" y="49.549875408411026">6</text>
+    </g>
+    <g data-tilt="-13.07">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-524.9794125556946" x2="-532.8630208969116" y1="51.50497332215309" y2="5.524152424186468"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-526.3523459434509" x2="-534.235954284668" y1="51.7403669655323" y2="5.75954420492053"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-529.33309674263" y="28.58518068678677">7</text>
+    </g>
+    <g data-tilt="-23.74">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-534.5001816749573" x2="-499.7911751270294" y1="8.385688066482544" y2="11.878283694386482"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-534.235954284668" x2="-499.5269179344177" y1="5.75954420492053" y2="9.252144955098629"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-517.0664057135582" y="9.344143490307033">41</text>
+    </g>
+    <g data-tilt="-28.21">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-502.7449131011963" x2="-502.7449131011963" y1="9.252138435840607" y2="50.302814692258835"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-499.5269179344177" x2="-499.5269179344177" y1="9.252144955098629" y2="50.30281841754913"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-501.7795145511627" y="29.77747810073197">23</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-515.4660269618034" y="29.335791245102882">25</text>
+  </g>
+  <g class="plate" id="plate_45">
+    <polygon fill="#00ced1" fill-opacity="0.5" points="-212.93504536151886,512.8730535507202 -245.65951526165009,515.6331062316895 -245.9753304719925,482.4928641319275 -220.07466852664948,462.72581815719604 -212.93504536151886,512.8730535507202" stroke="none"/>
+    <g data-tilt="-23.74">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-212.93504536151886" x2="-247.81939387321472" y1="512.8730535507202" y2="512.8730535507202"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-212.93504536151886" x2="-247.81939387321472" y1="515.5124664306641" y2="515.5124664306641"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-230.3772196173668" y="513.6648774147034">5</text>
+    </g>
+    <g data-tilt="-19.83">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-245.65951526165009" x2="-243.81545186042786" y1="515.6331062316895" y2="482.6134741306305"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-247.81939387321472" x2="-245.9753304719925" y1="515.5124664306641" y2="482.4928641319275"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-245.38544714450836" y="499.0871027112007">21</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-245.9753304719925" x2="-217.1294242143631" y1="482.4928641319275" y2="462.49282360076904"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-245.9753304719925" x2="-217.1294242143631" y1="482.4928641319275" y2="462.49282360076904"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-231.5523773431778" y="472.49284386634827">43</text>
+    </g>
+    <g data-tilt="-26.22">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-220.07466852664948" x2="-215.88028967380524" y1="462.72581815719604" y2="515.7454609870911"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-217.1294242143631" x2="-212.93504536151886" y1="462.49282360076904" y2="515.5124664306641"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-217.09390580654144" y="489.16574120521545">7</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-231.16113990545273" y="493.4312105178833">45</text>
+  </g>
+  <g class="plate" id="plate_26">
+    <polygon fill="#f4dd11" fill-opacity="0.5" points="-432.20826983451843,274.6742367744446 -424.2904782295227,334.89012718200684 -467.3178493976593,337.2344970703125 -452.93763279914856,285.94496846199036 -432.20826983451843,274.6742367744446" stroke="none"/>
+    <g data-tilt="-7.38">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-432.20826983451843" x2="-425.0624477863312" y1="274.6742367744446" y2="336.36975288391113"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-431.43630027770996" x2="-424.2904782295227" y1="274.5848298072815" y2="336.28034591674805"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-428.40376794338226" y="305.49517273902893">15</text>
+    </g>
+    <g data-tilt="-13.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-424.2904782295227" x2="-470.11399269104004" y1="334.89012718200684" y2="334.89012718200684"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-424.2904782295227" x2="-470.11399269104004" y1="336.28034591674805" y2="336.28034591674805"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-447.2022354602814" y="335.3071928024292">5</text>
+    </g>
+    <g data-tilt="-26.22">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-467.3178493976593" x2="-450.1414895057678" y1="337.2344970703125" y2="286.8991196155548"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-470.11399269104004" x2="-452.93763279914856" y1="336.28034591674805" y2="285.94496846199036"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-459.5685124397278" y="311.7805629968643">1</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-452.93763279914856" x2="-431.43630027770996" y1="285.94496846199036" y2="274.5848298072815"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-452.93763279914856" x2="-431.43630027770996" y1="285.94496846199036" y2="274.5848298072815"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-442.18696653842926" y="280.2648991346359">4</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-444.18855756521225" y="308.18595737218857">26</text>
+  </g>
+  <g class="plate" id="plate_7">
+    <polygon fill="#ff66b2" fill-opacity="0.5" points="-428.1526207923889,12.826280668377876 -393.15101504325867,5.759544670581818 -389.66524600982666,59.42702665925026 -434.8183870315552,71.21890038251877 -428.1526207923889,12.826280668377876" stroke="none"/>
+    <g data-tilt="-29.61">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-428.1526207923889" x2="-389.0618681907654" y1="12.826280668377876" y2="9.15464386343956"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-428.47150564193726" x2="-389.3807530403137" y1="9.431182406842709" y2="5.759545136243105"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-408.70290994644165" y="9.971932717598975">4</text>
+    </g>
+    <g data-tilt="-32.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-393.15101504325867" x2="-393.15101504325867" y1="5.759544670581818" y2="60.68580970168114"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-389.3807530403137" x2="-389.3807530403137" y1="5.759545136243105" y2="60.68580970168114"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-392.0199364423752" y="33.22267725598067">3</text>
+    </g>
+    <g data-tilt="-12.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-389.66524600982666" x2="-435.874879360199" y1="59.42702665925026" y2="69.87105309963226"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-389.3807530403137" x2="-435.59038639068604" y1="60.68580970168114" y2="71.12982869148254"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-412.68471479415894" y="65.02667367458344">11</text>
+    </g>
+    <g data-tilt="-7.38">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-434.8183870315552" x2="-427.6995062828064" y1="71.21890038251877" y2="9.520257823169231"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-435.59038639068604" x2="-428.47150564193726" y1="71.12982869148254" y2="9.431182406842709"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-431.49054646492004" y="40.34285703673959">14</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-411.44681721925735" y="37.30793809518218">7</text>
+  </g>
+  <g class="plate" id="plate_6">
+    <polygon fill="#f4dd11" fill-opacity="0.5" points="-8.236147463321686,503.4297704696655 -43.044351041316986,521.9116806983948 -42.501531541347504,482.3932945728302 -10.91805286705494,471.3246822357178 -8.236147463321686,503.4297704696655" stroke="none"/>
+    <g data-tilt="-29.61">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-8.236147463321686" x2="-44.3769209086895" y1="503.4297704696655" y2="518.7727808952332"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-6.903578527271748" x2="-43.044351041316986" y1="506.56867027282715" y2="521.9116806983948"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-25.906763365492225" y="512.0429456233978">18</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-43.044351041316986" x2="-43.044351041316986" y1="521.9116806983948" y2="480.0197184085846"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-43.044351041316986" x2="-43.044351041316986" y1="521.9116806983948" y2="480.0197184085846"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-43.044351041316986" y="500.9656995534897">52</text>
+    </g>
+    <g data-tilt="-22.09">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-42.501531541347504" x2="-5.216725170612335" y1="482.3932945728302" y2="473.8664925098419"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-43.044351041316986" x2="-5.759543739259243" y1="480.0197184085846" y2="471.4929163455963"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-24.021974066272378" y="477.4178206920624">17</text>
+    </g>
+    <g data-tilt="-40.7">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-10.91805286705494" x2="-12.062087655067444" y1="471.3246822357178" y2="506.4004063606262"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-5.759543739259243" x2="-6.903578527271748" y1="471.4929163455963" y2="506.56867027282715"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-9.942517522722483" y="488.9130190014839">14</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-26.17502072826028" y="494.76485699415207">6</text>
+  </g>
+  <g class="plate" id="plate_30">
+    <polygon fill="#e51919" fill-opacity="0.5" points="-467.9241180419922,219.15125846862793 -456.54770731925964,253.98066639900208 -487.3335659503937,259.6934735774994 -467.9241180419922,219.15125846862793" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-467.9241180419922" x2="-456.54770731925964" y1="219.15125846862793" y2="259.4689428806305"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-467.9241180419922" x2="-456.54770731925964" y1="219.15125846862793" y2="259.4689428806305"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-462.2359126806259" y="239.3101006746292">39</text>
+    </g>
+    <g data-tilt="-42.45">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-456.54770731925964" x2="-487.7893328666687" y1="253.98066639900208" y2="253.9806365966797"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-456.54770731925964" x2="-487.7893328666687" y1="259.4689428806305" y2="259.4689130783081"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-472.1685200929642" y="255.6271344423294">16</text>
+    </g>
+    <g data-tilt="-4.84">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-487.3335659503937" x2="-467.46835112571716" y1="259.6934735774994" y2="219.3758189678192"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-487.7893328666687" x2="-467.9241180419922" y1="259.4689130783081" y2="219.15125846862793"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-477.5376886129379" y="239.46727812290192">17</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-470.60179710388184" y="244.27513281504312">30</text>
+  </g>
+  <g class="plate" id="plate_46">
+    <polygon fill="#f4dd11" fill-opacity="0.5" points="-286.3680422306061,466.11812710762024 -261.610746383667,485.9482944011688 -258.7302029132843,507.64548778533936 -282.2476029396057,504.616916179657 -286.3680422306061,466.11812710762024" stroke="none"/>
+    <g data-tilt="-42.45">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-286.3680422306061" x2="-265.73118567466736" y1="466.11812710762024" y2="489.57359790802"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-282.2476029396057" x2="-261.610746383667" y1="462.49282360076904" y2="485.9482944011688"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-274.8134821653366" y="476.75827145576477">38</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-261.610746383667" x2="-259.33852791786194" y1="485.9482944011688" y2="510.15979051589966"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-261.610746383667" x2="-259.33852791786194" y1="485.9482944011688" y2="510.15979051589966"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-260.47463715076447" y="498.05404245853424">20</text>
+    </g>
+    <g data-tilt="-23.32">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-258.7302029132843" x2="-281.6392779350281" y1="507.64548778533936" y2="502.1026134490967"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-259.33852791786194" x2="-282.2476029396057" y1="510.15979051589966" y2="504.616916179657"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-270.3672379255295" y="505.6283414363861">15</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-282.2476029396057" x2="-282.2476029396057" y1="504.616916179657" y2="462.49282360076904"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-282.2476029396057" x2="-282.2476029396057" y1="504.616916179657" y2="462.49282360076904"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-282.2476029396057" y="483.554869890213">16</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-272.23914861679077" y="491.08220636844635">46</text>
+  </g>
+  <g class="plate" id="plate_43">
+    <polygon fill="#ffa500" fill-opacity="0.5" points="-216.1378413438797,300.25362968444824 -241.99484288692474,351.32652521133423 -271.8445360660553,376.84154510498047 -275.5123972892761,309.0234100818634 -216.1378413438797,300.25362968444824" stroke="none"/>
+    <g data-tilt="-31.8">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-216.1378413438797" x2="-245.1976239681244" y1="300.25362968444824" y2="349.4340479373932"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-212.93506026268005" x2="-241.99484288692474" y1="302.1461069583893" y2="351.32652521133423"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-229.70689833164215" y="325.411581993103">24</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-241.99484288692474" x2="-275.5123972892761" y1="351.32652521133423" y2="376.84154510498047"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-241.99484288692474" x2="-275.5123972892761" y1="351.32652521133423" y2="376.84154510498047"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-258.75362008810043" y="364.08403515815735">30</text>
+    </g>
+    <g data-tilt="-31.44">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-271.8445360660553" x2="-271.8445360660553" y1="376.84154510498047" y2="309.0234100818634"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-275.5123972892761" x2="-275.5123972892761" y1="376.84154510498047" y2="309.0234100818634"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-272.94489443302155" y="342.93247759342194">38</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-275.5123972892761" x2="-212.93506026268005" y1="309.0234100818634" y2="302.1461069583893"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-275.5123972892761" x2="-212.93506026268005" y1="309.0234100818634" y2="302.1461069583893"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-244.2237287759781" y="305.58475852012634">27</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-251.37240439653397" y="334.3612775206566">43</text>
+  </g>
+  <g class="plate" id="plate_39">
+    <polygon fill="#7f7f7f" fill-opacity="0.5" points="-110.45331507921219,277.9393792152405 -9.786472655832767,266.69564843177795 -5.759571213275194,323.4963119029999 -64.70189988613129,322.6092755794525 -63.550107181072235,382.39920139312744 -120.23194879293442,386.1607313156128 -110.45331507921219,277.9393792152405" stroke="none"/>
+    <g data-tilt="-4.39">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-110.45331507921219" x2="-6.5514747984707355" y1="277.9393792152405" y2="267.10617542266846"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-110.50102859735489" x2="-6.599182728677988" y1="277.4817645549774" y2="266.6485607624054"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-58.516708156093955" y="272.38549292087555">28</text>
+    </g>
+    <g data-tilt="-27.98">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-9.786472655832767" x2="-8.946855552494526" y1="266.69564843177795" y2="323.54336977005005"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-6.599182728677988" x2="-5.7595716789364815" y1="266.6485607624054" y2="323.4963119029999"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-8.410478034056723" y="295.1053872704506">27</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-5.759571213275194" x2="-64.70189988613129" y1="323.4963119029999" y2="322.6092755794525"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-5.7595716789364815" x2="-64.70189988613129" y1="323.4963119029999" y2="322.6092755794525"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-35.23073561955243" y="323.0527937412262">40</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-64.70189988613129" x2="-63.55009973049164" y1="322.6092755794525" y2="386.1193060874939"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-64.70189988613129" x2="-63.55009973049164" y1="322.6092755794525" y2="386.1193060874939"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-64.12599980831146" y="354.3642908334732">84</text>
+    </g>
+    <g data-tilt="-31.8">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-63.550107181072235" x2="-120.67436426877975" y1="382.39920139312744" y2="382.39920139312744"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-63.55009973049164" x2="-120.67435681819916" y1="386.1193060874939" y2="386.1193060874939"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-92.11223348975182" y="383.5152328014374">80</text>
+    </g>
+    <g data-tilt="-4.24">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-120.23194879293442" x2="-110.05862057209015" y1="386.1607313156128" y2="277.5231897830963"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-120.67435681819916" x2="-110.50102859735489" y1="386.1193060874939" y2="277.4817645549774"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-115.2780070900917" y="331.8295329809189">77</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-62.413885801409684" y="326.55009130636853">39</text>
+  </g>
+  <g class="plate" id="plate_20">
+    <polygon fill="#e51919" fill-opacity="0.5" points="-356.91139101982117,359.5398962497711 -307.6701760292053,274.5848298072815 -296.04169726371765,366.3347363471985 -356.91139101982117,359.5398962497711" stroke="none"/>
+    <g data-tilt="-4.39">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-356.91139101982117" x2="-295.74525356292725" y1="359.5398962497711" y2="274.85424280166626"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-357.2843670845032" x2="-296.11825942993164" y1="359.27048325538635" y2="274.5848298072815"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-326.44021958112717" y="317.11624562740326">78</text>
+    </g>
+    <g data-tilt="-62.55">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-307.6701760292053" x2="-307.6701760292053" y1="274.5848298072815" y2="366.94490909576416"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11825942993164" x2="-296.11825942993164" y1="274.5848298072815" y2="366.94490909576416"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-304.2046010494232" y="320.7648694515228">85</text>
+    </g>
+    <g data-tilt="-5.85">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-296.04169726371765" x2="-357.2078049182892" y1="366.3347363471985" y2="358.6603105068207"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11825942993164" x2="-357.2843670845032" y1="366.94490909576416" y2="359.27048325538635"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-326.6477197408676" y="362.6805752515793">77</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-320.20775477091473" y="333.4864874680837">20</text>
+  </g>
+  <g class="plate" id="plate_13">
+    <polygon fill="#ffa500" fill-opacity="0.5" points="-470.3154265880585,415.34706950187683 -471.1728096008301,365.40165543556213 -439.9431049823761,355.3325831890106 -426.3511598110199,400.11924505233765 -470.3154265880585,415.34706950187683" stroke="none"/>
+    <g data-tilt="-5.85">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-470.3154265880585" x2="-470.3154265880585" y1="415.34706950187683" y2="353.7013828754425"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-470.9303677082062" x2="-470.9303677082062" y1="415.34706950187683" y2="353.7013828754425"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-470.4999089241028" y="384.52422618865967">79</text>
+    </g>
+    <g data-tilt="-62.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-471.1728096008301" x2="-435.82820892333984" y1="365.40165543556213" y2="366.13404750823975"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-470.9303677082062" x2="-435.58576703071594" y1="353.7013828754425" y2="354.4337749481201"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-453.4277766942978" y="362.25776970386505">88</text>
+    </g>
+    <g data-tilt="-36.56">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-439.9431049823761" x2="-429.96859550476074" y1="355.3325831890106" y2="403.6882817745209"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-435.58576703071594" x2="-425.6112575531006" y1="354.4337749481201" y2="402.78947353363037"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-433.6486488580704" y="379.2407900094986">86</text>
+    </g>
+    <g data-tilt="-24.79">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-426.3511598110199" x2="-471.6702699661255" y1="400.11924505233765" y2="412.6768410205841"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-425.6112575531006" x2="-470.9303677082062" y1="402.78947353363037" y2="415.34706950187683"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-448.7887442111969" y="407.1991115808487">78</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-451.94562524557114" y="384.0501382946968">13</text>
+  </g>
+  <g class="plate" id="plate_36">
+    <polygon fill="#f4dd11" fill-opacity="0.5" points="-17.2609593719244,129.11070883274078 -26.920339092612267,217.93587505817413 -29.788916930556297,249.1418421268463 -110.63549667596817,253.19352746009827 -142.4756795167923,127.47810781002045 -115.8529669046402,11.82893943041563 -40.39464890956879,9.986445307731628 -28.18351797759533,40.09522870182991 -17.2609593719244,129.11070883274078" stroke="none"/>
+    <g data-tilt="-62.6">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-17.2609593719244" x2="-27.824293822050095" y1="129.11070883274078" y2="220.95733880996704"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-5.759544670581818" x2="-16.32288284599781" y1="130.43348491191864" y2="222.2801148891449"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-19.092202745378017" y="175.43085664510727">85</text>
+    </g>
+    <g data-tilt="-62.35">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-26.920339092612267" x2="-40.386371314525604" y1="217.93587505817413" y2="250.78529119491577"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-16.32288284599781" x2="-29.788915067911148" y1="222.2801148891449" y2="255.12951612472534"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-30.4741183295846" y="235.663852840662">86</text>
+    </g>
+    <g data-tilt="-44.94">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-29.788916930556297" x2="-118.62066388130188" y1="249.1418421268463" y2="249.14181232452393"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-29.788915067911148" x2="-118.62066388130188" y1="255.12951612472534" y2="255.12948632240295"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-74.20479012653232" y="250.93812942504883">89</text>
+    </g>
+    <g data-tilt="-53.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-110.63549667596817" x2="-142.11367070674896" y1="253.19352746009827" y2="123.35692346096039"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-118.62066388130188" x2="-150.09883046150208" y1="255.12948632240295" y2="125.29288232326508"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-128.7701327353716" y="188.85601311922073">87</text>
+    </g>
+    <g data-tilt="-52.89">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-142.4756795167923" x2="-108.2359105348587" y1="127.47810781002045" y2="8.032766170799732"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-150.09883046150208" x2="-115.85906147956848" y1="125.29288232326508" y2="5.847545340657234"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-127.64274030923843" y="67.09987004287541">37</text>
+    </g>
+    <g data-tilt="-44.91">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-115.8529669046402" x2="-29.47579324245453" y1="11.82893943041563" y2="11.74094807356596"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-115.85906147956848" x2="-29.481887817382812" y1="5.847545340657234" y2="5.759553983807564"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-72.66620844602585" y="9.990525525063276">34</text>
+    </g>
+    <g data-tilt="-62.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-40.39464890956879" x2="-27.62589417397976" y1="9.986445307731628" y2="42.95210540294647"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-29.481887817382812" x2="-16.713131219148636" y1="5.759553983807564" y2="38.72521221637726"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-30.73644293472171" y="25.20120767876506">31</text>
+    </g>
+    <g data-tilt="-62.55">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-28.18351797759533" x2="-17.22993515431881" y1="40.09522870182991" y2="131.803497672081"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-16.713131219148636" x2="-5.759544670581818" y1="38.72521221637726" y2="130.43348491191864"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-19.265609979629517" y="85.5383588001132">32</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-63.93906567245722" y="129.84633434098214">36</text>
+  </g>
+  <g class="plate" id="plate_23">
+    <polygon fill="#ffa500" fill-opacity="0.5" points="-481.0291528701782,21.285314112901688 -447.786808013916,5.7595414109528065 -446.5312361717224,64.70958888530731 -483.68340730667114,59.812918305397034 -481.0291528701782,21.285314112901688" stroke="none"/>
+    <g data-tilt="-62.35">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-481.0291528701782" x2="-445.7703232765198" y1="21.285314112901688" y2="17.134303227066994"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.3682904243469" x2="-447.1094608306885" y1="9.910553693771362" y2="5.759544670581818"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-463.8014793395996" y="15.797380823642015">33</text>
+    </g>
+    <g data-tilt="-6.44">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-447.786808013916" x2="-447.786808013916" y1="5.7595414109528065" y2="67.57428497076035"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-447.1094608306885" x2="-447.1094608306885" y1="5.759544670581818" y2="67.57428497076035"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-447.58360385894775" y="36.66691367980093">26</text>
+    </g>
+    <g data-tilt="-25.97">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-446.5312361717224" x2="-487.42958903312683" y1="64.70958888530731" y2="56.454628705978394"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-447.1094608306885" x2="-488.0078136920929" y1="67.57428497076035" y2="59.319332242012024"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-467.15388000011444" y="61.44151873886585">25</text>
+    </g>
+    <g data-tilt="-35.96">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-483.68340730667114" x2="-478.04388403892517" y1="59.812918305397034" y2="10.40414534509182"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-488.0078136920929" x2="-482.3682904243469" y1="59.319332242012024" y2="9.910553693771362"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-482.1609675884247" y="34.96045516803861">31</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-464.75765109062195" y="37.89184067863971">23</text>
+  </g>
+  <g class="plate" id="plate_22">
+    <polygon fill="#26bf26" fill-opacity="0.5" points="-337.7138674259186,382.8415274620056 -296.11819982528687,378.4639239311218 -294.8668599128723,437.5392496585846 -340.95457196235657,426.25296115875244 -337.7138674259186,382.8415274620056" stroke="none"/>
+    <g data-tilt="-25.97">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-337.7138674259186" x2="-296.0161566734314" y1="382.8415274620056" y2="381.38461112976074"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-337.81591057777405" x2="-296.11819982528687" y1="379.9208402633667" y2="378.4639239311218"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-316.8956249952316" y="381.2368631362915">35</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-296.11819982528687" x2="-296.11819982528687" y1="378.4639239311218" y2="441.4180815219879"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11819982528687" x2="-296.11819982528687" y1="378.4639239311218" y2="441.4180815219879"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-296.11819982528687" y="409.94100272655487">29</text>
+    </g>
+    <g data-tilt="-34.19">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-294.8668599128723" x2="-344.2603051662445" y1="437.5392496585846" y2="421.6044247150421"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11819982528687" x2="-345.51164507865906" y1="441.4180815219879" y2="425.48325657844543"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-319.9389845132828" y="430.73548674583435">24</text>
+    </g>
+    <g data-tilt="-37.61">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-340.95457196235657" x2="-333.25883746147156" y1="426.25296115875244" y2="380.6905448436737"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-345.51164507865906" x2="-337.81591057777405" y1="425.48325657844543" y2="379.9208402633667"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-338.4738266468048" y="403.240841627121">26</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-317.4133747816086" y="406.2744155526161">22</text>
+  </g>
+  <g class="plate" id="plate_19">
+    <polygon fill="#7f7f7f" fill-opacity="0.5" points="-375.49930810928345,23.124095052480698 -344.0423607826233,5.759545136243105 -335.44591069221497,91.10726416110992 -373.2408583164215,64.8714005947113 -375.49930810928345,23.124095052480698" stroke="none"/>
+    <g data-tilt="-38.54">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-375.49930810928345" x2="-336.5596532821655" y1="23.124095052480698" y2="10.29861718416214"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-376.9943416118622" x2="-338.05468678474426" y1="18.585024401545525" y2="5.759545136243105"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-356.4779907464981" y="15.349634713493288">35</text>
+    </g>
+    <g data-tilt="-44.94">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-344.0423607826233" x2="-344.0423607826233" y1="5.759545136243105" y2="94.59129720926285"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-338.05468678474426" x2="-338.05468678474426" y1="5.759545136243105" y2="94.59129720926285"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-342.2460585832596" y="50.175421172752976">33</text>
+    </g>
+    <g data-tilt="-35.96">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-335.44591069221497" x2="-375.2528727054596" y1="91.10726416110992" y2="61.3006167113781"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-338.05468678474426" x2="-377.8616487979889" y1="94.59129720926285" y2="64.78465348482132"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-356.13202452659607" y="77.24915090948343">34</text>
+    </g>
+    <g data-tilt="-37.61">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-373.2408583164215" x2="-372.3735213279724" y1="64.8714005947113" y2="18.671773374080658"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-377.8616487979889" x2="-376.9943416118622" y1="64.78465348482132" y2="18.585024401545525"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-374.19343143701553" y="41.74556257203221">36</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-357.0571094751358" y="46.21557623613626">19</text>
+  </g>
+  <g class="plate" id="plate_32">
+    <polygon fill="#26bf26" fill-opacity="0.5" points="-245.30178308486938,89.76776152849197 -195.19750773906708,41.617292910814285 -194.54732537269592,17.914587631821632 -163.13616931438446,5.759537220001221 -161.54538094997406,134.21757519245148 -290.44246673583984,140.93467593193054 -296.90632224082947,104.28798943758011 -245.30178308486938,89.76776152849197" stroke="none"/>
+    <g data-tilt="-31.44">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-245.30178308486938" x2="-195.28330862522125" y1="89.76776152849197" y2="43.96985471248627"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-247.77869880199432" x2="-197.76023924350739" y1="87.06256747245789" y2="41.26466065645218"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-221.03562280535698" y="66.0572499036789">29</text>
+    </g>
+    <g data-tilt="-23.32">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-195.19750773906708" x2="-191.98459386825562" y1="41.617292910814285" y2="18.26721802353859"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-197.76023924350739" x2="-194.54732537269592" y1="41.26466065645218" y2="17.914587631821632"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-194.35987025499344" y="29.836466070264578">36</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-194.54732537269592" x2="-161.6179496049881" y1="17.914587631821632" y2="5.759537220001221"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-194.54732537269592" x2="-161.6179496049881" y1="17.914587631821632" y2="5.759537220001221"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-178.082637488842" y="11.837062425911427">37</text>
+    </g>
+    <g data-tilt="-14.2">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-163.13616931438446" x2="-163.13615441322327" y1="5.759537220001221" y2="142.4337476491928"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-161.6179496049881" x2="-161.6179347038269" y1="5.759537220001221" y2="142.4337476491928"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-162.68069595098495" y="74.09664243459702">64</text>
+    </g>
+    <g data-tilt="-53.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-161.54538094997406" x2="-295.1381504535675" y1="134.21757519245148" y2="133.0377757549286"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-161.6179347038269" x2="-295.21071910858154" y1="142.4337476491928" y2="141.25394821166992"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-228.36353406310081" y="136.09252721071243">21</text>
+    </g>
+    <g data-tilt="-38.54">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-290.44246673583984" x2="-293.1813895702362" y1="140.93467593193054" y2="100.02883523702621"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-295.21071910858154" x2="-297.9496419429779" y1="141.25394821166992" y2="100.348100066185"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-293.24240386486053" y="120.5775361508131">20</text>
+    </g>
+    <g data-tilt="-34.19">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-296.90632224082947" x2="-246.73539400100708" y1="104.28798943758011" y2="91.0024642944336"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-297.9496419429779" x2="-247.77869880199432" y1="100.348100066185" y2="87.06256747245789"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-272.1338517963886" y="96.46325893700123">30</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-221.01099363395147" y="76.35705997901303">32</text>
+  </g>
+  <g class="plate" id="plate_15">
+    <polygon fill="#00ced1" fill-opacity="0.5" points="-288.2780730724335,157.7596515417099 -209.88436043262482,230.9192717075348 -168.75721514225006,231.7424863576889 -162.7509742975235,265.02490043640137 -283.0808758735657,290.62703251838684 -288.2780730724335,157.7596515417099" stroke="none"/>
+    <g data-tilt="-41.42">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-288.2780730724335" x2="-213.10065686702728" y1="157.7596515417099" y2="230.41316866874695"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-284.59906578063965" x2="-209.42163467407227" y1="153.95282208919525" y2="226.6063392162323"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-249.58566054701805" y="192.94436126947403">64</text>
+    </g>
+    <g data-tilt="-35.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-209.88436043262482" x2="-164.65669870376587" y1="230.9192717075348" y2="235.7715666294098"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-209.42163467407227" x2="-164.19397294521332" y1="226.6063392162323" y2="231.4586490392685"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-187.13171184062958" y="232.05154165625572">87</text>
+    </g>
+    <g data-tilt="-37.31">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-168.75721514225006" x2="-166.18117690086365" y1="231.7424863576889" y2="273.15753698349"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-164.19397294521332" x2="-161.6179347038269" y1="231.4586490392685" y2="272.8736996650696"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-166.10022336244583" y="252.36486047506332">91</text>
+    </g>
+    <g data-tilt="-52.89">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-162.7509742975235" x2="-285.73212027549744" y1="265.02490043640137" y2="282.7782332897186"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-161.6179347038269" x2="-284.59909558296204" y1="272.8736996650696" y2="290.62703251838684"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-223.90163764357567" y="276.25620663166046">81</text>
+    </g>
+    <g data-tilt="-14.2">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-283.0808758735657" x2="-283.0808460712433" y1="290.62703251838684" y2="153.95282208919525"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-284.59909558296204" x2="-284.59906578063965" y1="290.62703251838684" y2="153.95282208919525"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-283.5363268852234" y="222.28992730379105">63</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-222.5502997636795" y="235.21466851234436">15</text>
+  </g>
+  <g class="plate" id="plate_41">
+    <polygon fill="#3399ff" fill-opacity="0.5" points="-325.95038414001465,57.63661488890648 -314.76280093193054,5.759541876614094 -309.46874618530273,110.30705273151398 -325.95038414001465,57.63661488890648" stroke="none"/>
+    <g data-tilt="-5.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-325.95038414001465" x2="-308.8834881782532" y1="57.63661488890648" y2="5.952802021056414"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-326.5356421470642" x2="-309.46874618530273" y1="57.44335427880287" y2="5.759544670581818"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-317.5925135612488" y="31.736730760894716">65</text>
+    </g>
+    <g data-tilt="-41.42">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-314.76280093193054" x2="-314.76280093193054" y1="5.759541876614094" y2="110.30705273151398"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-309.46874618530273" x2="-309.46874618530273" y1="5.759544670581818" y2="110.30705273151398"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-313.1745845079422" y="58.033297723159194">63</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-309.46874618530273" x2="-326.5356421470642" y1="110.30705273151398" y2="57.44335427880287"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-309.46874618530273" x2="-326.5356421470642" y1="110.30705273151398" y2="57.44335427880287"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-318.0021941661835" y="83.87520350515842">82</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-316.72731041908264" y="57.90106983234485">41</text>
+  </g>
+  <g class="plate" id="plate_14">
+    <polygon fill="#9366bc" fill-opacity="0.5" points="-132.1934163570404,266.6485607624054 -131.60564005374908,328.7986218929291 -148.5651731491089,277.0758271217346 -132.1934163570404,266.6485607624054" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-132.1934163570404" x2="-132.1934312582016" y1="266.6485607624054" y2="328.98402214050293"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-132.1934163570404" x2="-132.1934312582016" y1="266.6485607624054" y2="328.98402214050293"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-132.193423807621" y="297.81629145145416">92</text>
+    </g>
+    <g data-tilt="-5.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-131.60564005374908" x2="-147.97738194465637" y1="328.7986218929291" y2="276.89042687416077"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-132.1934312582016" x2="-148.5651731491089" y1="328.98402214050293" y2="277.0758271217346"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-139.96784836053848" y="302.9001444578171">82</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-148.5651731491089" x2="-132.1934163570404" y1="277.0758271217346" y2="266.6485607624054"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-148.5651731491089" x2="-132.1934163570404" y1="277.0758271217346" y2="266.6485607624054"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-140.37929475307465" y="271.86219394207">83</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-137.45474318663278" y="290.841003259023">14</text>
+  </g>
+  <g class="plate" id="plate_11">
+    <polygon fill="#3399ff" fill-opacity="0.5" points="-369.23736333847046,125.31960010528564 -372.07430601119995,108.70148986577988 -338.05471658706665,106.76411539316177 -335.6988728046417,136.57695055007935 -369.23736333847046,125.31960010528564" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-369.23736333847046" x2="-372.02444672584534" y1="125.31960010528564" y2="106.11037909984589"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-369.23736333847046" x2="-372.02444672584534" y1="125.31960010528564" y2="106.11037909984589"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-370.6309050321579" y="115.71498960256577">72</text>
+    </g>
+    <g data-tilt="-23.36">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-372.07430601119995" x2="-338.10457587242126" y1="108.70148986577988" y2="109.35522615909576"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-372.02444672584534" x2="-338.05471658706665" y1="106.11037909984589" y2="106.76411539316177"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-355.0744831562042" y="108.25102478265762">71</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-338.05471658706665" x2="-338.05471658706665" y1="106.76411539316177" y2="141.20221138000488"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-338.05471658706665" x2="-338.05471658706665" y1="106.76411539316177" y2="141.20221138000488"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-338.05471658706665" y="123.98316338658333">75</text>
+    </g>
+    <g data-tilt="-40.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-335.6988728046417" x2="-366.88151955604553" y1="136.57695055007935" y2="120.69433927536011"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-338.05471658706665" x2="-369.23736333847046" y1="141.20221138000488" y2="125.31960010528564"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-351.9969493150711" y="130.0232231616974">92</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-353.7663146853447" y="119.34053897857666">11</text>
+  </g>
+  <g class="plate" id="plate_31">
+    <polygon fill="#3399ff" fill-opacity="0.5" points="-142.4153596162796,494.51789259910583 -116.19396507740021,471.4602828025818 -112.75655031204224,513.8028860092163 -142.4153596162796,494.51789259910583" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-142.4153596162796" x2="-116.19396507740021" y1="494.51789259910583" y2="471.4602828025818"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-142.4153596162796" x2="-116.19396507740021" y1="494.51789259910583" y2="471.4602828025818"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-129.3046623468399" y="482.9890877008438">72</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-116.19396507740021" x2="-116.19396507740021" y1="471.4602828025818" y2="517.6922678947449"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-116.19396507740021" x2="-116.19396507740021" y1="471.4602828025818" y2="517.6922678947449"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-116.19396507740021" y="494.57627534866333">54</text>
+    </g>
+    <g data-tilt="-40.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-112.75655031204224" x2="-138.97794485092163" y1="513.8028860092163" y2="490.62854051589966"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-116.19396507740021" x2="-142.4153596162796" y1="517.6922678947449" y2="494.51789259910583"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-126.89847201108932" y="503.3825233578682">51</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-123.78862500190735" y="493.26035380363464">31</text>
+  </g>
+  <g class="plate" id="plate_38">
+    <polygon fill="#8c5628" fill-opacity="0.5" points="-389.3807828426361,141.5979415178299 -421.3016629219055,111.35553568601608 -389.3807828426361,82.64893293380737 -389.3807828426361,141.5979415178299" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-389.3807828426361" x2="-422.73351550102234" y1="141.5979415178299" y2="109.58243161439896"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-389.3807828426361" x2="-422.73351550102234" y1="141.5979415178299" y2="109.58243161439896"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-406.0571491718292" y="125.59018656611443">84</text>
+    </g>
+    <g data-tilt="-20.8">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-421.3016629219055" x2="-387.9489302635193" y1="111.35553568601608" y2="84.4220370054245"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-422.73351550102234" x2="-389.3807828426361" y1="109.58243161439896" y2="82.64893293380737"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-405.05485236644745" y="97.35685512423515">53</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-389.3807828426361" x2="-389.3807828426361" y1="82.64893293380737" y2="141.5979415178299"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-389.3807828426361" x2="-389.3807828426361" y1="82.64893293380737" y2="141.5979415178299"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-389.3807828426361" y="112.12343722581863">54</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-400.0210762023926" y="111.86747004588445">38</text>
+  </g>
+  <g class="plate" id="plate_16">
+    <polygon fill="#f4dd11" fill-opacity="0.5" points="-414.72676396369934,153.95282208919525 -413.11460733413696,215.86240828037262 -444.6534514427185,187.490776181221 -414.72676396369934,153.95282208919525" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-414.72676396369934" x2="-414.72676396369934" y1="153.95282208919525" y2="217.4733281135559"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.72676396369934" x2="-414.72676396369934" y1="153.95282208919525" y2="217.4733281135559"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-414.72676396369934" y="185.71307510137558">39</text>
+    </g>
+    <g data-tilt="-20.8">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-413.11460733413696" x2="-443.4165358543396" y1="215.86240828037262" y2="185.53732335567474"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.72676396369934" x2="-445.028692483902" y1="217.4733281135559" y2="187.14824318885803"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-428.749218583107" y="201.18314176797867">53</text>
+    </g>
+    <g data-tilt="-4.84">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-444.6534514427185" x2="-414.35152292251587" y1="187.490776181221" y2="154.29535508155823"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-445.028692483902" x2="-414.72676396369934" y1="187.14824318885803" y2="153.95282208919525"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-429.61505949497223" y="170.79030573368073">40</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-424.16494091351825" y="185.76866885026297">16</text>
+  </g>
+  <g class="plate" id="plate_40">
+    <polygon fill="#e51919" fill-opacity="0.5" points="-486.07492446899414,516.5252685546875 -514.6320462226868,535.9817147254944 -517.0668959617615,497.73433804512024 -486.25266551971436,490.19819498062134 -486.07492446899414,516.5252685546875" stroke="none"/>
+    <g data-tilt="-38.33">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-486.07492446899414" x2="-519.0470814704895" y1="516.5252685546875" y2="531.670868396759"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-484.0947389602661" x2="-517.0668959617615" y1="520.8361148834229" y2="535.9817147254944"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-501.9669473171234" y="525.3913223743439">70</text>
+    </g>
+    <g data-tilt="-22.09">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-514.6320462226868" x2="-514.6320462226868" y1="535.9817147254944" y2="497.73433804512024"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-517.0668959617615" x2="-517.0668959617615" y1="535.9817147254944" y2="497.73433804512024"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-515.3625011444092" y="516.8580263853073">51</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-517.0668959617615" x2="-482.9452931880951" y1="497.73433804512024" y2="490.3227984905243"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-517.0668959617615" x2="-482.9452931880951" y1="497.73433804512024" y2="490.3227984905243"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-500.0060945749283" y="494.02856826782227">52</text>
+    </g>
+    <g data-tilt="-28.88">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-486.25266551971436" x2="-487.4021112918854" y1="490.19819498062134" y2="520.7115411758423"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.9452931880951" x2="-484.0947389602661" y1="490.3227984905243" y2="520.8361148834229"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-485.8351767063141" y="505.49224466085434">74</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-501.0066330432892" y="510.10987907648087">40</text>
+  </g>
+  <g class="plate" id="plate_21">
+    <polygon fill="#3399ff" fill-opacity="0.5" points="-400.7575213909149,221.6564416885376 -404.8318862915039,158.41004252433777 -372.55603075027466,166.96321964263916 -360.02424359321594,218.58671307563782 -400.7575213909149,221.6564416885376" stroke="none"/>
+    <g data-tilt="-22.21">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-400.7575213909149" x2="-400.7575213909149" y1="221.6564416885376" y2="153.95285189151764"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-403.2076597213745" x2="-403.2076597213745" y1="221.6564416885376" y2="153.95285189151764"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-401.4925628900528" y="187.80464679002762">48</text>
+    </g>
+    <g data-tilt="-38.33">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-404.8318862915039" x2="-370.7405626773834" y1="158.41004252433777" y2="170.83323001861572"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-403.2076597213745" x2="-369.116336107254" y1="153.95285189151764" y2="166.3760393857956"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-387.29895651340485" y="163.2844790816307">68</text>
+    </g>
+    <g data-tilt="-30.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-372.55603075027466" x2="-363.4101152420044" y1="166.96321964263916" y2="220.5396145582199"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-369.116336107254" x2="-359.97042059898376" y1="166.3760393857956" y2="219.95243430137634"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-366.95116460323334" y="193.57526302337646">74</text>
+    </g>
+    <g data-tilt="-12.83">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-360.02424359321594" x2="-403.2614827156067" y1="218.58671307563782" y2="220.29072046279907"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-359.97042059898376" x2="-403.2076597213745" y1="219.95243430137634" y2="221.6564416885376"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-381.62671625614166" y="219.84843313694">50</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-384.54242050647736" y="191.4041042327881">21</text>
+  </g>
+  <g class="plate" id="plate_37">
+    <polygon fill="#ff66b2" fill-opacity="0.5" points="-478.43223810195923,137.00036704540253 -482.07056522369385,85.95529943704605 -452.58376002311707,84.37763899564743 -434.1723620891571,139.23102617263794 -478.43223810195923,137.00036704540253" stroke="none"/>
+    <g data-tilt="-30.18">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-478.43223810195923" x2="-478.43223810195923" y1="137.00036704540253" y2="82.64892548322678"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-481.9217026233673" x2="-481.9217026233673" y1="137.00036704540253" y2="82.64892548322678"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-479.47907745838165" y="109.82464626431465">46</text>
+    </g>
+    <g data-tilt="-28.88">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-482.07056522369385" x2="-451.56651735305786" y1="85.95529943704605" y2="87.32876181602478"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-481.9217026233673" x2="-451.4176547527313" y1="82.64892548322678" y2="84.0223953127861"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-466.7738825082779" y="85.65011955797672">47</text>
+    </g>
+    <g data-tilt="-11.48">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-452.58376002311707" x2="-435.4186952114105" y1="84.37763899564743" y2="140.7221406698227"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-451.4176547527313" x2="-434.2525899410248" y1="84.0223953127861" y2="140.36689698696136"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-443.65139603614807" y="112.44331672787666">70</text>
+    </g>
+    <g data-tilt="-10.75">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-434.1723620891571" x2="-481.84147477149963" y1="139.23102617263794" y2="135.8644962310791"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-434.2525899410248" x2="-481.9217026233673" y1="140.36689698696136" y2="137.00036704540253"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-458.0309867858887" y="137.88852244615555">68</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-461.8147313594818" y="111.64108291268349">37</text>
+  </g>
+  <g class="plate" id="plate_5">
+    <polygon fill="#00ced1" fill-opacity="0.5" points="-387.3225748538971,372.40660190582275 -368.57062578201294,418.22946071624756 -412.87320852279663,412.6024842262268 -414.09221291542053,353.7013828754425 -387.3225748538971,372.40660190582275" stroke="none"/>
+    <g data-tilt="-25.34">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-387.3225748538971" x2="-371.503621339798" y1="372.40660190582275" y2="420.5988347530365"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-384.62239503860474" x2="-368.8034415245056" y1="371.5202808380127" y2="419.71251368522644"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-378.6030441522598" y="396.2368220090866">71</text>
+    </g>
+    <g data-tilt="-14.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-368.57062578201294" x2="-413.85939717292786" y1="418.22946071624756" y2="411.1194312572479"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-368.8034415245056" x2="-414.09221291542053" y1="419.71251368522644" y2="412.6024842262268"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-391.2848562002182" y="415.1193618774414">47</text>
+    </g>
+    <g data-tilt="-11.48">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-412.87320852279663" x2="-412.87320852279663" y1="412.6024842262268" y2="353.7013828754425"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.09221291542053" x2="-414.09221291542053" y1="412.6024842262268" y2="353.7013828754425"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-413.2389098405838" y="383.15193355083466">44</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-414.09221291542053" x2="-384.62239503860474" y1="353.7013828754425" y2="371.5202808380127"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.09221291542053" x2="-384.62239503860474" y1="353.7013828754425" y2="371.5202808380127"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-399.35730397701263" y="362.6108318567276">60</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-395.7146555185318" y="389.2349824309349">5</text>
+  </g>
+  <g class="plate" id="plate_44">
+    <polygon fill="#9366bc" fill-opacity="0.5" points="-428.86990308761597,426.1508584022522 -435.50053238868713,464.6889567375183 -470.0879752635956,481.1442196369171 -471.3732898235321,429.9828112125397 -428.86990308761597,426.1508584022522" stroke="none"/>
+    <g data-tilt="-29.08">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-428.86990308761597" x2="-437.7598166465759" y1="426.1508584022522" y2="466.65218472480774"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-425.6112575531006" x2="-434.50117111206055" y1="426.8661141395569" y2="467.3674404621124"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-432.33726620674133" y="446.6160982847214">44</text>
+    </g>
+    <g data-tilt="-25.48">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-435.50053238868713" x2="-472.42558002471924" y1="464.6889567375183" y2="478.465735912323"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-434.50117111206055" x2="-471.42621874809265" y1="467.3674404621124" y2="481.1442196369171"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-453.6632478237152" y="472.3808914422989">45</text>
+    </g>
+    <g data-tilt="-12.57">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-470.0879752635956" x2="-470.0879752635956" y1="481.1442196369171" y2="428.4825325012207"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-471.42621874809265" x2="-471.42621874809265" y1="481.1442196369171" y2="428.4825325012207"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-470.4894483089447" y="454.8133760690689">67</text>
+    </g>
+    <g data-tilt="-14.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-471.3732898235321" x2="-425.55832862854004" y1="429.9828112125397" y2="428.36639285087585"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-471.42621874809265" x2="-425.6112575531006" y1="428.4825325012207" y2="426.8661141395569"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-448.48168790340424" y="428.7245184183121">61</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-451.4579251408577" y="450.4917114973068">44</text>
+  </g>
+  <g class="plate" id="plate_4">
+    <polygon fill="#9366bc" fill-opacity="0.5" points="-342.5659239292145,505.598783493042 -344.4027900695801,456.03880286216736 -318.36459040641785,458.74130725860596 -296.1283028125763,504.0357708930969 -342.5659239292145,505.598783493042" stroke="none"/>
+    <g data-tilt="-12.57">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-342.5659239292145" x2="-342.5659239292145" y1="505.598783493042" y2="452.93715596199036"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-343.90416741371155" x2="-343.90416741371155" y1="505.598783493042" y2="452.93715596199036"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-342.9673969745636" y="479.2679697275162">46</text>
+    </g>
+    <g data-tilt="-27.64">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-344.4027900695801" x2="-315.85443019866943" y1="456.03880286216736" y2="460.6281816959381"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-343.90416741371155" x2="-315.3558075428009" y1="452.93715596199036" y2="457.5265347957611"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-329.9790233373642" y="457.40299820899963">69</text>
+    </g>
+    <g data-tilt="-28.4">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-318.36459040641785" x2="-299.1269826889038" y1="458.74130725860596" y2="506.3891410827637"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-315.3558075428009" x2="-296.11819982528687" y1="457.5265347957611" y2="505.1743984222412"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-307.84315168857574" y="482.2007969021797">66</text>
+    </g>
+    <g data-tilt="-10.75">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-296.1283028125763" x2="-343.914270401001" y1="504.0357708930969" y2="504.4601559638977"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11819982528687" x2="-343.90416741371155" y1="505.1743984222412" y2="505.598783493042"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-320.0182557106018" y="504.5895516872406">45</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-325.3654018044472" y="481.10366612672806">4</text>
+  </g>
+  <g class="plate" id="plate_12">
+    <polygon fill="#26bf26" fill-opacity="0.5" points="-533.5574150085449,258.28322768211365 -536.2736582756042,221.7862606048584 -505.16366958618164,225.6811261177063 -499.5432198047638,252.0883083343506 -533.5574150085449,258.28322768211365" stroke="none"/>
+    <g data-tilt="-20.38">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-533.5574150085449" x2="-533.5574150085449" y1="258.28322768211365" y2="219.15125846862793"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-535.7869863510132" x2="-535.7869863510132" y1="258.28322768211365" y2="219.15125846862793"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-534.2262864112854" y="238.7172430753708">56</text>
+    </g>
+    <g data-tilt="-24.07">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-536.2736582756042" x2="-502.52288579940796" y1="221.7862606048584" y2="228.01977396011353"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-535.7869863510132" x2="-502.0362138748169" y1="219.15125846862793" y2="225.38477182388306"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-519.2522704601288" y="224.11251664161682">66</text>
+    </g>
+    <g data-tilt="-27.64">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-505.16366958618164" x2="-502.43592262268066" y1="225.6811261177063" y2="254.46707010269165"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-502.0362138748169" x2="-499.3084669113159" y1="225.38477182388306" y2="254.1707158088684"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-502.86155939102173" y="239.985191822052">73</text>
+    </g>
+    <g data-tilt="-19.25">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-499.5432198047638" x2="-536.0217690467834" y1="252.0883083343506" y2="256.2008202075958"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-499.3084669113159" x2="-535.7869863510132" y1="254.1707158088684" y2="258.28322768211365"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-517.7120640873909" y="254.76928651332855">57</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-518.6344906687737" y="239.45973068475723">12</text>
+  </g>
+  <g class="plate" id="plate_33">
+    <polygon fill="#ffa500" fill-opacity="0.5" points="-482.530802488327,274.5848298072815 -480.2614450454712,325.00776648521423 -507.3580741882324,304.57907915115356 -482.530802488327,274.5848298072815" stroke="none"/>
+    <g data-tilt="-8.51">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-482.530802488327" x2="-482.530802488327" y1="274.5848298072815" y2="326.59217715263367"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-481.6330075263977" x2="-481.6330075263977" y1="274.5848298072815" y2="326.59217715263367"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-482.26146399974823" y="300.5885034799576">67</text>
+    </g>
+    <g data-tilt="-19.25">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-480.2614450454712" x2="-508.0162286758423" y1="325.00776648521423" y2="300.9813725948334"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-481.6330075263977" x2="-509.3877911567688" y1="326.59217715263367" y2="302.5657832622528"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-494.5503056049347" y="313.46989274024963">56</text>
+    </g>
+    <g data-tilt="-25.48">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-507.3580741882324" x2="-479.6032905578613" y1="304.57907915115356" y2="276.59812569618225"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-509.3877911567688" x2="-481.6330075263977" y1="302.5657832622528" y2="274.5848298072815"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-494.0895974636078" y="289.9846136569977">58</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-490.0501072406769" y="301.39055848121643">33</text>
+  </g>
+  <g class="plate" id="plate_34">
+    <polygon fill="#9366bc" fill-opacity="0.5" points="-509.13554430007935,396.9656825065613 -483.34717750549316,353.7013530731201 -481.7850887775421,403.71784567832947 -509.13554430007935,396.9656825065613" stroke="none"/>
+    <g data-tilt="-6.05">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-509.13554430007935" x2="-481.9127321243286" y1="396.9656825065613" y2="354.0416955947876"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-509.6721649169922" x2="-482.44938254356384" y1="396.6253399848938" y2="353.7013530731201"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-495.6851288676262" y="375.4015862941742">59</text>
+    </g>
+    <g data-tilt="-8.51">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-483.34717750549316" x2="-483.34717750549316" y1="353.7013530731201" y2="405.7087004184723"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.44938254356384" x2="-482.44938254356384" y1="353.7013530731201" y2="405.7087004184723"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-483.07783901691437" y="379.7050267457962">58</text>
+    </g>
+    <g data-tilt="-19.28">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-481.7850887775421" x2="-509.00787115097046" y1="403.71784567832947" y2="394.63451504707336"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-482.44938254356384" x2="-509.6721649169922" y1="405.7087004184723" y2="396.6253399848938"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-495.5957680940628" y="399.7734323143959">55</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-491.4226035277049" y="384.794960419337">34</text>
+  </g>
+  <g class="plate" id="plate_29">
+    <polygon fill="#7f7f7f" fill-opacity="0.5" points="-159.9722057580948,473.62619638442993 -166.4639264345169,517.7335739135742 -191.8967068195343,518.3122158050537 -195.006862282753,479.6235263347626 -159.9722057580948,473.62619638442993" stroke="none"/>
+    <g data-tilt="-13.07">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-159.9722057580948" x2="-167.94732213020325" y1="473.62619638442993" y2="519.5912718772888"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-158.59976410865784" x2="-166.5748804807663" y1="473.8643169403076" y2="519.8293924331665"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-163.54803144931793" y="496.6801702976227">42</text>
+    </g>
+    <g data-tilt="-19.28">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-166.4639264345169" x2="-195.12197375297546" y1="517.7335739135742" y2="516.2163972854614"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-166.5748804807663" x2="-195.23292779922485" y1="519.8293924331665" y2="518.3122158050537"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-180.826236307621" y="517.6037311553955">61</text>
+    </g>
+    <g data-tilt="-29.08">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-191.8967068195343" x2="-191.8966919183731" y1="518.3122158050537" y2="476.84672474861145"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-195.23292779922485" x2="-195.23292779922485" y1="518.3122158050537" y2="476.84672474861145"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-192.89756789803505" y="497.5794702768326">59</text>
+    </g>
+    <g data-tilt="-24.91">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-195.006862282753" x2="-158.37369859218597" y1="479.6235263347626" y2="476.64111852645874"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-195.23292779922485" x2="-158.59976410865784" y1="476.84672474861145" y2="473.8643169403076"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-176.75810009241104" y="477.2992819547653">41</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-178.33492532372475" y="497.3238781094551">29</text>
+  </g>
+  <g class="plate" id="plate_17">
+    <polygon fill="#ff66b2" fill-opacity="0.5" points="-104.67487573623657,471.4602828025818 -70.98237425088882,486.4952564239502 -68.22122633457184,516.7255997657776 -101.83297097682953,522.1824049949646 -104.67487573623657,471.4602828025818" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-104.67487573623657" x2="-68.81976127624512" y1="471.4602828025818" y2="486.44283413887024"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-104.67487573623657" x2="-68.81976127624512" y1="471.4602828025818" y2="486.44283413887024"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-86.74731850624084" y="478.951558470726">60</text>
+    </g>
+    <g data-tilt="-19.83">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-70.98237425088882" x2="-70.18082588911057" y1="486.4952564239502" y2="519.5566415786743"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-68.81976127624512" x2="-68.01821291446686" y1="486.44283413887024" y2="519.504189491272"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-69.93281617760658" y="503.0102178454399">42</text>
+    </g>
+    <g data-tilt="-24.91">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-68.22122633457184" x2="-104.87788915634155" y1="516.7255997657776" y2="519.4038152694702"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-68.01821291446686" x2="-104.67487573623657" y1="519.504189491272" y2="522.1824049949646"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-86.4886537194252" y="518.8982844352722">43</text>
+    </g>
+    <g data-tilt="-25.34">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-101.83297097682953" x2="-101.83297097682953" y1="522.1824049949646" y2="471.4602828025818"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-104.67487573623657" x2="-104.67487573623657" y1="522.1824049949646" y2="471.4602828025818"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-102.68554240465164" y="496.8213438987732">62</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-86.42786182463169" y="499.21588599681854">17</text>
+  </g>
+  <g class="plate" id="plate_24">
+    <polygon fill="#9366bc" fill-opacity="0.5" points="-123.17761033773422,453.18883657455444 -144.76604759693146,424.0017533302307 -123.17761033773422,397.6384401321411 -123.17761033773422,453.18883657455444" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-123.17761033773422" x2="-146.64044976234436" y1="453.18883657455444" y2="422.21206426620483"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-123.17761033773422" x2="-146.64044976234436" y1="453.18883657455444" y2="422.21206426620483"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-134.9090300500393" y="437.70045042037964">65</text>
+    </g>
+    <g data-tilt="-23.36">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-144.76604759693146" x2="-121.30320817232132" y1="424.0017533302307" y2="399.428129196167"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-146.64044976234436" x2="-123.17761033773422" y1="422.21206426620483" y2="397.6384401321411"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-133.59694853425026" y="411.1780345439911">75</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-123.17761033773422" x2="-123.17761033773422" y1="397.6384401321411" y2="453.18883657455444"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-123.17761033773422" x2="-123.17761033773422" y1="397.6384401321411" y2="453.18883657455444"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-123.17761033773422" y="425.4136383533478">62</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-130.37375609079996" y="424.9430100123088">24</text>
+  </g>
+  <g class="plate" id="plate_10">
+    <polygon fill="#e51919" fill-opacity="0.5" points="-199.1025060415268,462.3452126979828 -201.61359012126923,401.39487385749817 -161.79513931274414,405.7345986366272 -167.95384883880615,454.2558789253235 -199.1025060415268,462.3452126979828" stroke="none"/>
+    <g data-tilt="-21.09">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-199.1025060415268" x2="-199.1025060415268" y1="462.3452126979828" y2="400.04244446754456"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-201.4159858226776" x2="-201.4159858226776" y1="462.3452126979828" y2="400.04244446754456"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-199.79654997587204" y="431.1938285827637">73</text>
+    </g>
+    <g data-tilt="-12.83">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-201.61359012126923" x2="-158.79736840724945" y1="401.39487385749817" y2="407.6508581638336"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-201.4159858226776" x2="-158.59976410865784" y1="400.04244446754456" y2="406.29842877388"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-180.14619797468185" y="404.1171371936798">69</text>
+    </g>
+    <g data-tilt="-28.4">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-161.79513931274414" x2="-170.72422802448273" y1="405.7345986366272" y2="456.33772015571594"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-158.59976410865784" x2="-167.52885282039642" y1="406.29842877388" y2="456.90155029296875"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-165.30107110738754" y="431.2053084373474">48</text>
+    </g>
+    <g data-tilt="-24.07">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-167.95384883880615" x2="-201.84098184108734" y1="454.2558789253235" y2="459.6995711326599"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-167.52885282039642" x2="-201.4159858226776" y1="456.90155029296875" y2="462.3452126979828"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-184.76991653442383" y="457.7714219689369">49</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-182.61627107858658" y="430.9326410293579">10</text>
+  </g>
+  <g class="plate" id="plate_8">
+    <polygon fill="#8c5628" fill-opacity="0.5" points="-70.33170759677887,397.6384401321411 -67.6070898771286,457.2882950305939 -98.85770082473755,454.0836215019226 -111.49121075868607,404.3589234352112 -70.33170759677887,397.6384401321411" stroke="none"/>
+    <g data-tilt="-21.09">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-70.33170759677887" x2="-70.33170014619827" y1="397.6384401321411" y2="459.94120836257935"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-68.01822036504745" x2="-68.01822036504745" y1="397.6384401321411" y2="459.94120836257935"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-69.63765881955624" y="428.78982424736023">13</text>
+    </g>
+    <g data-tilt="-24.11">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-67.6070898771286" x2="-101.60302370786667" y1="457.2882950305939" y2="452.0198106765747"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-68.01822036504745" x2="-102.01415419578552" y1="459.94120836257935" y2="454.6727240085602"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-84.72839593887329" y="455.44992685317993">12</text>
+    </g>
+    <g data-tilt="-28.15">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-98.85770082473755" x2="-108.5020899772644" y1="454.0836215019226" y2="402.40681171417236"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-102.01415419578552" x2="-111.65854334831238" y1="454.6727240085602" y2="402.99588441848755"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-104.62683141231537" y="428.4219428896904">19</text>
+    </g>
+    <g data-tilt="-12.89">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-111.49121075868607" x2="-67.85088777542114" y1="404.3589234352112" y2="399.00147914886475"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-111.65854334831238" x2="-68.01822036504745" y1="402.99588441848755" y2="397.6384401321411"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-89.7212490439415" y="401.2712895870209">49</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-87.07192726433277" y="428.3423200249672">8</text>
+  </g>
+  <g class="plate" id="plate_27">
+    <polygon fill="#ff66b2" fill-opacity="0.5" points="-371.57776951789856,457.38914608955383 -367.82556772232056,484.0763509273529 -412.8016531467438,478.6067605018616 -415.68684577941895,434.0186417102814 -371.57776951789856,457.38914608955383" stroke="none"/>
+    <g data-tilt="-27.43">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-371.57776951789856" x2="-371.12680077552795" y1="457.38914608955383" y2="485.4072034358978"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-368.4641718864441" x2="-368.0132031440735" y1="457.33901858329773" y2="485.3570759296417"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-370.4182058572769" y="471.383136510849">12</text>
+    </g>
+    <g data-tilt="-12.17">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-367.82556772232056" x2="-413.9045774936676" y1="484.0763509273529" y2="477.32603549957275"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-368.0132031440735" x2="-414.09218311309814" y1="485.3570759296417" y2="478.6067605018616"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-390.9213587641716" y="481.0854107141495">3</text>
+    </g>
+    <g data-tilt="-12.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-412.8016531467438" x2="-412.8016531467438" y1="478.6067605018616" y2="431.23164772987366"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.09218311309814" x2="-414.09218311309814" y1="478.6067605018616" y2="431.23164772987366"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-413.1888121366501" y="454.9192041158676">2</text>
+    </g>
+    <g data-tilt="-28.15">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-415.68684577941895" x2="-370.0588345527649" y1="434.0186417102814" y2="460.12601256370544"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-414.09218311309814" x2="-368.4641718864441" y1="431.23164772987366" y2="457.33901858329773"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-392.3944413661957" y="446.2362289428711">8</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-391.97295904159546" y="463.5227248072624">27</text>
+  </g>
+  <g class="plate" id="plate_9">
+    <polygon fill="#7f7f7f" fill-opacity="0.5" points="-459.1153562068939,527.1663665771484 -458.93681049346924,501.61296129226685 -427.84079909324646,492.66332387924194 -425.3349304199219,529.7470688819885 -459.1153562068939,527.1663665771484" stroke="none"/>
+    <g data-tilt="-27.43">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-459.1153562068939" x2="-456.33065700531006" y1="527.1663665771484" y2="499.28340315818787"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-462.2139632701874" x2="-459.4292640686035" y1="526.8568992614746" y2="498.97393584251404"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-458.65258872509" y="513.132044672966">10</text>
+    </g>
+    <g data-tilt="-24.11">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-458.93681049346924" x2="-425.1188039779663" y1="501.61296129226685" y2="495.30234932899475"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-459.4292640686035" x2="-425.6112575531006" y1="498.97393584251404" y2="492.66332387924194"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-442.17554330825806" y="497.66594767570496">57</text>
+    </g>
+    <g data-tilt="-20.38">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-427.84079909324646" x2="-427.84079909324646" y1="492.66332387924194" y2="531.7952632904053"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-425.6112575531006" x2="-425.6112575531006" y1="492.66332387924194" y2="531.7952632904053"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-427.1719366312027" y="512.2292935848236">19</text>
+    </g>
+    <g data-tilt="-19.01">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-425.3349304199219" x2="-461.93763613700867" y1="529.7470688819885" y2="524.8087048530579"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-425.6112575531006" x2="-462.2139632701874" y1="531.7952632904053" y2="526.8568992614746"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-443.7191814184189" y="527.8923451900482">8</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-442.8069740533829" y="512.7974301576614">9</text>
+  </g>
+  <g class="plate" id="plate_2">
+    <polygon fill="#26bf26" fill-opacity="0.5" points="-375.03930926322937,274.72198009490967 -368.8034415245056,340.80904722213745 -409.0380370616913,342.70837903022766 -403.16423773765564,292.5751507282257 -375.03930926322937,274.72198009490967" stroke="none"/>
+    <g data-tilt="-22.21">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-375.03930926322937" x2="-371.2497651576996" y1="274.72198009490967" y2="342.31945872306824"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-372.5929856300354" x2="-368.8034415245056" y1="274.5848298072815" y2="342.18230843544006"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-372.4106401205063" y="308.4795743227005">18</text>
+    </g>
+    <g data-tilt="-12.89">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-368.8034415245056" x2="-412.77140378952026" y1="340.80904722213745" y2="340.8089876174927"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-368.8034415245056" x2="-412.77140378952026" y1="342.18230843544006" y2="342.1822488307953"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-390.78742265701294" y="341.22099578380585">11</text>
+    </g>
+    <g data-tilt="-32.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-409.0380370616913" x2="-401.373416185379" y1="342.70837903022766" y2="288.31955790519714"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-412.77140378952026" x2="-405.106782913208" y1="342.1822488307953" y2="287.79342770576477"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-406.32573664188385" y="315.3561294078827">13</text>
+    </g>
+    <g data-tilt="-40.7">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-403.16423773765564" x2="-370.65044045448303" y1="292.5751507282257" y2="279.36655282974243"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-405.106782913208" x2="-372.5929856300354" y1="287.79342770576477" y2="274.5848298072815"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-387.49010264873505" y="284.5363348722458">50</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-389.0112563967705" y="312.7036392688751">2</text>
+  </g>
+  <g class="plate" id="plate_42">
+    <polygon fill="#26bf26" fill-opacity="0.5" points="-5.759535823017359,423.28739166259766 -56.49910494685173,459.9738419055939 -57.93716758489609,400.48322081565857 -5.759535823017359,423.28739166259766" stroke="none"/>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-5.759535823017359" x2="-56.49910494685173" y1="423.28739166259766" y2="459.9738419055939"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-5.7595353573560715" x2="-56.49910494685173" y1="423.28739166259766" y2="459.9738419055939"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-31.12932031508535" y="441.63061678409576">80</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-56.49910494685173" x2="-56.49910494685173" y1="459.9738419055939" y2="397.6384103298187"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-56.49910494685173" x2="-56.49910494685173" y1="459.9738419055939" y2="397.6384103298187"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-56.49910494685173" y="428.8061261177063">83</text>
+    </g>
+    <g data-tilt="-27.98">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-57.93716758489609" x2="-7.197597995400429" y1="400.48322081565857" y2="426.1322021484375"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-56.49910494685173" x2="-5.7595353573560715" y1="397.6384103298187" y2="423.28739166259766"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-32.13596399873495" y="412.4542683362961">76</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-40.06526945158839" y="427.91481812795">42</text>
+  </g>
+  <g class="plate" id="plate_3">
+    <polygon fill="#ffa500" fill-opacity="0.5" points="-254.1854977607727,441.14676117897034 -256.897896528244,400.8173644542694 -212.93504536151886,388.3606195449829 -212.34846115112305,448.2657313346863 -254.1854977607727,441.14676117897034" stroke="none"/>
+    <g data-tilt="-38.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-254.1854977607727" x2="-252.96854972839355" y1="441.14676117897034" y2="396.67949080467224"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-258.8958442211151" x2="-257.67889618873596" y1="441.01783633232117" y2="396.55056595802307"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-254.99012768268585" y="418.87444853782654">79</text>
+    </g>
+    <g data-tilt="-35.86">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-256.897896528244" x2="-212.15404570102692" y1="400.8173644542694" y2="392.62741804122925"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-257.67889618873596" x2="-212.93504536151886" y1="396.55056595802307" y2="388.3606195449829"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-234.76027101278305" y="395.4423516988754">76</text>
+    </g>
+    <g data-tilt="-0.0">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-212.93504536151886" x2="-212.93506026268005" y1="388.3606195449829" y2="450.973778963089"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-212.93504536151886" x2="-212.93506026268005" y1="388.3606195449829" y2="450.973778963089"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-212.93505281209946" y="419.66719925403595">81</text>
+    </g>
+    <g data-tilt="-24.79">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-212.34846115112305" x2="-258.3092451095581" y1="448.2657313346863" y2="438.30978870391846"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-212.93506026268005" x2="-258.8958442211151" y1="450.973778963089" y2="441.01783633232117"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-235.50483286380768" y="444.1001743078232">90</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-234.09172520041466" y="419.64761912822723">3</text>
+  </g>
+  <g class="plate" id="plate_35">
+    <polygon fill="#00ced1" fill-opacity="0.5" points="-160.32378375530243,384.138286113739 -196.7044621706009,376.8521845340729 -197.9973316192627,335.8224928379059 -167.59933531284332,302.14616656303406 -160.32378375530243,384.138286113739" stroke="none"/>
+    <g data-tilt="-37.31">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-160.32378375530243" x2="-200.12183487415314" y1="384.138286113739" y2="372.39280343055725"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-161.6179347038269" x2="-201.4159858226776" y1="388.5233700275421" y2="376.77788734436035"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-180.61105459928513" y="379.58106994628906">89</text>
+    </g>
+    <g data-tilt="-38.14">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-196.7044621706009" x2="-196.00293040275574" y1="376.8521845340729" y2="332.37379789352417"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-201.4159858226776" x2="-200.71445405483246" y1="376.77788734436035" y2="332.29950070381165"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-197.76715338230133" y="354.59070205688477">88</text>
+    </g>
+    <g data-tilt="-36.56">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-197.9973316192627" x2="-158.90081226825714" y1="335.8224928379059" y2="305.6691586971283"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-200.71445405483246" x2="-161.6179347038269" y1="332.29950070381165" y2="302.14616656303406"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-179.26420867443085" y="319.6889281272888">90</text>
+    </g>
+    <g data-tilt="-44.91">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-167.59933531284332" x2="-167.59933531284332" y1="302.14616656303406" y2="388.5233700275421"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-161.6179347038269" x2="-161.6179347038269" y1="302.14616656303406" y2="388.5233700275421"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-165.8049151301384" y="345.3347682952881">91</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-180.65622821450233" y="349.73978251218796">35</text>
+  </g>
+  <g class="plate" id="plate_18">
+    <polygon fill="#8c5628" fill-opacity="0.5" points="-338.9074206352234,236.72060668468475 -296.5625524520874,153.95282208919525 -295.7577109336853,262.49223947525024 -338.9074206352234,236.72060668468475" stroke="none"/>
+    <g data-tilt="-62.6">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-338.9074206352234" x2="-286.5743339061737" y1="236.72060668468475" y2="160.50617396831512"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-348.45128655433655" x2="-296.11819982528687" y1="230.16725480556488" y2="153.95282208919525"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-315.6040370464325" y="196.64738476276398">25</text>
+    </g>
+    <g data-tilt="-4.24">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-296.5625524520874" x2="-296.5625524520874" y1="153.95282208919525" y2="263.0656957626343"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11819982528687" x2="-296.11819982528687" y1="153.95282208919525" y2="263.0656957626343"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-296.42924666404724" y="208.50925892591476">28</text>
+    </g>
+    <g data-tilt="-6.44">
+      <line fill="none" stroke="#000" stroke-width="0.5" x1="-295.7577109336853" x2="-348.090797662735" y1="262.49223947525024" y2="229.59379851818085"/>
+      <line fill="none" stroke="#ccc" stroke-width="0.5" x1="-296.11819982528687" x2="-348.45128655433655" y1="263.0656957626343" y2="230.16725480556488"/>
+      <text dominant-baseline="central" fill="#666" font-family="sans-serif" font-size="2px" text-anchor="middle" x="-322.0324009656906" y="246.21505588293076">32</text>
+    </g>
+    <text dominant-baseline="central" fill="#333" font-family="sans-serif" font-size="4px" font-weight="bold" text-anchor="middle" x="-310.4092280069987" y="217.72188941637674">18</text>
+  </g>
+</svg>
