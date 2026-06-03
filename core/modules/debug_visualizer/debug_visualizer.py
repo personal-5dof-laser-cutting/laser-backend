@@ -288,9 +288,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self._draw_config_panel(ax, config, label)
 
     def _to_motor_position(self, config: Configuration) -> MotorPosition:
-        closest, furthest = Container.kinematics_service.get_positions(
-            config, self.material_height
-        )
+        closest, furthest = config.to_motor_position(self.material_height)
         if self._previous is None:
             return closest
         closest_cost = Container.laser_cost.chebyshev_distance(self._previous, closest)
