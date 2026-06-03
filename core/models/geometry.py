@@ -1,4 +1,5 @@
 from itertools import pairwise
+from typing import Tuple
 from Geometry3D import (
     Plane,
     Point,
@@ -157,6 +158,13 @@ class Configuration:
 
         return Container.laser_cost.get_cost(self, other, material_height)
 
+    def to_motor_position(
+        self, material_height: float
+    ) -> Tuple[MotorPosition, MotorPosition]:
+        from core.service_container import Container
+
+        return Container.kinematics_service.get_positions(self, material_height)
+
 
 class MotorPosition:
     """
@@ -235,6 +243,15 @@ class MotorPosition:
             d_a = math.radians(360) - d_a
         d_b = abs(self.b - other.b)
         return MotorPosition(d_x, d_y, d_z, d_a, d_b)
+
+    def select_position(
+        self, choice1: MotorPosition, choice2: MotorPosition
+    ) -> MotorPosition:
+        delta_1 = self.delta(choice1)
+        delta_2 = self.delta(choice2)
+        if delta_2.a < delta_1.a:
+            return choice2
+        return choice1
 
 
 class TrapezoidalCut:
