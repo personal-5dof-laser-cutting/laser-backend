@@ -1,3 +1,5 @@
+import logging
+
 import pstats
 import sys
 import cProfile
@@ -8,6 +10,12 @@ from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
+
+logging.basicConfig(
+    level=logging.INFO, format="[%(name)s] %(levelname)s: %(message)s", force=True
+)
+
+logger = logging.getLogger("stats" if __name__ == "__main__" else __name__)
 
 
 def run_optimizer(
@@ -26,26 +34,35 @@ def run_optimizer(
     if show_debug_view:
         dbg.process(geometry)
 
+    cuts_cost = geometry.calculate_cut_cost(material_height, 600)
     previous_costs = geometry.calculate_travel_cost(material_height, False)
-    print(f"Starting cost: {previous_costs}")
+    logger.info(
+        f"Starting cost: {cuts_cost + previous_costs:.4}, travel moves: {previous_costs:.4} ({previous_costs / (cuts_cost + previous_costs):.2%})"
+    )
 
     optimized = opt.process(geometry)
     if show_debug_view:
         dbg.process(optimized)
 
     optimized_costs = optimized.calculate_travel_cost(material_height, False)
-    print(f"Final cost: {optimized_costs}")
+    logger.info(
+        f"Optimized cost: {cuts_cost + optimized_costs:.4}, travel moves: {optimized_costs:.4} ({optimized_costs / (cuts_cost + optimized_costs):.2%})"
+    )
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print("Usage: svg_path material_height show_debug_view show_live_stats")
         sys.exit(1)
     svg_path: str = sys.argv[1]
     material_height: float = float(sys.argv[2])
     show_debug_view: bool = sys.argv[3] == "1"
     show_live_stats: bool = sys.argv[4] == "1"
-    with cProfile.Profile() as pr:
+    measure_performance: bool = sys.argv[5] == "1"
+    if measure_performance:
+        with cProfile.Profile() as pr:
+            run_optimizer(svg_path, material_height, show_debug_view, show_live_stats)
+            stats = pstats.Stats(pr).sort_stats("cumulative")
+            stats.print_stats(".*_cache")
+    else:
         run_optimizer(svg_path, material_height, show_debug_view, show_live_stats)
-        stats = pstats.Stats(pr).sort_stats("cumulative")
-        stats.print_stats(15)
