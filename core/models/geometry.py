@@ -54,6 +54,12 @@ class Geometry:
             running_total += self.cuts[-1].travel_time_to(self.cuts[0], material_height)
         return running_total
 
+    def calculate_cut_cost(self, material_height: float, feedrate: float) -> float:
+        running_total: float = 0
+        for cut in self.cuts:
+            running_total += cut.get_internal_cost(feedrate, material_height)
+        return running_total
+
 
 class Configuration:
     """
@@ -455,9 +461,20 @@ class TrapezoidalCut:
     def is_straight_cut(self) -> bool:
         return math.isclose(self.get_slant_angle(), 0)
 
-    def get_internal_cost(self, material_height: float) -> float:
+    def get_internal_cost(self, feedrate: float, material_height: float) -> float:
         from_conf, to_conf = self.configurations()
-        return from_conf.travel_time_to(to_conf, material_height)
+        min_time = from_conf.travel_time_to(to_conf, material_height)
+        from_positions = from_conf.to_motor_position(material_height)
+        to_positions = to_conf.to_motor_position(material_height)
+        delta_1 = from_positions[0].delta(to_positions[0])
+        delta_2 = from_positions[0].delta(to_positions[1])
+        delta_1_dist = math.sqrt(delta_1.x**2 + delta_1.y**2)
+        delta_2_dist = math.sqrt(delta_2.x**2 + delta_2.y**2)
+
+        dist = delta_2_dist if delta_2.a < delta_1.a else delta_1_dist
+        dist = min(delta_1_dist, delta_2_dist)
+
+        return max(min_time, dist / feedrate)
 
     def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
         return self.end_configuration().travel_time_to(

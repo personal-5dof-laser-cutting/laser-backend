@@ -311,6 +311,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         plt.ion()
         self.steps: list[str] = []
         self.results: list[float] = []
+        self.cut_cost = self.geometry.calculate_cut_cost(self.material_height, 600)
 
     def _setup_plot(self):
         self.ax.set_xlabel("Step")
@@ -325,6 +326,11 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         self.results.append(current_cost)
 
         self.ax.clear()
-        self.ax.plot(self.steps, self.results, marker="o")
+        self.ax.bar(
+            self.steps,
+            [self.cut_cost + result for result in self.results],
+            color="blue",
+        )
+        self.ax.bar(self.steps, [self.cut_cost] * len(self.steps), color="red")
         self._setup_plot()
         plt.pause(0.1)
