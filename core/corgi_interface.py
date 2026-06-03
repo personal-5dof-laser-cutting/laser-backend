@@ -96,7 +96,10 @@ class CorgiInterface:
             if serial_port:
                 self._interface = SerialInterface(serial_port)
             else:
-                self._interface = GCodeInterface(self.address)
+                print("Could not establish serial connection")
+                self.connected = False
+                # self._interface = GCodeInterface(self.address)
+                return self.connected
             self._try_connect()
         except Exception as e:
             print(f"Could not connect to corgi: {e}")
