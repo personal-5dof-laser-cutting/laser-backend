@@ -1,5 +1,6 @@
 from functools import lru_cache
 from itertools import combinations
+import logging
 from math import inf, isclose
 
 from matplotlib import pyplot as plt
@@ -8,6 +9,8 @@ from core.pipeline.base import Module
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.service_container import Container
 from core.services.kinematics_service import KinematicsService
+
+log = logging.getLogger("Groptimizer")
 
 
 class GreedyOptimizerModule(Module[Geometry, Geometry]):
@@ -127,10 +130,12 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             iterations += 1
             if self.show_statistics:
                 self._append_stats(f"Two Opt It. {iterations}")
-            if abs(improvement) / previous_cost <= 0.05:
-                print(
-                    f"Improved by less than 5%: {abs(improvement) / previous_cost:.4}"
-                )
+            improvement_ratio = abs(improvement) / previous_cost
+            if self.show_statistics:
+                log.info(f"Improved by {improvement_ratio:.2%}")
+            if improvement_ratio <= 0.05:
+                if self.show_statistics:
+                    log.info("\tImprovement too low, ending")
                 break
             previous_cost += improvement
             improvement = 0
@@ -315,7 +320,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
     def _setup_plot(self):
         self.ax.set_xlabel("Step")
-        self.ax.set_ylabel("Path cost")
+        self.ax.set_ylabel("Path cost (minutes)")
         self.ax.set_title("Path Cost Evolution over Time")
 
     def _append_stats(self, step_name: str, as_cycle: bool = True):
