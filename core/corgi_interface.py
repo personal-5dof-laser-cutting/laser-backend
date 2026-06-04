@@ -17,6 +17,9 @@ def str_len(string: str) -> int:
     return len(string.encode("utf-8"))
 
 
+ALLOW_WIFI_CONNECTION = False
+
+
 class SerialInterface:
     _interface: serial.Serial
 
@@ -43,13 +46,15 @@ class CorgiInterface:
 
     def __init__(
         self,
-        address: str,
+        address: str | None = None,
         incoming_messages: PriorityQueue[
             Tuple[int, WebsocketMessage]
         ] = PriorityQueue(),
         outgoing_messages: Queue[WebsocketMessage] = Queue(),
         buffer_size: int = 128,
     ):
+        if not ALLOW_WIFI_CONNECTION and address is not None:
+            log.warning("Address passed but wifi connection is forbidden")
         self.address = address
         self.incoming_messages = incoming_messages
         self.outgoing_messages = outgoing_messages
@@ -99,7 +104,14 @@ class CorgiInterface:
             if serial_port:
                 self._interface = SerialInterface(serial_port)
             else:
-                self._interface = GCodeInterface(self.address)
+                if not ALLOW_WIFI_CONNECTION or self.address is None:
+                    log.error(
+                        "No serial port detected. Connection to Corgi not possible"
+                    )
+                    self.connected = False
+                    return self.connected
+                else:
+                    self._interface = GCodeInterface(self.address)
             self._try_connect()
         except Exception as e:
             log.error(f"Could not connect to corgi: {e}")
