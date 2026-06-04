@@ -1,3 +1,4 @@
+import logging
 from queue import Empty, PriorityQueue, Queue
 from time import sleep
 from typing import Tuple
@@ -8,6 +9,8 @@ import serial.tools
 import serial.tools.list_ports
 
 from api.models.base import WebsocketMessage
+
+log = logging.getLogger("Corgi Interface")
 
 
 def str_len(string: str) -> int:
@@ -30,7 +33,7 @@ class SerialInterface:
         try:
             message = self._interface.readline().decode()
         except UnicodeDecodeError as UDE:
-            print(f"Could not decode message: {UDE}")
+            log.warning(f"Could not decode message: {UDE}")
             return None
         return message or None
 
@@ -73,7 +76,7 @@ class CorgiInterface:
             except serial.SerialException:
                 pass
             except PermissionError:
-                print(f"No permission for port {port}")
+                log.debug(f"No permission for port {port}")
                 break
         if len(workingPorts) > 1:
             raise RuntimeError(
@@ -90,7 +93,7 @@ class CorgiInterface:
             self.connected = True
             self.buffer_used = 0
             self.buffer_corgi.clear()
-            print("Connected to corgi")
+            log.info("Connected to corgi")
         except AttributeError:
             serial_port = self._find_serial_port()
             if serial_port:
@@ -99,7 +102,7 @@ class CorgiInterface:
                 self._interface = GCodeInterface(self.address)
             self._try_connect()
         except Exception as e:
-            print(f"Could not connect to corgi: {e}")
+            log.error(f"Could not connect to corgi: {e}")
             self.connected = False
 
         return self.connected
@@ -170,7 +173,7 @@ class CorgiInterface:
                 self._tick()
             except Exception as e:
                 self.connected = False
-                print(f"Error running main loop: {e}")
+                log.error(f"Error running main loop: {e}")
                 self.outgoing_messages.put(
                     WebsocketMessage(type="error", content="Corgi disconnected")
                 )
