@@ -24,17 +24,38 @@ class SerialInterface:
     _interface: serial.Serial
 
     def __init__(self, port: str):
-        self._interface = serial.Serial(port)
+        self._interface = serial.Serial(port, baudrate=115200, timeout=0.5)
+        self._interface.dtr = False
+        sleep(0.1)
+        self._interface.dtr = True
+        sleep(2)
+        if self._interface.in_waiting > 0:
+            boot_logs = self._interface.read(self._interface.in_waiting).decode(
+                "utf-8", errors="ignore"
+            )
+            log.info("Corgi Controller Booted successfully")
+            log.debug(boot_logs)
+        else:
+            log.info("No boot logs detected, sending wake-up ping...")
+            self._interface.write(b"\r\n")
+            sleep(0.2)
+            if self._interface.in_waiting > 0:
+                log.info(
+                    f"Corgi Wake-up response: {self._interface.read(self._interface.in_waiting).decode('utf-8', errors='ignore').strip()}"
+                )
 
     def open(self):
-        pass
+        if not self._interface.is_open:
+            self._interface.open()
 
     def send(self, message: str):
-        self._interface.write(message.encode())
+        self._interface.write(message.encode("utf-8"))
 
     def recv(self) -> str | None:
         try:
-            message = self._interface.readline().decode()
+            if self._interface.in_waiting == 0:
+                return None
+            message = self._interface.readline().decode("utf-8")
         except UnicodeDecodeError as UDE:
             log.warning(f"Could not decode message: {UDE}")
             return None
