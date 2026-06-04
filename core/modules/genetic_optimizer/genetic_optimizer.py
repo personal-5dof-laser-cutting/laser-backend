@@ -1,4 +1,4 @@
-from itertools import product
+from itertools import combinations, product
 import numpy as np
 from ctypes import ArgumentError
 
@@ -48,43 +48,23 @@ class GeneticOptimizerModule(Module[Geometry, Geometry]):
     ) -> tuple[np.ndarray, list[list[int]]]:
         # We use 2 * len(cuts) to accomodate weight for both cut directions
         weights = np.zeros((2 * len(cuts), 2 * len(cuts)))
-        groups = []
-        for i in range(len(cuts)):
-            groups.append([2 * i, 2 * i + 1])
-            cut1_configs = cuts[i].configurations()
-            for k in range(i):
-                cut2_configs = cuts[k].configurations()
+        groups = [[2 * i, 2 * i + 1] for i in range(len(cuts))]
 
-                for conf1_offset, conf2_offset in product([0, 1], repeat=2):
-                    cut1_weight_idx = 2 * i + conf1_offset
-                    cut2_weight_idx = 2 * k + conf2_offset
-                    # We use cutX_configs[1-confX_offset] because if we start a cut at start_config, we need the distance of end_config to the other cut and vice versa
-                    self._add_weight(
-                        weights,
-                        cut1_weight_idx,
-                        cut2_weight_idx,
-                        cut1_configs[1 - conf1_offset],
-                        cut2_configs[conf2_offset],
-                    )
-                    self._add_weight(
-                        weights,
-                        cut2_weight_idx,
-                        cut1_weight_idx,
-                        cut2_configs[1 - conf2_offset],
-                        cut1_configs[conf1_offset],
-                    )
+        def get_config(cut_idx: int, return_start: bool) -> Configuration:
+            if return_start:
+                return cuts[cut_idx].start_configuration()
+            return cuts[cut_idx].end_configuration()
 
+        def add_weight(cut1: int, cut2: int, flip1: bool, flip2: bool):
+            weights[2 * cut1 + flip1, 2 * cut2 + flip2] = get_config(
+                cut1, flip1
+            ).travel_time_to(get_config(cut2, not flip2), self.material_height)
+
+        for i, k in combinations(range(len(cuts)), 2):
+            for flip1, flip2 in product([False, True], repeat=2):
+                add_weight(i, k, flip1, flip2)
+                add_weight(k, i, flip1, flip2)
         return (weights, groups)
-
-    def _add_weight(
-        self,
-        matrix: np.ndarray,
-        idx1: int,
-        idx2: int,
-        config1: Configuration,
-        config2: Configuration,
-    ):
-        matrix[idx1, idx2] = self.get_cost(config1, config2)
 
     def _tour_to_path(
         self,
