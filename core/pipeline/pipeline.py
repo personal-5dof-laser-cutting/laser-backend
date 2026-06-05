@@ -1,11 +1,11 @@
 from api.models.base import FrontendInput
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
-from core.modules.global_optimizer.global_optimizer import GlobalOptimizerModule
+from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.pipeline.base import Module, Pipeline
 
 
-def full_pipeline(frontendInput: FrontendInput, generations: int = 1000) -> Pipeline:
+def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
     modules: list[Module] = [
         SVG5DOF_Importer(
             frontendInput.material_thickness,
@@ -13,7 +13,7 @@ def full_pipeline(frontendInput: FrontendInput, generations: int = 1000) -> Pipe
         )
     ]
     if frontendInput.optimize:
-        modules.append(GlobalOptimizerModule(generations=generations))
+        modules.append(GreedyOptimizerModule(frontendInput.material_thickness))
     modules.extend(
         [
             GCodeExporter(

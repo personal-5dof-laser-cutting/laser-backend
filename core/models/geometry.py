@@ -1,4 +1,5 @@
-from typing import Literal, Tuple
+from itertools import pairwise
+from typing import Tuple
 from Geometry3D import (
     Plane,
     Point,
@@ -45,6 +46,22 @@ class Geometry:
 
         vis.add((origin(), "b", 5))
         vis.show()
+
+    def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
+        if len(self.cuts) <= 1:
+            return 0
+        running_total: float = 0
+        for a, b in pairwise(self.cuts):
+            running_total += a.travel_time_to(b, material_height)
+        if as_cycle:
+            running_total += self.cuts[-1].travel_time_to(self.cuts[0], material_height)
+        return running_total
+
+    def calculate_cut_cost(self, material_height: float, feedrate: float) -> float:
+        running_total: float = 0
+        for cut in self.cuts:
+            running_total += cut.get_internal_cost(feedrate, material_height)
+        return running_total
 
 
 class Configuration:
@@ -138,60 +155,105 @@ class Configuration:
         x = math.tan(self.beta)
         return Vector(x, y, -1).normalized()
 
-    def get_cutter_angles(
-        self, unit: Literal["radian", "degree"] = "radian"
-    ) -> Tuple[float, float]:
-        """
-        Returns the angle that the table and laser head would change by to assume the configuration, if both are currently 0.
-        A laser cutter with a turn table has two theoretically possible angle pairs, where the table angle differs by half a turn and the laser head angle's sign is flipped.
-        This function returns the angle pair with the minimal angle change, meaning that pair with the table angle is closest to 0
-        """
-        if math.isclose(self.alpha, 0) and math.isclose(self.beta, 0):
-            return (0, 0)
+    def travel_time_to(self, other: Configuration, material_height: float) -> float:
+        from core.service_container import Container
 
-        if math.isclose(self.alpha, 0):
-            if unit == "degree":
-                return (0, math.degrees(self.beta))
-            return (0, self.beta)
+        return Container.laser_cost.get_cost(self, other, material_height)
 
-        if math.isclose(self.beta, 0):
-            if unit == "degree":
-                return (90, -math.degrees(self.alpha))
-            return (math.radians(90), -self.alpha)
+    def to_motor_positions(
+        self, material_height: float
+    ) -> Tuple[MotorPosition, MotorPosition]:
+        from core.service_container import Container
 
-        direction = self.direction_vector()
-        # We use the negative angle to get the rotation needed to assume the configuration, instead of the applied rotation that lead to the configuration
-        table_angle = -math.atan2(direction[1], direction[0])
+        return Container.kinematics_service.get_positions(self, material_height)
 
-        sin = math.sin(table_angle)
-        cos = math.cos(table_angle)
-        rotated_direction = Vector(
-            direction[0] * cos - direction[1] * sin,
-            direction[0] * sin + direction[1] * cos,
-            direction[2],
+
+class MotorPosition:
+    """
+    Motor position of a laser cutter configuration with a rotating cut rotation axes.
+
+    Attributes
+    ----------
+    x : float
+        Offset in mm on the x axis
+    y : float
+        Offset in mm on the y axis
+    z : float
+        Offset in mm on the z axis
+    a : float
+        Rotation of the table in radians.
+    b : float
+        Rotation of the laser head in radians. 0 points downwards and positve points towards positive x.
+    """
+
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        z: float,
+        alpha: float,
+        beta: float,
+        isRadians: bool = False,
+    ) -> None:
+        if not isRadians:
+            alpha = math.radians(alpha)
+            beta = math.radians(beta)
+
+        if beta < math.radians(-90) or beta > math.radians(90):
+            raise ValueError("b must be between -90° and 90°")
+
+        self.x: float = float(x)
+        self.y: float = float(y)
+        self.z: float = float(z)
+        self.a: float = float(alpha) % math.radians(360) - math.radians(
+            180
+        )  # table motor
+        self.b: float = float(beta)  # laser head motor
+
+    def __eq__(self, value: object) -> bool:
+        if type(value) is not MotorPosition:
+            return False
+        return all(
+            [
+                math.isclose(self.x, value.x),
+                math.isclose(self.y, value.y),
+                math.isclose(self.z, value.z),
+                math.isclose(self.a, value.a),
+                math.isclose(self.b, value.b),
+            ]
         )
-        laser_head_angle = math.atan2(rotated_direction[0], -rotated_direction[2])
 
-        if table_angle > math.radians(90) and not math.isclose(
-            table_angle, math.radians(90)
-        ):
-            table_angle -= math.radians(180)
-            laser_head_angle *= -1
-        elif table_angle < -math.radians(90) and not math.isclose(
-            table_angle, -math.radians(90)
-        ):
-            table_angle += math.radians(180)
-            laser_head_angle *= -1
+    def axes_dict(self) -> dict[str, float]:
+        return {
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "a": self.a,
+            "b": self.b,
+        }
 
-        if unit == "degree":
-            table_angle = math.degrees(table_angle)
-            laser_head_angle = math.degrees(laser_head_angle)
+    def delta(self, other: MotorPosition) -> MotorPosition:
+        d_x = abs(self.x - other.x)
+        d_y = abs(self.y - other.y)
+        if sign(self.b) != sign(other.b):
+            d_z = self.z + other.z
+        else:
+            d_z = abs(self.z - other.z)
 
-        if math.isclose(table_angle, 0):
-            table_angle = 0
-        if math.isclose(laser_head_angle, 0):
-            laser_head_angle = 0
-        return (table_angle, laser_head_angle)
+        d_a = abs(self.a - other.a)
+        if d_a > math.radians(180):
+            d_a = math.radians(360) - d_a
+        d_b = abs(self.b - other.b)
+        return MotorPosition(d_x, d_y, d_z, d_a, d_b)
+
+    def select_position(
+        self, choice1: MotorPosition, choice2: MotorPosition
+    ) -> MotorPosition:
+        delta_1 = self.delta(choice1)
+        delta_2 = self.delta(choice2)
+        if delta_2.a < delta_1.a:
+            return choice2
+        return choice1
 
 
 class TrapezoidalCut:
@@ -349,7 +411,11 @@ class TrapezoidalCut:
     def end_vector(self) -> Vector:
         return self.end_bottom.pv() - self.end_top.pv()
 
-    def flip_direction(self) -> TrapezoidalCut:
+    def flip_direction(self) -> None:
+        self._start_top, self._end_top = self.end_top, self.start_top
+        self._start_bottom, self._end_bottom = self.end_bottom, self.start_bottom
+
+    def flipped_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
         return TrapezoidalCut(
             self.end_top,
@@ -358,7 +424,7 @@ class TrapezoidalCut:
             self.start_bottom,
         )
 
-    def flip_vertical(self) -> TrapezoidalCut:
+    def flipped_vertical(self) -> TrapezoidalCut:
         """Swap top and bottom edge"""
         return TrapezoidalCut(
             self.start_bottom, self.end_bottom, self.start_top, self.end_top
@@ -413,6 +479,26 @@ class TrapezoidalCut:
 
     def is_straight_cut(self) -> bool:
         return math.isclose(self.get_slant_angle(), 0)
+
+    def get_internal_cost(self, feedrate: float, material_height: float) -> float:
+        from_conf, to_conf = self.configurations()
+        min_time = from_conf.travel_time_to(to_conf, material_height)
+        from_positions = from_conf.to_motor_positions(material_height)
+        to_positions = to_conf.to_motor_positions(material_height)
+        delta_1 = from_positions[0].delta(to_positions[0])
+        delta_2 = from_positions[0].delta(to_positions[1])
+        delta_1_dist = math.sqrt(delta_1.x**2 + delta_1.y**2)
+        delta_2_dist = math.sqrt(delta_2.x**2 + delta_2.y**2)
+
+        dist = delta_2_dist if delta_2.a < delta_1.a else delta_1_dist
+        dist = min(delta_1_dist, delta_2_dist)
+
+        return max(min_time, dist / feedrate)
+
+    def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
+        return self.end_configuration().travel_time_to(
+            other.start_configuration(), material_height
+        )
 
     def __repr__(self) -> str:
         return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"

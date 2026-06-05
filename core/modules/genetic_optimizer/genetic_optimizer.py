@@ -1,26 +1,23 @@
 from itertools import product
 import numpy as np
 from ctypes import ArgumentError
-from math import inf
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
-from core.service_container import Container
-from core.services.laser_config_service import LaserConfigService
-from core.modules.global_optimizer.genetic_gtsp import GTSP, run_gcga
+from core.modules.genetic_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
-class GlobalOptimizerModule(Module[Geometry, Geometry]):
-    def __init__(self, generations: int = 1000) -> None:
+class GeneticOptimizerModule(Module[Geometry, Geometry]):
+    def __init__(
+        self,
+        material_height: float,
+        generations: int = 1000,
+    ) -> None:
         super().__init__()
         self.generations = generations
+        self.material_height = material_height
 
-    def process(
-        self,
-        data: Geometry,
-        laser_config: LaserConfigService = Container.laser_config,
-    ) -> Geometry:
-        self.laser_config = laser_config
+    def process(self, data: Geometry) -> Geometry:
         cuts: list[TrapezoidalCut] = data.cuts
         weights, groups = self._generate_weights(data.cuts)
         gtsp = GTSP(weights, groups)
@@ -35,7 +32,7 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
             do_head_reopt=True,
         )
         tour = gtsp.decode(best_chrom)
-        trapezoid_path = self._tour_to_path(tour, cuts, laser_config)
+        trapezoid_path = self._tour_to_path(tour, cuts)
         data.cuts = trapezoid_path
 
         return data
@@ -81,14 +78,12 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
         config1: Configuration,
         config2: Configuration,
     ):
-        laser_config = self.laser_config
-        matrix[idx1, idx2] = laser_config.get_cost(config1, config2)
+        matrix[idx1, idx2] = config1.travel_time_to(config2, self.material_height)
 
     def _tour_to_path(
         self,
         tour: list[int],
         cuts: list[TrapezoidalCut],
-        laser_config: LaserConfigService,
     ) -> list[TrapezoidalCut]:
         if len(tour) != len(cuts):
             raise ArgumentError("Every cut has to be included in the tour.")
@@ -98,14 +93,11 @@ class GlobalOptimizerModule(Module[Geometry, Geometry]):
             if index % 2 == 0:
                 cut_list.append(cut)
             else:
-                cut_list.append(cut.flip_direction())
-        max_dist = -inf
-        idx_max = 0
-        for i in range(len(cut_list)):
-            dist = laser_config.get_cost(
-                cut_list[i].end_configuration(),
-                cut_list[(i + 1) % len(cut_list)].start_configuration(),
-            )
+                cut_list.append(cut.flipped_direction())
+        max_dist = cut_list[-1].travel_time_to(cut_list[0], self.material_height)
+        idx_max = -1
+        for i in range(len(cut_list) - 1):
+            dist = cut_list[i].travel_time_to(cut_list[i + 1], self.material_height)
             if dist > max_dist:
                 max_dist = dist
                 idx_max = i

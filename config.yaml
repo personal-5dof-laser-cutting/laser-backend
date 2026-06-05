@@ -1,0 +1,187 @@
+board: Corgi
+name: Corgi Default
+stepping:
+  engine: I2S_STATIC
+  idle_ms: 255
+  pulse_us: 2
+  dir_delay_us: 1
+  disable_delay_us: 2
+
+Kinematics:
+  rotating_table_five_axis:
+    focus_offset: 58
+    z_height: 69
+    max_angle: 60
+    rotation_offset: 42
+    kinematic_segment_len_mm: 0.5
+    center_x: 196.3
+    center_y: 238.5
+    max_x: 398
+    max_y: 398
+    max_z_mm: 40
+    angle_threshold: 2.0
+axes:
+  x:
+    steps_per_mm: 50
+    max_rate_mm_per_min: 54000
+    acceleration_mm_per_sec2: 400
+    max_travel_mm: 500
+    motor0:
+      standard_stepper:
+        step_pin: I2SO.2
+        direction_pin: I2SO.1
+        disable_pin: I2SO.0
+      pulloff_mm: 12.000
+      limit_neg_pin: gpio.2:low:pu
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 10
+      feed_mm_per_min: 700
+      seek_mm_per_min: 1500
+      settle_ms: 250
+      seek_scaler: 1.100000
+      feed_scaler: 1.100000
+
+  y:
+    steps_per_mm: 50
+    max_rate_mm_per_min: 54000
+    acceleration_mm_per_sec2: 400
+    max_travel_mm: 500
+    motor0:
+      standard_stepper:
+        step_pin: I2SO.5
+        direction_pin: I2SO.4
+        disable_pin: I2SO.7
+      pulloff_mm: 24
+      limit_neg_pin: gpio.26:low:pu
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 20
+      feed_mm_per_min: 700
+      seek_mm_per_min: 1500
+      settle_ms: 250
+      seek_scaler: 1.100000
+      feed_scaler: 1.100000
+
+  z:
+    steps_per_mm: 815
+    max_rate_mm_per_min: 120
+    acceleration_mm_per_sec2: 4
+    max_travel_mm: 500
+    motor0:
+      standard_stepper:
+        step_pin: I2SO.10
+        direction_pin: I2SO.9
+        disable_pin: I2SO.8
+      pulloff_mm: 2.000
+      limit_neg_pin: gpio.33:low:pu
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 0
+      feed_mm_per_min: 60
+      seek_mm_per_min: 120
+      settle_ms: 250
+      seek_scaler: 1.100000
+      feed_scaler: 1.100000
+  a:
+    steps_per_mm: 222.23
+    max_rate_mm_per_min: 1800
+    acceleration_mm_per_sec2: 30
+    motor0:
+      standard_stepper:
+        step_pin: I2SO.13
+        direction_pin: I2SO.12
+        disable_pin: I2SO.15
+
+  b:
+    steps_per_mm: 268.0555555556
+    max_rate_mm_per_min: 1000
+    acceleration_mm_per_sec2: 25
+    max_travel_mm: 500
+    motor0:
+      standard_stepper:
+        step_pin: I2SO.18
+        direction_pin: I2SO.17
+        disable_pin: I2SO.16
+      pulloff_mm: 4
+      limit_neg_pin: gpio.32:high
+    homing:
+      cycle: 2
+      allow_single_axis: false
+      positive_direction: false
+      mpos_mm: -32
+      feed_mm_per_min: 100
+      seek_mm_per_min: 600
+      settle_ms: 250
+      seek_scaler: 1.100000
+      feed_scaler: 1.100000
+
+i2so:
+  bck_pin: gpio.22
+  data_pin: gpio.21
+  ws_pin: gpio.17
+
+  #spi:
+  #  miso_pin: gpio.19
+  #  mosi_pin: gpio.23
+  #  sck_pin: gpio.18
+
+#   coolant on the MOSFETs
+coolant:
+  flood_pin: gpio.12
+#    mist_pin: gpio.4
+
+  #user_outputs:
+  #  analog0_pin: gpio.13
+  #  analog1_pin: gpio.14
+  #  analog0_hz: 5000
+  #  analog1_hz: 5000
+
+Laser:
+  pwm_hz: 1000
+  output_pin: gpio.13
+  enable_pin: NO_PIN
+  disable_with_s0: true
+  s0_with_disable: true
+  tool_num: 0
+  speed_map: 0=0.000% 255=100.000%
+  off_on_alarm: true
+
+  # Begin Huanyang
+  # uart1:
+  # txd_pin: gpio.15
+  # rxd_pin: gpio.16
+  # baud: 9600
+  # mode: 8N1
+
+  # Huanyang:
+  # uart_num: 1
+  # modbus_id: 1
+  # tool_num: 0
+  # speed_map: 0=0% 0=25% 6000=25% 24000=100%
+  # off_on_alarm: false
+# End Huanyang
+
+#10V:
+#  forward_pin: gpio.15
+#  reverse_pin: gpio.14
+#  pwm_hz: 5000
+#  output_pin: gpio.13
+#  enable_pin: NO_PIN
+#  direction_pin: NO_PIN
+#  disable_with_s0: false
+#  s0_with_disable: true
+#  spinup_ms: 0
+#  spindown_ms: 0
+#  tool_num: 0
+#  speed_map: 0=0.000% 1000=0.000% 24000=100.000%
+#  off_on_alarm: false
+
+start:
+  must_home: true
