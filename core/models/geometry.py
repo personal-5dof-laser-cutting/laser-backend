@@ -48,6 +48,8 @@ class Geometry:
         vis.show()
 
     def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
+        if len(self.cuts) <= 1:
+            return 0
         running_total: float = 0
         for a, b in pairwise(self.cuts):
             running_total += a.travel_time_to(b, material_height)
@@ -158,7 +160,7 @@ class Configuration:
 
         return Container.laser_cost.get_cost(self, other, material_height)
 
-    def to_motor_position(
+    def to_motor_positions(
         self, material_height: float
     ) -> Tuple[MotorPosition, MotorPosition]:
         from core.service_container import Container
@@ -481,8 +483,8 @@ class TrapezoidalCut:
     def get_internal_cost(self, feedrate: float, material_height: float) -> float:
         from_conf, to_conf = self.configurations()
         min_time = from_conf.travel_time_to(to_conf, material_height)
-        from_positions = from_conf.to_motor_position(material_height)
-        to_positions = to_conf.to_motor_position(material_height)
+        from_positions = from_conf.to_motor_positions(material_height)
+        to_positions = to_conf.to_motor_positions(material_height)
         delta_1 = from_positions[0].delta(to_positions[0])
         delta_2 = from_positions[0].delta(to_positions[1])
         delta_1_dist = math.sqrt(delta_1.x**2 + delta_1.y**2)

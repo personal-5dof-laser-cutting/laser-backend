@@ -23,8 +23,8 @@ class KinematicsService(ABC, BaseService):
 
 
 class KinematicsServiceImpl(KinematicsService):
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, rotating_kinematics):
+        self.rotating_kinematics = rotating_kinematics
         self.lib = ctypes.CDLL("core/services/kinematics.so")
 
         # Define the function signature
@@ -49,25 +49,13 @@ class KinematicsServiceImpl(KinematicsService):
         ]
         self.lib.cartesian_to_closest_furthest_c.restype = None
 
-        self.center_x = self.config["Kinematics"]["rotating_table_five_axis"][
-            "center_x"
-        ]
-        self.center_y = self.config["Kinematics"]["rotating_table_five_axis"][
-            "center_y"
-        ]
-        self.z_height = self.config["Kinematics"]["rotating_table_five_axis"][
-            "z_height"
-        ]
-        self.rotation_offset = self.config["Kinematics"]["rotating_table_five_axis"][
-            "rotation_offset"
-        ]
-        self.focus_offset = self.config["Kinematics"]["rotating_table_five_axis"][
-            "focus_offset"
-        ]
+        self.center_x = self.rotating_kinematics["center_x"]
+        self.center_y = self.rotating_kinematics["center_y"]
+        self.z_height = self.rotating_kinematics["z_height"]
+        self.rotation_offset = self.rotating_kinematics["rotation_offset"]
+        self.focus_offset = self.rotating_kinematics["focus_offset"]
         self.laser_head_z_angle = 0.5
-        self.max_z_mm = self.config["Kinematics"]["rotating_table_five_axis"][
-            "max_z_mm"
-        ]
+        self.max_z_mm = self.rotating_kinematics["max_z_mm"]
 
         self.cache: dict[Configuration, Tuple[MotorPosition, MotorPosition]] = {}
 

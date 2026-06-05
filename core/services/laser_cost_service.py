@@ -30,6 +30,7 @@ class LaserCostServiceImpl(LaserCostService):
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
     ) -> float:
+        # We ignore conf1_pos2 because they are symmetric around the table center
         conf1_pos1, _ = self.kinematics.get_positions(conf1, material_height)
         conf2_pos1, conf2_pos2 = self.kinematics.get_positions(conf2, material_height)
         min_time = min(

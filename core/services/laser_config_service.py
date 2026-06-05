@@ -16,7 +16,7 @@ class LaserConfigService(ABC, BaseService):
     def gantry_dim_mm(self) -> Tuple[float, float]: ...  # w, h
 
     @abstractmethod
-    def get_config(self) -> dict: ...
+    def get_rotating_kinematics(self) -> dict: ...
 
     @abstractmethod
     def get_max_rates(self) -> dict[str, int]: ...
@@ -34,8 +34,8 @@ class LaserConfigServiceImpl(LaserConfigService):
     def gantry_dim_mm(self) -> Tuple[float, float]:
         return 400, 400
 
-    def get_config(self) -> dict:
-        return self.config
+    def get_rotating_kinematics(self) -> dict:
+        return self.config["Kinematics"]["rotating_table_five_axis"]
 
     def get_max_rates(self) -> dict[str, int]:
         return {

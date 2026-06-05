@@ -20,7 +20,7 @@ class Container:
     laser_config: LaserConfigService = LaserConfigServiceImpl()
 
     kinematics_service: KinematicsService = KinematicsServiceImpl(
-        laser_config.get_config()
+        laser_config.get_rotating_kinematics()
     )
 
     laser_cost: LaserCostService = LaserCostServiceImpl(

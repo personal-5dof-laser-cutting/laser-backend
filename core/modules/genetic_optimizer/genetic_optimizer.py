@@ -4,9 +4,7 @@ from ctypes import ArgumentError
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
-from core.service_container import Container
 from core.modules.genetic_optimizer.genetic_gtsp import GTSP, run_gcga
-from core.services.laser_cost_service import LaserCostService
 
 
 class GeneticOptimizerModule(Module[Geometry, Geometry]):
@@ -14,14 +12,10 @@ class GeneticOptimizerModule(Module[Geometry, Geometry]):
         self,
         material_height: float,
         generations: int = 1000,
-        laser_cost: LaserCostService = Container.laser_cost,
     ) -> None:
         super().__init__()
         self.generations = generations
         self.material_height = material_height
-        self.get_cost = lambda x, y: laser_cost.get_cost(
-            material_height=self.material_height, conf1=x, conf2=y
-        )
 
     def process(self, data: Geometry) -> Geometry:
         cuts: list[TrapezoidalCut] = data.cuts
@@ -84,7 +78,7 @@ class GeneticOptimizerModule(Module[Geometry, Geometry]):
         config1: Configuration,
         config2: Configuration,
     ):
-        matrix[idx1, idx2] = self.get_cost(config1, config2)
+        matrix[idx1, idx2] = config1.travel_time_to(config2, self.material_height)
 
     def _tour_to_path(
         self,
