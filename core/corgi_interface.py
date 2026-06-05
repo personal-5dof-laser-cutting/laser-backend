@@ -1,3 +1,4 @@
+import logging
 from queue import Empty, PriorityQueue, Queue
 from time import sleep
 from typing import Tuple
@@ -9,28 +10,54 @@ import serial.tools.list_ports
 
 from api.models.base import WebsocketMessage
 
+log = logging.getLogger("Corgi Interface")
+
 
 def str_len(string: str) -> int:
     return len(string.encode("utf-8"))
+
+
+ALLOW_WIFI_CONNECTION = False
 
 
 class SerialInterface:
     _interface: serial.Serial
 
     def __init__(self, port: str):
-        self._interface = serial.Serial(port)
+        self._interface = serial.Serial(port, baudrate=115200, timeout=0.5)
+        self._interface.dtr = False
+        sleep(0.1)
+        self._interface.dtr = True
+        sleep(2)
+        if self._interface.in_waiting > 0:
+            boot_logs = self._interface.read(self._interface.in_waiting).decode(
+                "utf-8", errors="ignore"
+            )
+            log.info("Corgi Controller Booted successfully")
+            log.debug(boot_logs)
+        else:
+            log.info("No boot logs detected, sending wake-up ping...")
+            self._interface.write(b"\r\n")
+            sleep(0.2)
+            if self._interface.in_waiting > 0:
+                log.info(
+                    f"Corgi Wake-up response: {self._interface.read(self._interface.in_waiting).decode('utf-8', errors='ignore').strip()}"
+                )
 
     def open(self):
-        pass
+        if not self._interface.is_open:
+            self._interface.open()
 
     def send(self, message: str):
-        self._interface.write(message.encode())
+        self._interface.write(message.encode("utf-8"))
 
     def recv(self) -> str | None:
         try:
-            message = self._interface.readline().decode()
+            if self._interface.in_waiting == 0:
+                return None
+            message = self._interface.readline().decode("utf-8")
         except UnicodeDecodeError as UDE:
-            print(f"Could not decode message: {UDE}")
+            log.warning(f"Could not decode message: {UDE}")
             return None
         return message or None
 
@@ -40,13 +67,15 @@ class CorgiInterface:
 
     def __init__(
         self,
-        address: str,
+        address: str | None = None,
         incoming_messages: PriorityQueue[
             Tuple[int, WebsocketMessage]
         ] = PriorityQueue(),
         outgoing_messages: Queue[WebsocketMessage] = Queue(),
         buffer_size: int = 128,
     ):
+        if not ALLOW_WIFI_CONNECTION and address is not None:
+            log.warning("Address passed but wifi connection is forbidden")
         self.address = address
         self.incoming_messages = incoming_messages
         self.outgoing_messages = outgoing_messages
@@ -73,7 +102,7 @@ class CorgiInterface:
             except serial.SerialException:
                 pass
             except PermissionError:
-                print(f"No permission for port {port}")
+                log.debug(f"No permission for port {port}")
                 break
         if len(workingPorts) > 1:
             raise RuntimeError(
@@ -90,16 +119,23 @@ class CorgiInterface:
             self.connected = True
             self.buffer_used = 0
             self.buffer_corgi.clear()
-            print("Connected to corgi")
+            log.info("Connected to corgi")
         except AttributeError:
             serial_port = self._find_serial_port()
             if serial_port:
                 self._interface = SerialInterface(serial_port)
             else:
-                self._interface = GCodeInterface(self.address)
+                if not ALLOW_WIFI_CONNECTION or self.address is None:
+                    log.error(
+                        "No serial port detected. Connection to Corgi not possible"
+                    )
+                    self.connected = False
+                    return self.connected
+                else:
+                    self._interface = GCodeInterface(self.address)
             self._try_connect()
         except Exception as e:
-            print(f"Could not connect to corgi: {e}")
+            log.error(f"Could not connect to corgi: {e}")
             self.connected = False
 
         return self.connected
@@ -170,7 +206,7 @@ class CorgiInterface:
                 self._tick()
             except Exception as e:
                 self.connected = False
-                print(f"Error running main loop: {e}")
+                log.error(f"Error running main loop: {e}")
                 self.outgoing_messages.put(
                     WebsocketMessage(type="error", content="Corgi disconnected")
                 )
