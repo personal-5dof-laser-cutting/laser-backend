@@ -75,6 +75,13 @@ async def connect(ws: WebSocket):
                                 content=f"Invalid job ID: {job_id}. Couldn't start the job.",
                             ),
                         )
+                    else:
+                        await ws_send(
+                            ws,
+                            WebsocketMessage(
+                                type="info", content=f"Starting job {job_id}"
+                            ),
+                        )
                     continue
 
                 priority = message_priority.get(ws_input.type, 10)
