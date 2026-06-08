@@ -153,19 +153,23 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         self,
         material_thickness: float,
         dpi: float = 72,
+        x_offset: float = 0,
+        y_offset: float = 0,
     ) -> None:
         super().__init__()
 
         self.material_thickness: float = material_thickness
         self.dpi: float = dpi
+        self.x_offset: float = x_offset
+        self.y_offset: float = y_offset
 
     def _transform_points(self, points: list[Point2D]) -> list[Point2D]:
         # This flips the origin from top/left (SVG) to bottom/left (FluidNC) and scales from points to mm
         scaling_factor: float = 1 / self.dpi * self.inch_to_mm
         return [
             Point2D(
-                p.x * scaling_factor,
-                -p.y * scaling_factor,
+                (p.x - self.min_x) * scaling_factor + self.x_offset,
+                (self.max_y - p.y) * scaling_factor + self.y_offset,
             )
             for p in points
         ]
@@ -214,6 +218,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
             reify=True,
             ppi=72,
         )
+
+        bbox = svg.bbox()
+        if (bbox) is None:
+            raise ValueError("SVG bounding box not identifiable")
+        self.min_x, _, _, self.max_y = bbox
 
         geometry: Geometry = Geometry()
 
