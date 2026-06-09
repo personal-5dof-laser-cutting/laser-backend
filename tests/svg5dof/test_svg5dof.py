@@ -22,7 +22,7 @@ def _expected_point(x: float, y: float, z: float, scale: float = 1.0):
             5.0,
             [
                 TrapezoidalCut(
-                    _expected_point(0.0, 0.0, 0.0),
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
                     _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
                     _expected_point(0.0, 0.0, -5.0, MM_PER_DOTS),
                     _expected_point(100.0, 100.0, -5.0, MM_PER_DOTS),
@@ -34,7 +34,7 @@ def _expected_point(x: float, y: float, z: float, scale: float = 1.0):
             5.0,
             [
                 TrapezoidalCut(
-                    _expected_point(0.0, 0.0, 0.0),
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
                     _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
                     _expected_point(5.0, 0.0, -5.0, MM_PER_DOTS),
                     _expected_point(105.0, 100.0, -5.0, MM_PER_DOTS),
@@ -46,7 +46,7 @@ def _expected_point(x: float, y: float, z: float, scale: float = 1.0):
             10.0,
             [
                 TrapezoidalCut(
-                    _expected_point(0.0, 0.0, 0.0),
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
                     _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
                     _expected_point(0.0, 0.0, -5.0, MM_PER_DOTS),
                     _expected_point(100.0, 100.0, -5.0, MM_PER_DOTS),
