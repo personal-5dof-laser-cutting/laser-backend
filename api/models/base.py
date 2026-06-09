@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from typing import Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
+
+
+class StrictBaseModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
 
 class GCodeOutput(BaseModel):
@@ -16,7 +20,7 @@ class JobOutput(BaseModel):
     )
 
 
-class FrontendInput(BaseModel):
+class FrontendInput(StrictBaseModel):
     material: str = Field(description="Material type")
     material_thickness: float = Field(description="Material thickness in mm")
     cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
@@ -40,7 +44,7 @@ class FrontendInput(BaseModel):
     )
 
 
-class WebsocketMessage(BaseModel):
+class WebsocketMessage(StrictBaseModel):
     type: Literal[
         "info",
         "error",
