@@ -8,6 +8,7 @@ import Geometry3D
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import uvicorn
+from api.models.base import ResponseMessage
 from api.routers.base_router import router
 from api.routers.ws_router import ws_router
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,6 +42,19 @@ async def lifespan(app: FastAPI):
 
 def app_factory():
     api = FastAPI(title="Laser Backend API", version="0.1.0", lifespan=lifespan)
+
+    @api.middleware("http")
+    async def catch_exceptions_middleware(request: Request, call_next):
+        try:
+            return await call_next(request)
+        except Exception as exc:
+            return JSONResponse(
+                status_code=500,
+                content=ResponseMessage(
+                    type="error", reason=type(exc).__name__, content=str(exc)
+                ).model_dump(),
+            )
+
     origins = [
         "http://localhost:8080",
         "http://127.0.0.1:8080",
@@ -55,13 +69,6 @@ def app_factory():
 
     api.include_router(router)
     api.include_router(ws_router)
-
-    @api.exception_handler(Exception)
-    async def generic_exception_handler(request: Request, exc: Exception):
-        return JSONResponse(
-            status_code=500,
-            content={"type": "error", "content": type(exc).__name__},
-        )
 
     print(f"#{'-' * 11}#")
     return api

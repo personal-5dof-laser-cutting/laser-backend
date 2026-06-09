@@ -20,6 +20,16 @@ class JobOutput(BaseModel):
     )
 
 
+class ResponseMessage(BaseModel):
+    type: Literal["info", "error"] = Field(description="Message Type")
+    reason: str = Field(
+        description="Short reason as to why this message is sent", default=""
+    )
+    content: str = Field(
+        description="Message content. Can be a singular value or a JSON string"
+    )
+
+
 class FrontendInput(StrictBaseModel):
     material: str = Field(description="Material type")
     material_thickness: float = Field(description="Material thickness in mm")
