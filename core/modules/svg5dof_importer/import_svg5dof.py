@@ -155,6 +155,7 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         dpi: float = 72,
         x_offset: float = 0,
         y_offset: float = 0,
+        model_scale: float = 1,
     ) -> None:
         super().__init__()
 
@@ -162,10 +163,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         self.dpi: float = dpi
         self.x_offset: float = x_offset
         self.y_offset: float = y_offset
+        self.model_scale: float = model_scale
 
     def _transform_points(self, points: list[Point2D]) -> list[Point2D]:
         # This flips the origin from top/left (SVG) to bottom/left (FluidNC) and scales from points to mm
-        scaling_factor: float = 1 / self.dpi * self.inch_to_mm
+        scaling_factor: float = self.model_scale / self.dpi * self.inch_to_mm
         return [
             Point2D(
                 (p.x - self.min_x) * scaling_factor + self.x_offset,

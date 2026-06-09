@@ -32,7 +32,7 @@ class LaserConfigServiceImpl(LaserConfigService):
         return 130
 
     def gantry_dim_mm(self) -> Tuple[float, float]:
-        return 400, 400
+        return 400, 389
 
     def get_rotating_kinematics(self) -> dict:
         return self.config["Kinematics"]["rotating_table_five_axis"]

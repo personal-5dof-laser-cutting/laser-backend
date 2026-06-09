@@ -12,6 +12,7 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
             dpi=frontendInput.dpi,
             x_offset=frontendInput.x_offset,
             y_offset=frontendInput.y_offset,
+            model_scale=frontendInput.model_scale,
         ),
     ]
     if frontendInput.optimize:

@@ -52,6 +52,9 @@ class FrontendInput(StrictBaseModel):
         description="How many millimeters the svg should be moved alongside the y-axis",
         default=0,
     )
+    model_scale: float = Field(
+        description="The factor how much the model should be scaled by", default=1
+    )
 
 
 class WebsocketMessage(StrictBaseModel):
@@ -63,5 +66,5 @@ class WebsocketMessage(StrictBaseModel):
         "job_id",
     ] = Field(description="Message Type")
     content: str = Field(
-        description="Message content. Can by a singular value or a JSON String"
+        description="Message content. Can be a singular value or a JSON string"
     )
