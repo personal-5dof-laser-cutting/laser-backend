@@ -63,6 +63,26 @@ class Geometry:
             running_total += cut.get_internal_cost(feedrate, material_height)
         return running_total
 
+    def shift_path_optimally(self, material_height: float):
+        longest_incoming_edge_idx = self._find_longest_incoming_edge(material_height)
+        self._left_rotate(longest_incoming_edge_idx)
+
+    def _find_longest_incoming_edge(self, material_height: float) -> int:
+        cuts = self.cuts
+        number_cuts = len(cuts)
+        longest_edge_idx: int = 0
+        longest_edge: float = cuts[-1].travel_time_to(cuts[0], material_height)
+        for i in range(1, number_cuts):
+            current_cost = cuts[i - 1].travel_time_to(cuts[i], material_height)
+            if current_cost < longest_edge:
+                longest_edge_idx = i
+                longest_edge = current_cost
+        return longest_edge_idx
+
+    def _left_rotate(self, i: int):
+        cuts = self.cuts
+        cuts = cuts[i:] + cuts[:i]
+
 
 class Configuration:
     """
