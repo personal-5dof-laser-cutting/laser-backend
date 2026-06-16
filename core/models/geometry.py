@@ -74,14 +74,13 @@ class Geometry:
         longest_edge: float = cuts[-1].travel_time_to(cuts[0], material_height)
         for i in range(1, number_cuts):
             current_cost = cuts[i - 1].travel_time_to(cuts[i], material_height)
-            if current_cost < longest_edge:
+            if current_cost > longest_edge:
                 longest_edge_idx = i
                 longest_edge = current_cost
         return longest_edge_idx
 
     def _left_rotate(self, i: int):
-        cuts = self.cuts
-        cuts = cuts[i:] + cuts[:i]
+        self.cuts = self.cuts[i:] + self.cuts[:i]
 
 
 class Configuration:
