@@ -1,4 +1,3 @@
-from functools import lru_cache
 from itertools import combinations
 import logging
 from math import inf, isclose
@@ -202,7 +201,6 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         return flip_delta
 
-    @lru_cache(None)
     def _get_cost(
         self,
         cut1: TrapezoidalCut,
