@@ -19,7 +19,7 @@ class GeneticOptimizerModule(BaseOptimizer):
         self.material_height = material_height
 
     @override
-    def optimize(self):
+    def _optimize(self):
         self._set_current_cost(
             self.geometry.calculate_travel_cost(self.material_height, True)
         )

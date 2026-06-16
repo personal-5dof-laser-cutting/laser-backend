@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
+import logging
 from typing import final
+
+import Geometry3D
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 from core.service_container import Container
+
+log = logging.getLogger("Optimizer")
 
 
 class BaseOptimizer(Module[Geometry, Geometry], ABC):
@@ -16,11 +21,13 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
     def __init__(
         self, material_height: float, start_location: Configuration | None = None
     ):
+        super().__init__()
         self.start_configuration = start_location or Configuration(0, 0, 0, 0)
         self.material_height = material_height
+        Geometry3D.set_sig_figures(4)
 
     @abstractmethod
-    def optimize(self): ...
+    def _optimize(self): ...
 
     @abstractmethod
     def get_current_cost(self, as_cycle: bool) -> float: ...
@@ -29,7 +36,7 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
         self._build_cache
-        self.optimize()
+        self._optimize()
         return self.geometry
 
     def _build_cache(self):

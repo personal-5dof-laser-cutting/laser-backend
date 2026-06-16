@@ -27,7 +27,7 @@ class GreedyOptimizerModule(BaseOptimizer):
         self.show_statistics = show_statistics
 
     @override
-    def optimize(self):
+    def _optimize(self):
         if self.show_statistics:
             self._create_plot()
             self._append_stats("Original")
@@ -280,10 +280,6 @@ class GreedyOptimizerModule(BaseOptimizer):
             j -= 1
         if i == j:
             cuts[i].flip_direction()
-
-    def _left_rotate(self, i: int):
-        cuts = self.geometry.cuts
-        cuts = cuts[i:] + cuts[:i]
 
     def _create_plot(self):
         self.fig, self.ax = plt.subplots()
