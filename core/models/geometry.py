@@ -48,6 +48,13 @@ class Geometry:
         vis.add((origin(), "b", 5))
         vis.show()
 
+    def calculate_total_cost(
+        self, material_height: float, feedrate: float, as_cycle: bool
+    ) -> float:
+        return self.calculate_travel_cost(
+            material_height, as_cycle
+        ) + self.calculate_cut_cost(material_height, feedrate)
+
     def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
         if len(self.cuts) <= 1:
             return 0
