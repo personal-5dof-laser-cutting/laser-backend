@@ -1,36 +1,33 @@
 from itertools import combinations
 import logging
 from math import inf, isclose
+from typing import override
 
 from matplotlib import pyplot as plt
 
-from core.pipeline.base import Module
-from core.models.geometry import Configuration, Geometry, TrapezoidalCut
-from core.service_container import Container
-from core.services.kinematics_service import KinematicsService
+from core.modules.base_optimizer import BaseOptimizer
+from core.models.geometry import Configuration, TrapezoidalCut
 
 log = logging.getLogger("Groptimizer")
 
 
-class GreedyOptimizerModule(Module[Geometry, Geometry]):
+class GreedyOptimizerModule(BaseOptimizer):
+    max_iterations: int
+    show_statistics: bool
+
     def __init__(
         self,
         material_height: float,
-        kinematics: KinematicsService = Container.kinematics_service,
         start_location: Configuration = Configuration(0, 0, 0, 0),
         max_iterations: int = 10,
         show_statistics: bool = False,
     ):
-        super().__init__()
-        self.kinematics = kinematics
-        self.material_height = material_height
-        self.start_location = start_location
+        super().__init__(material_height, start_location)
         self.max_iterations = max_iterations
         self.show_statistics = show_statistics
 
-    def process(self, data: Geometry) -> Geometry:
-        self.geometry = data
-        self._build_cache()
+    @override
+    def optimize(self):
         if self.show_statistics:
             self._create_plot()
             self._append_stats("Original")
@@ -42,19 +39,15 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         if self.show_statistics:
             plt.ioff()
             plt.show()
-        return data
 
-    def _build_cache(self):
-        cuts: list[TrapezoidalCut] = self.geometry.cuts
-        configurations: list[Configuration] = [
-            config for cut in cuts for config in cut.configurations()
-        ]
-        self.kinematics.generate_cache(configurations, self.material_height)
+    @override
+    def get_current_cost(self, as_cycle: bool) -> float:
+        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
 
     def _best_first(self):
         cuts = self.geometry.cuts
 
-        start_idx, flip_cut = self._find_closest_cut(self.start_location, 0)
+        start_idx, flip_cut = self._find_closest_cut(self.start_configuration, 0)
         if flip_cut:
             cuts[start_idx].flip_direction()
         cuts[0], cuts[start_idx] = cuts[start_idx], cuts[0]

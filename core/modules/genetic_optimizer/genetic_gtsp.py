@@ -22,14 +22,19 @@ Notes:
 import random
 import math
 from copy import deepcopy
-from typing import List, Tuple, Optional
+from typing import Callable, List, Tuple, Optional
 
 
 Chromosome = Tuple[List[int], List[int]]  # (head, body)
 
 
 class GTSP:
-    def __init__(self, cost_matrix, clusters: List[List[int]]):
+    def __init__(
+        self,
+        cost_matrix,
+        clusters: List[List[int]],
+        update_cost: Callable[[float], None],
+    ):
         """
         cost_matrix: 2D array-like (indexable as W[i][j] or W[i, j])
         clusters: list of clusters, each cluster is a list of vertex indices
@@ -39,6 +44,7 @@ class GTSP:
         self.m = len(clusters)
         # Precompute bounding-box edge length A (used in fitness scaling)
         self.A = self._compute_bounding_box_edge_length()
+        self.update_cost = update_cost
 
     def _compute_bounding_box_edge_length(self) -> float:
         # If cost matrix is metric-less, A becomes 1 to avoid zero division.
@@ -408,7 +414,7 @@ def run_gcga(
         if cand_cost < best_cost:
             best_cost = cand_cost
             best = deepcopy(pop_with_fit[0][0])
-
+        gtsp.update_cost(best_cost)
         # build next generation
         while len(new_population) < pop_size:
             # selection
