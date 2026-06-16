@@ -193,7 +193,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def _cut_flip_delta(self, cut_idx: int) -> float:
         segment_cost = self._segment_cost(cut_idx, flipped=False)
 
-        flipped_cost = self._segment_cost(cut_idx, flipped=False)
+        flipped_cost = self._segment_cost(cut_idx, flipped=True)
 
         flip_delta = flipped_cost - segment_cost
         if isclose(flip_delta, 0):
