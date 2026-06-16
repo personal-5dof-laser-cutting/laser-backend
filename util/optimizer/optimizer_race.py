@@ -2,6 +2,7 @@ import multiprocessing as mp
 import sys
 import time
 from tkinter import filedialog
+import Geometry3D
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.widgets import Button
@@ -9,6 +10,11 @@ from matplotlib.widgets import Button
 from core.models.geometry import Geometry, TrapezoidalCut
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.base_optimizer import BaseOptimizer
+from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
+from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
+from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
+from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule
+from core.modules.rpp_approximation.rpp_approximation import RPPApproximationModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 
 
@@ -86,13 +92,13 @@ def race_plot(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, initial_cost * 1.2)
     ax.set_autoscalex_on(True)
-    # ax.set_autoscaley_on(True)
+    ax.set_autoscaley_on(True)
     ax.legend()
 
     button_ax = fig.add_axes(rect=(0.45, 0.02, 0.1, 0.06))
     play_button = Button(button_ax, "Play", color="lightgreen", hovercolor="green")
 
-    state = {"started": False, "start_time": None, "ani": None}
+    state = {"started": False, "start_time": None, "ani": None, "done": False}
 
     def on_play(event):
         if state["started"]:
@@ -164,14 +170,24 @@ def race_plot(
             play_button.hovercolor = "lightcoral"
             fig.canvas.draw_idle()
             state["ani"].event_source.stop()
+            state["done"] = True
 
         return lines_solid + lines_dashed
 
     plt.show()
+
+    while inp := input("Select geometry to visualize: "):
+        dbg = DebugVisualizerModule(material_height)
+        geo = optimized_results[int(inp)]
+        if not geo:
+            print("Error displaying that geometry. Please try a different one")
+            continue
+        dbg.process(geo)
     return state
 
 
 if __name__ == "__main__":
+    Geometry3D.set_sig_figures(4)
     svg_file = filedialog.askopenfile(
         filetypes=[("SVG4DOF", "*.svg*")], initialdir="tests/modules/svgs"
     )
@@ -189,9 +205,14 @@ if __name__ == "__main__":
         nester = AutoNester(200, 200)
         geometry = nester.process(geometry)
 
-    optimizer_classes = {i: cls for i, cls in enumerate(BaseOptimizer.__subclasses__())}
+    optimizer_classes = [
+        GreedyOptimizerModule,
+        GeneticOptimizerModule,
+        BucketOptimizerModule,
+        RPPApproximationModule,
+    ]
     print("Available optimizers:")
-    for i, cls in optimizer_classes.items():
+    for i, cls in enumerate(optimizer_classes):
         print(f"{i + 1:4}: {cls.__name__}")
     chosen = input("Select optimizers (seperated by spaces, e.g. '1 2 3'): ").split()
     optimizers = [optimizer_classes[int(i) - 1](material_height) for i in chosen]
