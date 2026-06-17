@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print("Available optimizers:")
     for i, cls in enumerate(optimizer_classes):
         print(f"{i + 1:4}: {cls.__name__}")
-    chosen = int(input("Select one optimizer: "))
+    chosen = int(input("Select one optimizer: ")) - 1
     optimizer = optimizer_classes[chosen]
 
     if measure_performance:

@@ -318,9 +318,6 @@ class TrapezoidalCut:
         self._end_top: Point = end_top
         self._end_bottom: Point = end_bottom
 
-        self._start_conf: Configuration | None = None
-        self._end_conf: Configuration | None = None
-
         self._validate_cut()
 
     @classmethod
