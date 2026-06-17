@@ -124,7 +124,7 @@ class GreedyOptimizerModule(BaseOptimizer):
             iterations += 1
             if self.show_statistics:
                 self._append_stats(f"Two Opt It. {iterations}")
-            improvement_ratio = abs(improvement) / previous_cost
+            improvement_ratio = -improvement / previous_cost
             if self.show_statistics:
                 log.info(f"Improved by {improvement_ratio:.2%}")
             if improvement_ratio <= 0.05:
