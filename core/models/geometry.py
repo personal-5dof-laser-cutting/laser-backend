@@ -446,7 +446,10 @@ class TrapezoidalCut:
     def flip_direction(self) -> None:
         self._start_top, self._end_top = self.end_top, self.start_top
         self._start_bottom, self._end_bottom = self.end_bottom, self.start_bottom
-        self._start_conf, self._end_conf = self._end_conf, self._start_conf
+        self.start_configuration, self.end_configuration = (
+            self.end_configuration,
+            self.start_configuration,
+        )
 
     def flipped_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 import logging
 from typing import final
 
-import Geometry3D
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
@@ -22,9 +21,8 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
         self, material_height: float, start_location: Configuration | None = None
     ):
         super().__init__()
-        self.start_configuration = start_location or Configuration(0, 0, 0, 0)
         self.material_height = material_height
-        Geometry3D.set_sig_figures(4)
+        self.start_configuration = start_location or Configuration(0, 0, 0, 0)
 
     @abstractmethod
     def _optimize(self): ...
