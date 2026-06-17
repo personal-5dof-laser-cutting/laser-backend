@@ -8,8 +8,12 @@ import Geometry3D
 
 from core.models.geometry import Geometry
 from core.modules.auto_nester.auto_nester import AutoNester
+from core.modules.base_optimizer import BaseOptimizer
+from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
 from core.modules.debug_visualizer.debug_visualizer import DebugVisualizerModule
+from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
+from core.modules.rpp_approximation.rpp_approximation import RPPApproximationModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 
 logging.basicConfig(
@@ -20,7 +24,11 @@ logger = logging.getLogger("stats" if __name__ == "__main__" else __name__)
 
 
 def run_optimizer(
-    svg_path: str, material_height: float, show_debug_view: bool, show_live_stats: bool
+    optimizer: BaseOptimizer,
+    svg_path: str,
+    material_height: float,
+    show_debug_view: bool,
+    show_live_stats: bool,
 ):
     svg_string = open(svg_path).read()
     Geometry3D.set_sig_figures(4)
@@ -29,7 +37,6 @@ def run_optimizer(
     geometry: Geometry = dof.process(svg_string)
     an = AutoNester(200, 200)
     dbg = DebugVisualizerModule(material_height)
-    opt = GreedyOptimizerModule(material_height, show_statistics=show_live_stats)
 
     geometry = an.process(geometry)
     if show_debug_view:
@@ -41,7 +48,7 @@ def run_optimizer(
         f"Starting cost: {cuts_cost + previous_costs:.4}, travel moves: {previous_costs:.4} ({previous_costs / (cuts_cost + previous_costs):.2%})"
     )
     start_time = time()
-    optimized = opt.process(geometry)
+    optimized = optimizer.process(geometry)
     end_time = time()
     logger.info(f"Optimized in {end_time - start_time} seconds")
     if show_debug_view:
@@ -62,10 +69,34 @@ if __name__ == "__main__":
     show_debug_view: bool = sys.argv[3] == "1"
     show_live_stats: bool = sys.argv[4] == "1"
     measure_performance: bool = sys.argv[5] == "1"
+    optimizer_classes = [
+        GreedyOptimizerModule,
+        GeneticOptimizerModule,
+        BucketOptimizerModule,
+        RPPApproximationModule,
+    ]
+    print("Available optimizers:")
+    for i, cls in enumerate(optimizer_classes):
+        print(f"{i + 1:4}: {cls.__name__}")
+    chosen = int(input("Select one optimizer: "))
+    optimizer = optimizer_classes[chosen]
+
     if measure_performance:
         with cProfile.Profile() as pr:
-            run_optimizer(svg_path, material_height, show_debug_view, show_live_stats)
+            run_optimizer(
+                optimizer(material_height),
+                svg_path,
+                material_height,
+                show_debug_view,
+                show_live_stats,
+            )
             stats = pstats.Stats(pr).sort_stats("cumulative")
             stats.print_stats(".*_cache")
     else:
-        run_optimizer(svg_path, material_height, show_debug_view, show_live_stats)
+        run_optimizer(
+            optimizer(material_height),
+            svg_path,
+            material_height,
+            show_debug_view,
+            show_live_stats,
+        )

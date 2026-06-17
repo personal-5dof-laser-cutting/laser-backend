@@ -163,6 +163,8 @@ def race_plot(
 
         ax.relim()
         ax.autoscale_view()
+        ax.set_xlim(xmin=0, auto=True)
+        ax.set_ylim(ymin=0, auto=True)
 
         if all(done_flags):
             play_button.label.set_text("Done")
@@ -176,9 +178,12 @@ def race_plot(
 
     plt.show()
 
+    print("Available Geometries:")
+    for i, optimizer in enumerate(optimizers):
+        print(f"{i + 1:4}: {type(optimizer).__name__}")
     while inp := input("Select geometry to visualize: "):
         dbg = DebugVisualizerModule(material_height)
-        geo = optimized_results[int(inp)]
+        geo = optimized_results[int(inp) - 1]
         if not geo:
             print("Error displaying that geometry. Please try a different one")
             continue
