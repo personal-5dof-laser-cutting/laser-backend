@@ -1,5 +1,5 @@
 from itertools import combinations, product
-from typing import Literal, Union
+from typing import Literal, TypeGuard
 
 import rustworkx as rx
 import networkx as nx
@@ -7,19 +7,21 @@ from pydantic import BaseModel
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.modules.base_optimizer import BaseOptimizer
-from core.service_container import Container
 
 
 class CutEdge(BaseModel):
     is_cut_move: Literal[True] = True
-    original_edge_index: int
+    original_cut_index: int
 
 
 class ComponentEdge(BaseModel):
-    is_cut_move: Literal[False] = False
     weight: float
     actual_from_idx: int
     actual_to_idx: int
+
+
+class MSTEdge(BaseModel):
+    is_cut_move: Literal[False] = False
 
 
 class HelperEdge(BaseModel):
@@ -27,7 +29,11 @@ class HelperEdge(BaseModel):
     weight: float
 
 
-Edge = Union[CutEdge, ComponentEdge, HelperEdge]
+def is_cut_move(edge: Edge) -> TypeGuard[CutEdge]:
+    return edge.is_cut_move
+
+
+Edge = CutEdge | MSTEdge | HelperEdge
 
 
 class RPPApproximationModule(BaseOptimizer):
@@ -39,33 +45,12 @@ class RPPApproximationModule(BaseOptimizer):
 
     def _optimize(self):
         self.original_cuts: list[TrapezoidalCut] = self.geometry.cuts
-        self._build_cache()
-        self.configurations: list[Configuration] = list(
-            {conf for cut in self.geometry.cuts for conf in cut.configurations()}
-        )
-        self.trapezoid_graph: rx.PyGraph[Configuration, Edge] = self._build_graph()
-        self._connect_graph_minimally(self.trapezoid_graph)
-        multi_graph: rx.PyGraph[Configuration, Edge] = self._add_mwpm_edges(
-            self.trapezoid_graph
-        )
-        self.geometry = self._graph_to_geometry(multi_graph)
-
-    def _build_cache(self):
-        cuts: list[TrapezoidalCut] = self.geometry.cuts
-        configurations: set[Configuration] = {
-            config for cut in cuts for config in cut.configurations()
-        }
-        Container.kinematics_service.generate_cache(
-            configurations, self.material_height
-        )
-
-    def _get_distance(self, u: int, v: int) -> float:
-        return self.trapezoid_graph[u].travel_time_to(
-            self.trapezoid_graph[v], self.material_height
-        )
+        trapezoid_graph: rx.PyGraph[Configuration, Edge] = self._build_graph()
+        walk: list[tuple[int, int]] = self._rpp_solver(trapezoid_graph)
+        self.geometry = self._walk_to_geometry(trapezoid_graph, walk)
 
     def _build_graph(self) -> rx.PyGraph[Configuration, Edge]:
-        graph: rx.PyGraph[Configuration, Edge] = rx.PyGraph(multigraph=False)
+        graph: rx.PyGraph[Configuration, Edge] = rx.PyGraph(multigraph=True)
         conf_to_idx: dict[Configuration, int] = {}
 
         for index, cut in enumerate(self.geometry.cuts):
@@ -74,47 +59,54 @@ class RPPApproximationModule(BaseOptimizer):
                 conf_to_idx[start_conf] = graph.add_node(start_conf)
             if end_conf not in conf_to_idx:
                 conf_to_idx[end_conf] = graph.add_node(end_conf)
+            if graph.has_edge(conf_to_idx[start_conf], conf_to_idx[end_conf]):
+                continue
             graph.add_edge(
                 conf_to_idx[start_conf],
                 conf_to_idx[end_conf],
-                CutEdge(is_cut_move=True, original_edge_index=index),
+                CutEdge(is_cut_move=True, original_cut_index=index),
             )
         return graph
 
+    def _rpp_solver(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> list[tuple[int, int]]:
+        assert graph.multigraph
+        if not rx.is_connected(graph):
+            self._connect_graph_minimally(graph)
+        self._make_graph_eulerian(graph)
+        walk: list[tuple[int, int]] = self._eulerian_circuit(graph)
+        return walk
+
     def _connect_graph_minimally(self, graph: rx.PyGraph[Configuration, Edge]):
-        component_graph: rx.PyGraph[int, ComponentEdge] | None = (
-            self._get_component_graph(graph)
+        component_graph: rx.PyGraph[int, ComponentEdge] = self._get_component_graph(
+            graph
         )
-        if component_graph is None:
-            return
         for _, _, data in rx.minimum_spanning_edges(
             component_graph, weight_fn=lambda x: x.weight
         ):
             edge = ComponentEdge.model_validate(data)
             actual_from_idx = edge.actual_from_idx
             actual_to_idx = edge.actual_to_idx
-            weight = edge.weight
             graph.add_edge(
                 actual_from_idx,
                 actual_to_idx,
-                HelperEdge(weight=weight, is_cut_move=False),
+                MSTEdge(is_cut_move=False),
             )
 
     def _get_component_graph(
         self, graph: rx.PyGraph[Configuration, Edge]
-    ) -> rx.PyGraph[int, ComponentEdge] | None:
-        if rx.is_connected(graph):
-            return None
+    ) -> rx.PyGraph[int, ComponentEdge]:
         component_graph: rx.PyGraph[int, ComponentEdge] = rx.PyGraph()
-        components_of_indices: list[set[int]] = rx.connected_components(graph)
-        component_graph.add_nodes_from(range(len(components_of_indices)))
+        components_by_node_indices: list[set[int]] = rx.connected_components(graph)
+        component_graph.add_nodes_from(range(len(components_by_node_indices)))
         for component_idx_1, component_idx_2 in combinations(
             component_graph.node_indices(), 2
         ):
             distance, from_conf_idx, to_conf_idx = self._get_component_distance(
                 graph,
-                components_of_indices[component_idx_1],
-                components_of_indices[component_idx_2],
+                components_by_node_indices[component_idx_1],
+                components_by_node_indices[component_idx_2],
             )
             component_graph.add_edge(
                 component_idx_1,
@@ -130,7 +122,7 @@ class RPPApproximationModule(BaseOptimizer):
 
     def _get_component_distance(
         self,
-        graph: rx.PyGraph[Configuration],
+        graph: rx.PyGraph[Configuration, Edge],
         component_1: set[int],
         component_2: set[int],
     ) -> tuple[float, int, int]:
@@ -147,41 +139,41 @@ class RPPApproximationModule(BaseOptimizer):
                 to_conf_idx = node_v_idx
         return min_distance, from_conf_idx, to_conf_idx
 
-    def _add_mwpm_edges(
-        self, graph: rx.PyGraph[Configuration, Edge]
-    ) -> rx.PyGraph[Configuration, Edge]:
-        matching_graph: rx.PyGraph[int, HelperEdge] = rx.PyGraph()
-        graph_odd_node_indices: list[int] = self._get_odd_degree_node_indices(graph)
-        graph_to_matching_graph_index = {
-            n: matching_graph.add_node(n) for n in graph_odd_node_indices
+    def _make_graph_eulerian(self, graph: rx.PyGraph[Configuration, Edge]):
+        assert graph.multigraph
+        odd_node_indices: list[int] = self._get_odd_degree_node_indices(graph)
+        assert len(odd_node_indices) % 2 == 0
+        if len(odd_node_indices) == 0:
+            return
+
+        odd_indices_graph: rx.PyGraph[int, HelperEdge] = rx.PyGraph()
+        odd_idx_to_odd_graph_idx = {
+            idx: odd_indices_graph.add_node(idx) for idx in odd_node_indices
         }
-        for u_idx, v_idx in combinations(graph_odd_node_indices, 2):
+        for u_idx, v_idx in combinations(odd_node_indices, 2):
             distance = graph[u_idx].travel_time_to(graph[v_idx], self.material_height)
-            matching_graph.add_edge(
-                graph_to_matching_graph_index[u_idx],
-                graph_to_matching_graph_index[v_idx],
+            odd_indices_graph.add_edge(
+                odd_idx_to_odd_graph_idx[u_idx],
+                odd_idx_to_odd_graph_idx[v_idx],
                 HelperEdge(weight=distance),
             )
+
         min_matching_edges = rx.max_weight_matching(
-            matching_graph,
+            odd_indices_graph,
             max_cardinality=True,
-            weight_fn=lambda u: int(-u.weight * 1_000_000_000_000),
+            weight_fn=lambda u: round(u.weight * -1e9),
         )
-        multi_graph: rx.PyGraph[Configuration, Edge] = rx.PyGraph(multigraph=True)
-        multi_graph.add_nodes_from(graph.nodes())
-        multi_graph.add_edges_from(graph.weighted_edge_list())
-        for u_idx, v_idx in min_matching_edges:
-            conf_u_graph_idx: int = matching_graph[u_idx]
-            conf_v_graph_idx: int = matching_graph[v_idx]
-            distance = graph[conf_u_graph_idx].travel_time_to(
-                graph[conf_v_graph_idx], self.material_height
+        for u_odd_graph_idx, v_odd_graph_idx in min_matching_edges:
+            u_graph_idx: int = odd_indices_graph[u_odd_graph_idx]
+            v_graph_idx: int = odd_indices_graph[v_odd_graph_idx]
+            distance = odd_indices_graph.get_edge_data(
+                u_odd_graph_idx, v_odd_graph_idx
+            ).weight
+            graph.add_edge(
+                u_graph_idx, v_graph_idx, HelperEdge(weight=distance, is_cut_move=False)
             )
-            multi_graph.add_edge(
-                conf_u_graph_idx,
-                conf_v_graph_idx,
-                HelperEdge(weight=distance, is_cut_move=False),
-            )
-        return multi_graph
+
+        assert len(self._get_odd_degree_node_indices(graph)) == 0
 
     def _get_odd_degree_node_indices(
         self, graph: rx.PyGraph[Configuration, Edge]
@@ -192,20 +184,30 @@ class RPPApproximationModule(BaseOptimizer):
             if graph.degree(node_index) % 2 == 1
         ]
 
-    def _graph_to_geometry(self, graph: rx.PyGraph[Configuration, Edge]) -> Geometry:
-        geometry = Geometry()
+    def _eulerian_circuit(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> list[tuple[int, int]]:
+        nx_graph = nx.MultiGraph()
+        nx_graph.add_edges_from(graph.edge_list())
+        circuit: list[tuple[int, int]] = []
+        for u_idx, v_idx in nx.eulerian_circuit(nx_graph, keys=False):
+            circuit.append((u_idx, v_idx))
+        return circuit
 
-        nx_graph: nx.MultiGraph[Configuration] = nx.MultiGraph()
-        for u_idx, v_idx, data in graph.weighted_edge_list():
-            nx_graph.add_edge(graph[u_idx], graph[v_idx], **data.model_dump())
-        for u, v, key in nx.eulerian_circuit(nx_graph, keys=True):
-            data = nx_graph.get_edge_data(u, v)[key]
-            if data.get("is_cut_move"):
-                edge = CutEdge.model_validate(data)
-                original_cut = self.original_cuts[edge.original_edge_index]
-                if original_cut.start_configuration == u:
+    def _walk_to_geometry(
+        self, graph: rx.PyGraph[Configuration, Edge], walk: list[tuple[int, int]]
+    ) -> Geometry:
+        geometry = Geometry()
+        for u_idx, v_idx in walk:
+            edge = graph.get_edge_data(u_idx, v_idx)
+            if is_cut_move(edge):
+                original_cut: TrapezoidalCut = self.geometry.cuts[
+                    edge.original_cut_index
+                ]
+                if original_cut.start_configuration == graph[u_idx]:
                     geometry.add_cut(original_cut)
                 else:
                     geometry.add_cut(original_cut.flipped_direction())
         geometry.shift_path_optimally(self.material_height)
+
         return geometry
