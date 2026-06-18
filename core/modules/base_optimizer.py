@@ -33,11 +33,12 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
     @final
     def process(self, data: Geometry) -> Geometry:
         self.geometry = data
-        self._build_cache
+        self._build_cache_from_cuts
         self._optimize()
         return self.geometry
 
-    def _build_cache(self):
+    @final
+    def _build_cache_from_cuts(self):
         cuts: list[TrapezoidalCut] = self.geometry.cuts
         configurations: list[Configuration] = [
             config for cut in cuts for config in cut.configurations()
