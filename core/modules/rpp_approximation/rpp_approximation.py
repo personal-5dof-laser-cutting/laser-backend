@@ -1,4 +1,5 @@
-from itertools import combinations, product
+from itertools import combinations, pairwise, product
+from math import ceil
 from typing import Literal, TypeGuard
 
 import rustworkx as rx
@@ -46,12 +47,13 @@ class RPPApproximationModule(BaseOptimizer):
     def _optimize(self):
         self.original_cuts: list[TrapezoidalCut] = self.geometry.cuts
         trapezoid_graph: rx.PyGraph[Configuration, Edge] = self._build_graph()
-        walk: list[tuple[int, int]] = self._rpp_solver(trapezoid_graph)
+        walk: list[tuple[int, int, int]] = self._rpp_solver(trapezoid_graph)
         self.geometry = self._walk_to_geometry(trapezoid_graph, walk)
 
     def _build_graph(self) -> rx.PyGraph[Configuration, Edge]:
         graph: rx.PyGraph[Configuration, Edge] = rx.PyGraph(multigraph=True)
         conf_to_idx: dict[Configuration, int] = {}
+        edges: list[tuple[int, int, Edge]] = []
 
         for index, cut in enumerate(self.geometry.cuts):
             start_conf, end_conf = cut.configurations()
@@ -59,23 +61,23 @@ class RPPApproximationModule(BaseOptimizer):
                 conf_to_idx[start_conf] = graph.add_node(start_conf)
             if end_conf not in conf_to_idx:
                 conf_to_idx[end_conf] = graph.add_node(end_conf)
-            if graph.has_edge(conf_to_idx[start_conf], conf_to_idx[end_conf]):
-                continue
-            graph.add_edge(
-                conf_to_idx[start_conf],
-                conf_to_idx[end_conf],
-                CutEdge(is_cut_move=True, original_cut_index=index),
-            )
+            u, v = conf_to_idx[start_conf], conf_to_idx[end_conf]
+            if not graph.has_edge(u, v):
+                edges.append(
+                    (u, v, CutEdge(is_cut_move=True, original_cut_index=index))
+                )
+
+        graph.add_edges_from(edges)
         return graph
 
     def _rpp_solver(
         self, graph: rx.PyGraph[Configuration, Edge]
-    ) -> list[tuple[int, int]]:
+    ) -> list[tuple[int, int, int]]:
         assert graph.multigraph
         if not rx.is_connected(graph):
             self._connect_graph_minimally(graph)
         self._make_graph_eulerian(graph)
-        walk: list[tuple[int, int]] = self._eulerian_circuit(graph)
+        walk: list[tuple[int, int, int]] = self._eulerian_circuit(graph)
         return walk
 
     def _connect_graph_minimally(self, graph: rx.PyGraph[Configuration, Edge]):
@@ -150,18 +152,23 @@ class RPPApproximationModule(BaseOptimizer):
         odd_idx_to_odd_graph_idx = {
             idx: odd_indices_graph.add_node(idx) for idx in odd_node_indices
         }
+        weights: list[float] = []
         for u_idx, v_idx in combinations(odd_node_indices, 2):
             distance = graph[u_idx].travel_time_to(graph[v_idx], self.material_height)
+            weights.append(distance)
             odd_indices_graph.add_edge(
                 odd_idx_to_odd_graph_idx[u_idx],
                 odd_idx_to_odd_graph_idx[v_idx],
                 HelperEdge(weight=distance),
             )
-
+        weights.sort()
+        max_weight = weights[-1]
+        min_diff = min(w2 - w1 for w1, w2 in pairwise(weights) if w2 - w1 != 0)
+        scale = ceil(1 / min_diff)
         min_matching_edges = rx.max_weight_matching(
             odd_indices_graph,
             max_cardinality=True,
-            weight_fn=lambda u: round(u.weight * -1e9),
+            weight_fn=lambda u: int((max_weight - u.weight) * scale),
         )
         for u_odd_graph_idx, v_odd_graph_idx in min_matching_edges:
             u_graph_idx: int = odd_indices_graph[u_odd_graph_idx]
@@ -186,20 +193,20 @@ class RPPApproximationModule(BaseOptimizer):
 
     def _eulerian_circuit(
         self, graph: rx.PyGraph[Configuration, Edge]
-    ) -> list[tuple[int, int]]:
+    ) -> list[tuple[int, int, int]]:
         nx_graph = nx.MultiGraph()
         nx_graph.add_edges_from(graph.edge_list())
-        circuit: list[tuple[int, int]] = []
-        for u_idx, v_idx in nx.eulerian_circuit(nx_graph, keys=False):
-            circuit.append((u_idx, v_idx))
+        circuit: list[tuple[int, int, int]] = []
+        for u_idx, v_idx, key in nx.eulerian_circuit(nx_graph, keys=True):
+            circuit.append((u_idx, v_idx, key))
         return circuit
 
     def _walk_to_geometry(
-        self, graph: rx.PyGraph[Configuration, Edge], walk: list[tuple[int, int]]
+        self, graph: rx.PyGraph[Configuration, Edge], walk: list[tuple[int, int, int]]
     ) -> Geometry:
         geometry = Geometry()
-        for u_idx, v_idx in walk:
-            edge = graph.get_edge_data(u_idx, v_idx)
+        for u_idx, v_idx, key in walk:
+            edge = graph.get_all_edge_data(u_idx, v_idx)[key]
             if is_cut_move(edge):
                 original_cut: TrapezoidalCut = self.geometry.cuts[
                     edge.original_cut_index
