@@ -1,10 +1,11 @@
+from math import ceil
 import sys
 import time
 
 import Geometry3D
 from matplotlib import animation, pyplot as plt
 
-from core.models.geometry import Geometry, TrapezoidalCut
+from core.models.geometry import Geometry
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.base_optimizer import BaseOptimizer
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
@@ -15,24 +16,28 @@ from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 
 
 def build_timeline(
-    cuts: list[TrapezoidalCut],
-    material_height: float,
-    feedrate: float,
-    offset_seconds: float = 0,
+    geo: Geometry, material_height: float, feedrate: float, offset_seconds: float = 0
 ):
+    cuts = geo.cuts
     n = len(cuts)
-    print(n)
     t = offset_seconds
     waypoints = [(t, 0.0)]
+    cuts_cost = geo.calculate_cut_cost(material_height, feedrate) * 60
+    accum_cuts_cost = 0.0
 
     for i, cut in enumerate(cuts):
-        pct_after = (i + 1) / n * 100
-        t += cut.get_internal_cost(feedrate=feedrate, material_height=material_height)
+        cut_cost = (
+            cut.get_internal_cost(feedrate=feedrate, material_height=material_height)
+            * 60
+        )
+        accum_cuts_cost += cut_cost
+        pct_after = accum_cuts_cost / cuts_cost * 100
+        t += cut_cost
         waypoints.append((t, pct_after))
         if i < n - 1:
             t += (
                 cuts[i].travel_time_to(cuts[i + 1], material_height=material_height)
-                + 0.1
+                * 60
             )
             waypoints.append((t, pct_after))
 
@@ -43,7 +48,7 @@ def interpolate_progress(waypoints: list[tuple[float, float]], t_now: float):
     if t_now <= waypoints[0][0]:
         return waypoints[0][1]
     if t_now >= waypoints[-1][0]:
-        return waypoints[-1][1]
+        return -waypoints[-1][1]
 
     for i in range(len(waypoints)):
         t0, p0 = waypoints[i - 1]
@@ -56,13 +61,23 @@ def interpolate_progress(waypoints: list[tuple[float, float]], t_now: float):
     return waypoints[-1][1]
 
 
+# Distinct colors for each series; extend if you ever need more than 8
+_COLORS = ["royalblue", "green", "orange", "red", "purple", "brown", "pink", "gray"]
+
 START_TIME = None
-xs, org_ys, opt_ys = [], [], []
 
 
-def simulate_cuttime(
-    optimizer: BaseOptimizer, svg_path: str, material_height: float, feedrate: float
+def simulate_cut(
+    optimizers: list[BaseOptimizer],
+    optimizer_names: list[str],
+    svg_path: str,
+    material_height: float,
+    feedrate: float,
 ):
+    global START_TIME
+    START_TIME = None
+    HOMING_DURATION = 0
+
     svg_string = open(svg_path).read()
     Geometry3D.set_sig_figures(4)
 
@@ -71,107 +86,162 @@ def simulate_cuttime(
     an = AutoNester(200, 200)
     geometry = an.process(geometry)
 
-    original_timeline = build_timeline(geometry.cuts, material_height, feedrate)
-    optimizer_start = time.time()
-    optimized_geo = optimizer.process(geometry)
-    optimization_duration = time.time() - optimizer_start
-    optimized_timeline = build_timeline(
-        optimized_geo.cuts,
-        material_height,
-        feedrate,
-        offset_seconds=optimization_duration,
+    # --- build one timeline per optimizer (plus the unoptimized baseline) ---
+    timelines: list[tuple[str, list[tuple[float, float]]]] = []
+    original_timeline = build_timeline(
+        geometry, material_height, feedrate, offset_seconds=HOMING_DURATION
     )
-    total_time = max(original_timeline[-1][0], optimized_timeline[-1][0])
+    timelines.append(("Unoptimized", original_timeline))
 
+    for optimizer, name in zip(optimizers, optimizer_names):
+        t0 = time.time()
+        print(f"Optimizing using {optimizer.__class__.__name__}")
+        optimized_geo = optimizer.process(geometry)
+        duration = time.time() - t0
+        print(f"Took {duration} seconds")
+        tl = build_timeline(
+            optimized_geo,
+            material_height,
+            feedrate,
+            offset_seconds=max(duration, HOMING_DURATION),
+        )
+        timelines.append((name, tl))
+
+    total_time = max(tl[-1][0] for _, tl in timelines)
+
+    # --- set up plot ---
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.set_xlim(0, total_time * 1.05)
     ax.set_ylim(0, 110)
-    ax.set_xlabel("Time (seconds)")
+    ax.set_xlabel("Time (minutes)")
     ax.set_ylabel("Progress (%)")
     ax.set_title("Real-time Cutting Progress")
-    ax.axhline(
-        100, color="green", linestyle="--", linewidth=0.5, alpha=0.5, label="100%"
-    )
+    ax.axhline(100, color="black", linestyle="--", linewidth=0.5, alpha=0.4)
     ax.grid(True, linestyle=":", alpha=0.4)
-
-    (original_line,) = ax.plot([], [], lw=2, color="royalblue", label="Unoptimized")
-    (original_marker,) = ax.plot([], [], "o", color="tomato", markersize=8, zorder=5)
     time_text = ax.text(
-        0.02, 0.92, "", transform=ax.transAxes, fontsize=10, color="gray"
+        1.00, 0.95, "", transform=ax.transAxes, fontsize=10, color="gray"
     )
-    (optimized_line,) = ax.plot([], [], lw=2, color="green", label="Optimized")
-    (optimized_marker,) = ax.plot([], [], "o", color="yellow", markersize=8, zorder=5)
 
-    def init():
-        original_line.set_data([], [])
-        original_marker.set_data([], [])
-        optimized_line.set_data([], [])
-        optimized_marker.set_data([], [])
-        time_text.set_text("")
-        return (
-            original_line,
-            original_marker,
-            time_text,
-            optimized_line,
-            optimized_marker,
+    # One line + marker per series
+    series = []
+    for idx, (name, tl) in enumerate(timelines):
+        color = _COLORS[idx % len(_COLORS)]
+        (line,) = ax.plot([], [], lw=2, color=color, label=name)
+        (marker,) = ax.plot([], [], "o", color=color, markersize=8, zorder=5)
+        series.append(
+            {
+                "timeline": tl,
+                "line": line,
+                "marker": marker,
+                "xs": [],
+                "ys": [],
+                "done": False,
+            }
         )
 
-    def update(_frame):
-        global START_TIME, xs, org_ys, opt_ys
+    # ax.legend(loc="lower right")
 
+    artists = [item for s in series for item in (s["line"], s["marker"])] + [time_text]
+    for idx, s in enumerate(series):
+        s["text"] = ax.text(
+            1.05,
+            0.22 - idx * 0.05,
+            "",
+            transform=ax.transAxes,
+            fontsize=10,
+            color=_COLORS[idx % len(_COLORS)],
+        )
+
+    def init():
+        for s in series:
+            s["line"].set_data([], [])
+            s["marker"].set_data([], [])
+            s["xs"].clear()
+            s["ys"].clear()
+            s["done"] = False
+        time_text.set_text("")
+        return artists
+
+    FPS = 20
+    SPEED = 13
+    FRAME_COUNT = ceil((total_time + 1) / SPEED * FPS)
+
+    def update(frame):
+        global START_TIME
         if START_TIME is None:
             START_TIME = time.time()
 
-        t_now = min(time.time() - START_TIME, total_time)
-        org_pct = interpolate_progress(original_timeline, t_now)
-        opt_pct = interpolate_progress(optimized_timeline, t_now)
-        xs.append(t_now)
-        org_ys.append(org_pct)
-        original_line.set_data(xs, org_ys)
-        original_marker.set_data([t_now], [org_pct])
-        opt_ys.append(opt_pct)
-        optimized_line.set_data(xs, opt_ys)
-        optimized_marker.set_data([t_now], [opt_pct])
+        t_now = frame / FPS * SPEED
 
-        time_text.set_text(
-            f"t = {t_now:.2f} s | Unoptimized: {org_pct:.1f}%, Optimized: {opt_pct:.1}%"
-        )
+        for s in series:
+            pct = interpolate_progress(s["timeline"], t_now)
+            if pct < 0:
+                if s["done"]:
+                    continue
+                else:
+                    s["done"] = True
+                    pct = -pct
+            s["text"].set_text(f"{s['line'].get_label()}: {pct:.1f}%")
+            s["xs"].append(t_now)
+            s["ys"].append(pct)
+            s["line"].set_data(s["xs"], s["ys"])
+            s["marker"].set_data([t_now], [pct])
 
-        return (
-            original_line,
-            original_marker,
-            time_text,
-            optimized_line,
-            optimized_marker,
-        )
+        return artists
 
-    _ = animation.FuncAnimation(
-        fig, update, init_func=init, interval=50, blit=True, cache_frame_data=False
-    )
     plt.tight_layout()
-    ax.legend(loc="upper left")
-    plt.show()
+    fig.subplots_adjust(right=0.65)
+    ani = animation.FuncAnimation(
+        fig,
+        update,
+        frames=FRAME_COUNT,
+        init_func=init,
+        interval=1000 / FPS,
+        blit=False,
+        cache_frame_data=False,
+        repeat=False,
+    )
+    # plt.show()
+    ani.save("cutting_progress.mp4", writer="ffmpeg", fps=20)
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print(
-            "Usage: svg_path material_height feedrate show_debug_view show_live_stats"
-        )
+        print("Usage: python script.py svg_path material_height feedrate")
         sys.exit(1)
+
     svg_path: str = sys.argv[1]
     material_height: float = float(sys.argv[2])
     feedrate: float = float(sys.argv[3])
-    optimizer_classes = [
-        GreedyOptimizerModule,
-        GeneticOptimizerModule,
-        BucketOptimizerModule,
-        RPPApproximationModule,
-    ]
-    print("Available optimizers:")
-    for i, cls in enumerate(optimizer_classes):
-        print(f"{i + 1:4}: {cls.__name__}")
-    chosen = int(input("Select one optimizer: ")) - 1
-    optimizer = optimizer_classes[chosen]
 
-    simulate_cuttime(optimizer(material_height), svg_path, material_height, feedrate)
+    optimizers: list[BaseOptimizer] = [
+        GreedyOptimizerModule(material_height),
+        GeneticOptimizerModule(material_height),
+        BucketOptimizerModule(material_height),
+        RPPApproximationModule(material_height),
+    ]
+
+    print("Available optimizers:")
+    for i, optimizer in enumerate(optimizers):
+        print(f"  {i + 1}: {optimizer.__class__.__name__}")
+    print("Enter one or more numbers separated by spaces (e.g. 1 3):")
+
+    raw = input("Select optimizers: ").split()
+    chosen_indices = [int(x) - 1 for x in raw]
+
+    if not chosen_indices:
+        chosen_optimizers = optimizers
+    elif any(i < 0 or i >= len(optimizers) for i in chosen_indices):
+        print("Invalid selection.")
+        sys.exit(1)
+    else:
+        chosen_optimizers = [optimizers[i] for i in chosen_indices]
+    chosen_names = [opt.__class__.__name__ for opt in chosen_optimizers]
+
+    simulate_cut(
+        chosen_optimizers,
+        chosen_names,
+        svg_path,
+        material_height,
+        feedrate,
+    )
