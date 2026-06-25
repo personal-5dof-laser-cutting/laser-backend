@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import final
+from typing import Optional, final
 
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
@@ -12,7 +12,7 @@ log = logging.getLogger("Optimizer")
 
 class BaseOptimizer(Module[Geometry, Geometry], ABC):
     material_height: float
-    start_configuration: Configuration
+    start_configuration: Optional[Configuration]
     geometry: Geometry
 
     current_travel_cost: float = 0
@@ -22,7 +22,7 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
     ):
         super().__init__()
         self.material_height = material_height
-        self.start_configuration = start_location or Configuration(0, 0, 0, 0)
+        self.start_configuration = start_location
 
     @abstractmethod
     def _optimize(self): ...
@@ -35,6 +35,9 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
         self.geometry = data
         self._build_cache_from_cuts
         self._optimize()
+        self.geometry.shift_path_optimally(
+            self.material_height, self.start_configuration
+        )
         return self.geometry
 
     @final

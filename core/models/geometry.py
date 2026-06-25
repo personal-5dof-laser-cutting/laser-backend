@@ -1,6 +1,6 @@
 from functools import cached_property
 from itertools import pairwise
-from typing import Tuple
+from typing import Optional, Tuple
 from Geometry3D import (
     Plane,
     Point,
@@ -71,9 +71,22 @@ class Geometry:
             running_total += cut.get_internal_cost(feedrate, material_height)
         return running_total
 
-    def shift_path_optimally(self, material_height: float):
-        longest_incoming_edge_idx = self._find_longest_incoming_edge(material_height)
-        self._left_rotate(longest_incoming_edge_idx)
+    def shift_path_optimally(
+        self, material_height: float, start_configuration: Optional[Configuration]
+    ):
+        if start_configuration is not None:
+            min_cost = float("inf")
+            index = -1
+            for i in range(len(self.cuts)):
+                cost = start_configuration.travel_time_to(
+                    self.cuts[i].start_configuration, material_height
+                ) - self.cuts[i - 1].travel_time_to(self.cuts[i], material_height)
+                if cost < min_cost:
+                    min_cost = cost
+                    index = i
+        else:
+            index = self._find_longest_incoming_edge(material_height)
+        self._left_rotate(index)
 
     def _find_longest_incoming_edge(self, material_height: float) -> int:
         cuts = self.cuts

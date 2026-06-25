@@ -1,7 +1,7 @@
 from itertools import combinations
 import logging
 from math import inf, isclose
-from typing import override
+from typing import Optional, override
 
 from matplotlib import pyplot as plt
 
@@ -18,7 +18,7 @@ class GreedyOptimizerModule(BaseOptimizer):
     def __init__(
         self,
         material_height: float,
-        start_location: Configuration = Configuration(0, 0, 0, 0),
+        start_location: Optional[Configuration] = None,
         max_iterations: int = 10,
         show_statistics: bool = False,
     ):
@@ -33,7 +33,6 @@ class GreedyOptimizerModule(BaseOptimizer):
             self._append_stats("Original")
         self._best_first()
         self._two_opt()
-        self.geometry.shift_path_optimally(self.material_height)
         if self.show_statistics:
             self._append_stats("Cycle to Path", False)
         if self.show_statistics:
@@ -46,12 +45,6 @@ class GreedyOptimizerModule(BaseOptimizer):
 
     def _best_first(self):
         cuts = self.geometry.cuts
-
-        start_idx, flip_cut = self._find_closest_cut(self.start_configuration, 0)
-        if flip_cut:
-            cuts[start_idx].flip_direction()
-        cuts[0], cuts[start_idx] = cuts[start_idx], cuts[0]
-
         for i in range(1, len(cuts) - 1):
             next_cut, flip_cut = self._find_closest_cut(
                 cuts[i - 1].end_configuration, i

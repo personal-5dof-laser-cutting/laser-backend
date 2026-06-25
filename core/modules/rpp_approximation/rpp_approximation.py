@@ -215,6 +215,5 @@ class RPPApproximationModule(BaseOptimizer):
                     geometry.add_cut(original_cut)
                 else:
                     geometry.add_cut(original_cut.flipped_direction())
-        geometry.shift_path_optimally(self.material_height)
 
         return geometry
