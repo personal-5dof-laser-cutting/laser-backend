@@ -21,6 +21,9 @@ class LaserConfigService(ABC, BaseService):
     @abstractmethod
     def get_max_rates(self) -> dict[str, int]: ...
 
+    @abstractmethod
+    def steps_per_mm(self) -> dict[str, int]: ...
+
 
 class LaserConfigServiceImpl(LaserConfigService):
     def __init__(self) -> None:
@@ -50,4 +53,13 @@ class LaserConfigServiceImpl(LaserConfigService):
             "z": self.config["axes"]["z"]["max_rate_mm_per_min"],
             "a": self.config["axes"]["a"]["max_rate_mm_per_min"],
             "b": self.config["axes"]["b"]["max_rate_mm_per_min"],
+        }
+
+    def steps_per_mm(self) -> dict[str, int]:
+        return {
+            "x": self.config["axes"]["x"]["steps_per_mm"],
+            "y": self.config["axes"]["y"]["steps_per_mm"],
+            "z": self.config["axes"]["z"]["steps_per_mm"],
+            "a": self.config["axes"]["a"]["steps_per_mm"],
+            "b": self.config["axes"]["b"]["steps_per_mm"],
         }

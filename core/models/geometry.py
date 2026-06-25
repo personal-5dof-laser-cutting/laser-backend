@@ -514,19 +514,27 @@ class TrapezoidalCut:
         return math.isclose(self.get_slant_angle(), 0)
 
     def get_internal_cost(self, feedrate: float, material_height: float) -> float:
+        from core.service_container import Container
+
+        steps_per_mm = Container.laser_config.steps_per_mm()
+
         from_conf, to_conf = self.configurations()
-        min_time = from_conf.travel_time_to(to_conf, material_height)
+        travel_move_time = from_conf.travel_time_to(to_conf, material_height)
         from_positions = from_conf.to_motor_positions(material_height)
         to_positions = to_conf.to_motor_positions(material_height)
         delta_1 = from_positions[0].delta(to_positions[0])
         delta_2 = from_positions[0].delta(to_positions[1])
-        delta_1_dist = math.sqrt(delta_1.x**2 + delta_1.y**2)
-        delta_2_dist = math.sqrt(delta_2.x**2 + delta_2.y**2)
+        delta_1_mm = math.sqrt(
+            (delta_1.x / steps_per_mm["x"]) ** 2 + (delta_1.y / steps_per_mm["y"]) ** 2
+        )
+        delta_2_mm = math.sqrt(
+            (delta_2.x / steps_per_mm["x"]) ** 2 + (delta_2.y / steps_per_mm["y"]) ** 2
+        )
 
-        dist = delta_2_dist if delta_2.a < delta_1.a else delta_1_dist
-        dist = min(delta_1_dist, delta_2_dist)
+        dist = delta_2_mm if delta_2.a < delta_1.a else delta_1_mm
+        dist = min(delta_1_mm, delta_2_mm)
 
-        return max(min_time, dist / feedrate)
+        return max(travel_move_time, dist / feedrate)
 
     def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
         return self.end_configuration.travel_time_to(
