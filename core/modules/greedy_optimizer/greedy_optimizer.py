@@ -86,6 +86,8 @@ class GreedyOptimizerModule(BaseOptimizer):
                 closest_cost = current_flipped_cost
                 closest_cut = i
                 flip_cut = True
+            if isclose(closest_cost, 0):
+                break
         return closest_cut, flip_cut
 
     def _two_opt(self):
@@ -96,11 +98,24 @@ class GreedyOptimizerModule(BaseOptimizer):
             self.material_height, True
         )
         improvement: float = 0.0
+        cut_indices = list(range(len(cuts)))
+        improvable_cut_indices = filter(
+            lambda idx: (
+                cuts[idx - 1].travel_time_to(cuts[idx], self.material_height) != 0
+                or cuts[idx].travel_time_to(
+                    cuts[(idx + 1) % len(cuts)], self.material_height
+                )
+                != 0
+            ),
+            cut_indices,
+        )
         while (
             found_improvement and iterations < self.max_iterations and previous_cost > 0
         ):
             found_improvement = False
-            for cut1, cut2 in combinations(range(len(cuts)), 2):
+            for cut1, cut2 in combinations(improvable_cut_indices, 2):
+                if abs(cut1 - cut2) <= 1:
+                    continue
                 flip_1, flip_2, flip_delta = self._calculate_flip_improvement(
                     cut1, cut2
                 )

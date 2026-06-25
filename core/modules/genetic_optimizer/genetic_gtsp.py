@@ -145,8 +145,8 @@ def tournament_selection(
 ) -> Chromosome:
     """Tournament selection: pick k and return best (highest fitness)."""
     selected = random.sample(list(zip(population, fitnesses)), k)
-    selected.sort(key=lambda x: x[1], reverse=True)
-    return deepcopy(selected[0][0])
+    best = max(selected, key=lambda x: x[1])
+    return deepcopy(best[0])
 
 
 def generalized_two_point_crossover(
