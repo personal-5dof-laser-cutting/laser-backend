@@ -88,7 +88,7 @@ def race_plot(
 
     ax.set_title(f"Travel time over computation time for {svg_name}")
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Travel time (s)")
+    ax.set_ylabel("Travel time (min)")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, initial_cost * 1.2)
     ax.set_autoscalex_on(True)

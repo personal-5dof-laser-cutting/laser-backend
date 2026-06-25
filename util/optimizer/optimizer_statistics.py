@@ -6,7 +6,7 @@ import cProfile
 from time import time
 import Geometry3D
 
-from core.models.geometry import Geometry
+from core.models.geometry import Configuration, Geometry
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.base_optimizer import BaseOptimizer
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule
@@ -43,7 +43,11 @@ def run_optimizer(
         dbg.process(geometry)
 
     cuts_cost = geometry.calculate_cut_cost(material_height, 600)
-    previous_costs = geometry.calculate_travel_cost(material_height, False)
+    previous_costs = geometry.calculate_travel_cost(
+        material_height, False
+    ) + Configuration(0, 0, 0, 0).travel_time_to(
+        geometry.cuts[0].start_configuration, material_height
+    )
     logger.info(
         f"Starting cost: {cuts_cost + previous_costs:.4}, travel moves: {previous_costs:.4} ({previous_costs / (cuts_cost + previous_costs):.2%})"
     )
@@ -54,10 +58,17 @@ def run_optimizer(
     if show_debug_view:
         dbg.process(optimized)
 
-    optimized_costs = optimized.calculate_travel_cost(material_height, False)
+    optimized_costs = optimized.calculate_travel_cost(
+        material_height, False
+    ) + Configuration(0, 0, 0, 0).travel_time_to(
+        optimized.cuts[0].start_configuration, material_height
+    )
     logger.info(
         f"Optimized cost: {cuts_cost + optimized_costs:.4}, travel moves: {optimized_costs:.4} ({optimized_costs / (cuts_cost + optimized_costs):.2%})"
     )
+
+    if not show_debug_view and input("View geometry? [y/N]\t").lower() == "y":
+        dbg.process(optimized)
 
 
 if __name__ == "__main__":
@@ -91,10 +102,10 @@ if __name__ == "__main__":
                 show_live_stats,
             )
             stats = pstats.Stats(pr).sort_stats("cumulative")
-            stats.print_stats(".*_cache")
+            stats.print_stats(20)
     else:
         run_optimizer(
-            optimizer(material_height),
+            optimizer(material_height, Configuration(0, 0, 0, 0), show_statistics=True),
             svg_path,
             material_height,
             show_debug_view,
