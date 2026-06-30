@@ -33,6 +33,11 @@ async def connect(ws: WebSocket):
         if job is None:
             return False
 
+        await ws_send(
+            ws,
+            WebsocketMessage(type="info", content=f"Starting job {job_id}"),
+        )
+
         pipeline: Pipeline = job.pipeline
         result: str = await loop.run_in_executor(None, pipeline.run, job.init_value)
         corgi_interface.send_lines(("$h\n" + result).split("\n"))
@@ -78,9 +83,7 @@ async def connect(ws: WebSocket):
                     else:
                         await ws_send(
                             ws,
-                            WebsocketMessage(
-                                type="info", content=f"Starting job {job_id}"
-                            ),
+                            WebsocketMessage(type="info", content="Job's done"),
                         )
                     continue
 
