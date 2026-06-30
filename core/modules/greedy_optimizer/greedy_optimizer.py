@@ -1,64 +1,50 @@
 from itertools import combinations
 import logging
 from math import inf, isclose
+from typing import Optional, override
 
 from matplotlib import pyplot as plt
 
-from core.pipeline.base import Module
-from core.models.geometry import Configuration, Geometry, TrapezoidalCut
-from core.service_container import Container
-from core.services.kinematics_service import KinematicsService
+from core.modules.base_optimizer import BaseOptimizer
+from core.models.geometry import Configuration, TrapezoidalCut
 
 log = logging.getLogger("Groptimizer")
 
 
-class GreedyOptimizerModule(Module[Geometry, Geometry]):
+class GreedyOptimizerModule(BaseOptimizer):
+    max_iterations: int
+    show_statistics: bool
+
     def __init__(
         self,
         material_height: float,
-        kinematics: KinematicsService = Container.kinematics_service,
-        start_location: Configuration = Configuration(0, 0, 0, 0),
+        start_location: Optional[Configuration] = None,
         max_iterations: int = 10,
         show_statistics: bool = False,
     ):
-        super().__init__()
-        self.kinematics = kinematics
-        self.material_height = material_height
-        self.start_location = start_location
+        super().__init__(material_height, start_location)
         self.max_iterations = max_iterations
         self.show_statistics = show_statistics
 
-    def process(self, data: Geometry) -> Geometry:
-        self.geometry = data
-        self._build_cache()
+    @override
+    def _optimize(self):
         if self.show_statistics:
             self._create_plot()
             self._append_stats("Original")
         self._best_first()
         self._two_opt()
-        self.geometry.shift_path_optimally(self.material_height)
         if self.show_statistics:
             self._append_stats("Cycle to Path", False)
         if self.show_statistics:
             plt.ioff()
             plt.show()
-        return data
 
-    def _build_cache(self):
-        cuts: list[TrapezoidalCut] = self.geometry.cuts
-        configurations: list[Configuration] = [
-            config for cut in cuts for config in cut.configurations()
-        ]
-        self.kinematics.generate_cache(configurations, self.material_height)
+    @override
+    def get_current_cost(self, as_cycle: bool) -> float:
+        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
 
     def _best_first(self):
         cuts = self.geometry.cuts
-
-        start_idx, flip_cut = self._find_closest_cut(self.start_location, 0)
-        if flip_cut:
-            cuts[start_idx].flip_direction()
-        cuts[0], cuts[start_idx] = cuts[start_idx], cuts[0]
-
         for i in range(1, len(cuts) - 1):
             next_cut, flip_cut = self._find_closest_cut(
                 cuts[i - 1].end_configuration, i
@@ -100,6 +86,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
                 closest_cost = current_flipped_cost
                 closest_cut = i
                 flip_cut = True
+            if isclose(closest_cost, 0):
+                break
         return closest_cut, flip_cut
 
     def _two_opt(self):
@@ -110,11 +98,24 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             self.material_height, True
         )
         improvement: float = 0.0
+        cut_indices = list(range(len(cuts)))
+        improvable_cut_indices = filter(
+            lambda idx: (
+                cuts[idx - 1].travel_time_to(cuts[idx], self.material_height) != 0
+                or cuts[idx].travel_time_to(
+                    cuts[(idx + 1) % len(cuts)], self.material_height
+                )
+                != 0
+            ),
+            cut_indices,
+        )
         while (
             found_improvement and iterations < self.max_iterations and previous_cost > 0
         ):
             found_improvement = False
-            for cut1, cut2 in combinations(range(len(cuts)), 2):
+            for cut1, cut2 in combinations(improvable_cut_indices, 2):
+                if abs(cut1 - cut2) <= 1:
+                    continue
                 flip_1, flip_2, flip_delta = self._calculate_flip_improvement(
                     cut1, cut2
                 )
@@ -131,7 +132,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             iterations += 1
             if self.show_statistics:
                 self._append_stats(f"Two Opt It. {iterations}")
-            improvement_ratio = abs(improvement) / previous_cost
+            improvement_ratio = -improvement / previous_cost
             if self.show_statistics:
                 log.info(f"Improved by {improvement_ratio:.2%}")
             if improvement_ratio <= 0.05:
@@ -287,10 +288,6 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             j -= 1
         if i == j:
             cuts[i].flip_direction()
-
-    def _left_rotate(self, i: int):
-        cuts = self.geometry.cuts
-        cuts = cuts[i:] + cuts[:i]
 
     def _create_plot(self):
         self.fig, self.ax = plt.subplots()

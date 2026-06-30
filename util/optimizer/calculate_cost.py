@@ -16,18 +16,14 @@ logging.basicConfig(
 logger = logging.getLogger("Calculator" if __name__ == "__main__" else __name__)
 
 
-def format_seconds(time: float) -> str:
-    seconds = time % 60
-    time = (time - seconds) / 60
+def format_minutes(time: float) -> str:
     minutes = time % 60
     hours = (time - minutes) / 60
 
     output = ""
     if hours:
         output += f"{hours} hours, "
-    if minutes:
-        output += f"{minutes} minutes, "
-    output += f"{seconds} seconds."
+    output += f"{minutes} minutes, "
     return output
 
 
@@ -51,10 +47,10 @@ def calculate_costs():
     travel_cost = geometry.calculate_travel_cost(material_height, False)
     cut_cost = geometry.calculate_cut_cost(material_height, feedrate)
     total_cost = travel_cost + cut_cost
-    logger.info(f"Total time: {format_seconds(total_cost)}")
-    logger.info(f"Cut time: {format_seconds(cut_cost)} ({cut_cost / total_cost:.2%})")
+    logger.info(f"Total time: {format_minutes(total_cost)}")
+    logger.info(f"Cut time: {format_minutes(cut_cost)} ({cut_cost / total_cost:.2%})")
     logger.info(
-        f"Travel time: {format_seconds(travel_cost)} ({travel_cost / total_cost:.2%})"
+        f"Travel time: {format_minutes(travel_cost)} ({travel_cost / total_cost:.2%})"
     )
     generate_gcode = input("Generate GCODE [y/N]").lower() == "y"
     if generate_gcode:

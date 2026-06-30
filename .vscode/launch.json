@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Optimizer statistics with Arguments",
+            "name": "Pytho Debugger: Current util script",
             "type": "debugpy",
             "request": "launch",
-            "module": "util.optimizer.greedy_statistics",
+            "module": "util.${fileDirnameBasename}.${fileBasenameNoExtension}",
             "console": "integratedTerminal",
             "args": "${command:pickArgs}"
         },

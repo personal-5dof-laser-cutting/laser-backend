@@ -1,132 +1,219 @@
-from itertools import combinations, product
+from itertools import combinations, pairwise, product
+from math import ceil
+from typing import Literal, TypeGuard
 
+import rustworkx as rx
 import networkx as nx
+from pydantic import BaseModel
 
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
-from core.pipeline.base import Module
-from core.service_container import Container
-from core.services.kinematics_service import KinematicsService
+from core.modules.base_optimizer import BaseOptimizer
 
 
-class RPPApproximationModule(Module[Geometry, Geometry]):
+class CutEdge(BaseModel):
+    is_cut_move: Literal[True] = True
+    original_cut_index: int
+
+
+class ComponentEdge(BaseModel):
+    weight: float
+    actual_from_idx: int
+    actual_to_idx: int
+
+
+class MSTEdge(BaseModel):
+    is_cut_move: Literal[False] = False
+
+
+class HelperEdge(BaseModel):
+    is_cut_move: Literal[False] = False
+    weight: float
+
+
+def is_cut_move(edge: Edge) -> TypeGuard[CutEdge]:
+    return edge.is_cut_move
+
+
+Edge = CutEdge | MSTEdge | HelperEdge
+
+
+class RPPApproximationModule(BaseOptimizer):
     def __init__(self, material_height: float) -> None:
-        super().__init__()
-        self.material_height: float = material_height
-        self.kinematics: KinematicsService = Container.kinematics_service
+        super().__init__(material_height)
 
-    def process(self, data: Geometry) -> Geometry:
-        self.geometry: Geometry = data
-        self._build_cache()
-        graph: nx.Graph = self._build_graph()
-        self._connect_graph_minimally(graph)
-        multi_graph: nx.MultiGraph = self._add_mwpm_edges(graph)
-        return self._graph_to_geometry(multi_graph)
+    def get_current_cost(self, as_cycle: bool) -> float:
+        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
 
-    def _build_cache(self):
-        cuts: list[TrapezoidalCut] = self.geometry.cuts
-        configurations: set[Configuration] = {
-            config for cut in cuts for config in cut.configurations()
-        }
-        self.kinematics.generate_cache(list(configurations), self.material_height)
+    def _optimize(self):
+        self.original_cuts: list[TrapezoidalCut] = self.geometry.cuts
+        trapezoid_graph: rx.PyGraph[Configuration, Edge] = self._build_graph()
+        walk: list[tuple[int, int, int]] = self._rpp_solver(trapezoid_graph)
+        self.geometry = self._walk_to_geometry(trapezoid_graph, walk)
 
-    def _build_graph(self) -> nx.Graph:
-        graph: nx.Graph = nx.Graph()
-        for cut in self.geometry.cuts:
+    def _build_graph(self) -> rx.PyGraph[Configuration, Edge]:
+        graph: rx.PyGraph[Configuration, Edge] = rx.PyGraph(multigraph=True)
+        conf_to_idx: dict[Configuration, int] = {}
+        edges: list[tuple[int, int, Edge]] = []
+
+        for index, cut in enumerate(self.geometry.cuts):
             start_conf, end_conf = cut.configurations()
-            graph.add_edge(
-                start_conf,
-                end_conf,
-                weight=start_conf.travel_time_to(end_conf, self.material_height),
-                depth=cut.cut_depth,
-                is_cut_move=True,
-            )
+            if start_conf not in conf_to_idx:
+                conf_to_idx[start_conf] = graph.add_node(start_conf)
+            if end_conf not in conf_to_idx:
+                conf_to_idx[end_conf] = graph.add_node(end_conf)
+            u, v = conf_to_idx[start_conf], conf_to_idx[end_conf]
+            if not graph.has_edge(u, v):
+                edges.append(
+                    (u, v, CutEdge(is_cut_move=True, original_cut_index=index))
+                )
+
+        graph.add_edges_from(edges)
         return graph
 
-    def _connect_graph_minimally(self, graph: nx.Graph):
-        component_graph: nx.Graph | None = self._get_component_graph(graph)
-        if component_graph is None:
-            return
-        for _, _, data in nx.minimum_spanning_edges(
-            component_graph, weight="weight", data=True
+    def _rpp_solver(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> list[tuple[int, int, int]]:
+        assert graph.multigraph
+        if not rx.is_connected(graph):
+            self._connect_graph_minimally(graph)
+        self._make_graph_eulerian(graph)
+        walk: list[tuple[int, int, int]] = self._eulerian_circuit(graph)
+        return walk
+
+    def _connect_graph_minimally(self, graph: rx.PyGraph[Configuration, Edge]):
+        component_graph: rx.PyGraph[int, ComponentEdge] = self._get_component_graph(
+            graph
+        )
+        for _, _, data in rx.minimum_spanning_edges(
+            component_graph, weight_fn=lambda x: x.weight
         ):
-            actual_from = data["actual_from"]
-            actual_to = data["actual_to"]
+            edge = ComponentEdge.model_validate(data)
+            actual_from_idx = edge.actual_from_idx
+            actual_to_idx = edge.actual_to_idx
             graph.add_edge(
-                actual_from, actual_to, weight=data["weight"], is_cut_move=False
+                actual_from_idx,
+                actual_to_idx,
+                MSTEdge(is_cut_move=False),
             )
 
-    def _get_component_graph(self, graph: nx.Graph) -> nx.Graph | None:
-        if nx.is_connected(graph):
-            return None
-        component_graph = nx.Graph()
-        self.components: list[set[Configuration]] = [
-            component for component in nx.connected_components(graph)
-        ]
+    def _get_component_graph(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> rx.PyGraph[int, ComponentEdge]:
+        component_graph: rx.PyGraph[int, ComponentEdge] = rx.PyGraph()
+        components_by_node_indices: list[set[int]] = rx.connected_components(graph)
+        component_graph.add_nodes_from(range(len(components_by_node_indices)))
         for component_idx_1, component_idx_2 in combinations(
-            range(len(self.components)), 2
+            component_graph.node_indices(), 2
         ):
-            distance, from_conf, to_conf = self._get_component_distance(
-                self.components[component_idx_1], self.components[component_idx_2]
+            distance, from_conf_idx, to_conf_idx = self._get_component_distance(
+                graph,
+                components_by_node_indices[component_idx_1],
+                components_by_node_indices[component_idx_2],
             )
             component_graph.add_edge(
                 component_idx_1,
                 component_idx_2,
-                weight=distance,
-                actual_from=from_conf,
-                actual_to=to_conf,
+                ComponentEdge(
+                    weight=distance,
+                    actual_from_idx=from_conf_idx,
+                    actual_to_idx=to_conf_idx,
+                ),
             )
 
         return component_graph
 
     def _get_component_distance(
-        self, component_1: set[Configuration], component_2: set[Configuration]
-    ) -> tuple[float, Configuration, Configuration]:
+        self,
+        graph: rx.PyGraph[Configuration, Edge],
+        component_1: set[int],
+        component_2: set[int],
+    ) -> tuple[float, int, int]:
         min_distance = float("inf")
-        from_conf: Configuration = Configuration(0, 0, 0, 0)
-        to_conf: Configuration = Configuration(0, 0, 0, 0)
-        for conf_a, conf_b in product(component_1, component_2):
-            distance = conf_a.travel_time_to(conf_b, self.material_height)
+        from_conf_idx: int = 0
+        to_conf_idx: int = 0
+        for node_u_idx, node_v_idx in product(component_1, component_2):
+            distance = graph[node_u_idx].travel_time_to(
+                graph[node_v_idx], self.material_height
+            )
             if distance < min_distance:
                 min_distance = distance
-                from_conf = conf_a
-                to_conf = conf_b
-        return min_distance, from_conf, to_conf
+                from_conf_idx = node_u_idx
+                to_conf_idx = node_v_idx
+        return min_distance, from_conf_idx, to_conf_idx
 
-    def _add_mwpm_edges(self, graph: nx.Graph) -> nx.MultiGraph:
-        matching_graph: nx.Graph = nx.Graph()
-        odd_nodes = self._get_odd_degree_nodes(graph)
-        for u, v in combinations(odd_nodes, 2):
-            matching_graph.add_edge(
-                u, v, weight=u.travel_time_to(v, self.material_height)
+    def _make_graph_eulerian(self, graph: rx.PyGraph[Configuration, Edge]):
+        assert graph.multigraph
+        odd_node_indices: list[int] = self._get_odd_degree_node_indices(graph)
+        assert len(odd_node_indices) % 2 == 0
+        if len(odd_node_indices) == 0:
+            return
+
+        odd_indices_graph: rx.PyGraph[int, HelperEdge] = rx.PyGraph()
+        odd_idx_to_odd_graph_idx = {
+            idx: odd_indices_graph.add_node(idx) for idx in odd_node_indices
+        }
+        weights: list[float] = []
+        for u_idx, v_idx in combinations(odd_node_indices, 2):
+            distance = graph[u_idx].travel_time_to(graph[v_idx], self.material_height)
+            weights.append(distance)
+            odd_indices_graph.add_edge(
+                odd_idx_to_odd_graph_idx[u_idx],
+                odd_idx_to_odd_graph_idx[v_idx],
+                HelperEdge(weight=distance),
             )
-        matching = nx.min_weight_matching(matching_graph, weight="weight")
-        multi_graph = nx.MultiGraph(graph)
-        for u, v in matching:
-            multi_graph.add_edge(
-                u,
-                v,
-                weight=u.travel_time_to(v, self.material_height),
-                is_cut_move=False,
+        weights.sort()
+        max_weight = weights[-1]
+        min_diff = min(w2 - w1 for w1, w2 in pairwise(weights) if w2 - w1 != 0)
+        scale = ceil(1 / min_diff)
+        min_matching_edges = rx.max_weight_matching(
+            odd_indices_graph,
+            max_cardinality=True,
+            weight_fn=lambda u: int((max_weight - u.weight) * scale),
+        )
+        for u_odd_graph_idx, v_odd_graph_idx in min_matching_edges:
+            u_graph_idx: int = odd_indices_graph[u_odd_graph_idx]
+            v_graph_idx: int = odd_indices_graph[v_odd_graph_idx]
+            distance = odd_indices_graph.get_edge_data(
+                u_odd_graph_idx, v_odd_graph_idx
+            ).weight
+            graph.add_edge(
+                u_graph_idx, v_graph_idx, HelperEdge(weight=distance, is_cut_move=False)
             )
-        return multi_graph
-        # pos = {node: (node.x*2, node.y*2) for node in self.graph.nodes()}
-        # nx.draw(self.graph, pos)
-        # pos = {node: (node.x*2, node.y*2) for node in debug_graph.nodes()}
-        # nx.draw(debug_graph, pos, node_color="#3dd90054", edge_color="red")
-        # plt.show()
 
-    def _get_odd_degree_nodes(self, graph: nx.Graph) -> list[Configuration]:
-        return [conf for conf, degree in graph.degree() if degree % 2 == 1]
+        assert len(self._get_odd_degree_node_indices(graph)) == 0
 
-    def _graph_to_geometry(self, graph: nx.MultiGraph) -> Geometry:
-        # print("draww")
-        # nx.draw(self.graph)
-        # plt.show()
-        # sleep(60)
+    def _get_odd_degree_node_indices(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> list[int]:
+        return [
+            node_index
+            for node_index in graph.node_indices()
+            if graph.degree(node_index) % 2 == 1
+        ]
+
+    def _eulerian_circuit(
+        self, graph: rx.PyGraph[Configuration, Edge]
+    ) -> list[tuple[int, int, int]]:
+        nx_graph = nx.MultiGraph()
+        nx_graph.add_edges_from(graph.edge_list())
+        circuit: list[tuple[int, int, int]] = []
+        for u_idx, v_idx, key in nx.eulerian_circuit(nx_graph, keys=True):
+            circuit.append((u_idx, v_idx, key))
+        return circuit
+
+    def _walk_to_geometry(
+        self, graph: rx.PyGraph[Configuration, Edge], walk: list[tuple[int, int, int]]
+    ) -> Geometry:
         geometry = Geometry()
-        for u, v in nx.eulerian_circuit(graph):
-            data = graph.get_edge_data(u, v)
-            if data and data[0]["is_cut_move"]:
-                geometry.add_cut_from_configurations(u, v, data[0]["depth"])
-        geometry.shift_path_optimally(self.material_height)
+        for u_idx, v_idx, key in walk:
+            edge = graph.get_all_edge_data(u_idx, v_idx)[key]
+            if is_cut_move(edge):
+                original_cut: TrapezoidalCut = self.geometry.cuts[
+                    edge.original_cut_index
+                ]
+                if original_cut.start_configuration == graph[u_idx]:
+                    geometry.add_cut(original_cut)
+                else:
+                    geometry.add_cut(original_cut.flipped_direction())
+
         return geometry
