@@ -29,10 +29,16 @@ class LaserConfigServiceImpl(LaserConfigService):
             self.config = yaml.safe_load(config_file)
 
     def gantry_height_mm(self) -> float:
-        return 130
+        focus_offset = self.config["Kinematics"]["rotating_table_five_axis"][
+            "focus_offset"
+        ]
+        z_height = self.config["Kinematics"]["rotating_table_five_axis"]["z_height"]
+        return focus_offset + z_height
 
     def gantry_dim_mm(self) -> Tuple[float, float]:
-        return 400, 400
+        max_x = self.config["Kinematics"]["rotating_table_five_axis"]["max_x"]
+        max_y = self.config["Kinematics"]["rotating_table_five_axis"]["max_y"]
+        return max_x, max_y
 
     def get_rotating_kinematics(self) -> dict:
         return self.config["Kinematics"]["rotating_table_five_axis"]
