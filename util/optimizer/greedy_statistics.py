@@ -3,6 +3,7 @@ import logging
 import pstats
 import sys
 import cProfile
+from time import time
 import Geometry3D
 
 from core.models.geometry import Geometry
@@ -39,8 +40,10 @@ def run_optimizer(
     logger.info(
         f"Starting cost: {cuts_cost + previous_costs:.4}, travel moves: {previous_costs:.4} ({previous_costs / (cuts_cost + previous_costs):.2%})"
     )
-
+    start_time = time()
     optimized = opt.process(geometry)
+    end_time = time()
+    logger.info(f"Optimized in {end_time - start_time} seconds")
     if show_debug_view:
         dbg.process(optimized)
 

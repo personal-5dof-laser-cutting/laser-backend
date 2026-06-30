@@ -37,7 +37,9 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             self._append_stats("Original")
         self._best_first()
         self._two_opt()
-        self._tour_to_shortest_path()
+        self.geometry.shift_path_optimally(self.material_height)
+        if self.show_statistics:
+            self._append_stats("Cycle to Path", False)
         if self.show_statistics:
             plt.ioff()
             plt.show()
@@ -287,24 +289,6 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
             j -= 1
         if i == j:
             cuts[i].flip_direction()
-
-    def _tour_to_shortest_path(self):
-        longest_incoming_edge_idx = self._find_longest_edge()
-        self._left_rotate(longest_incoming_edge_idx)
-        if self.show_statistics:
-            self._append_stats("Cycle to Path", False)
-
-    def _find_longest_edge(self) -> int:
-        cuts = self.geometry.cuts
-        number_cuts = len(cuts)
-        longest_edge_idx: int = 0
-        longest_edge: float = self._get_cost(cuts[-1], cuts[0])
-        for i in range(1, number_cuts):
-            current_cost = self._get_cost(cuts[i - 1], cuts[i])
-            if current_cost < longest_edge:
-                longest_edge_idx = i
-                longest_edge = current_cost
-        return longest_edge_idx
 
     def _left_rotate(self, i: int):
         cuts = self.geometry.cuts
