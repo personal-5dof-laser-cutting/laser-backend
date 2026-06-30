@@ -110,8 +110,8 @@ class GCodeExporter(Module[Geometry, str]):
 
     def _discretize_cut(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
         if (
-            cut.start_configuration().direction_vector()
-            != cut.end_configuration().direction_vector()
+            cut.start_configuration.direction_vector()
+            != cut.end_configuration.direction_vector()
             and not math.isclose(cut.cut_depth, self.material_height)
         ):
             print("Partial cuts that are not straight are not supported (yet)")
@@ -132,9 +132,9 @@ class GCodeExporter(Module[Geometry, str]):
         last_laser: None | float = None
         for raw_cut in geometry.cuts:
             for cut in self._discretize_cut(raw_cut):
-                start_config = cut.start_configuration()
+                start_config = cut.start_configuration
 
-                end_config = cut.end_configuration()
+                end_config = cut.end_configuration
 
                 if not self.laser_off:
                     laser_power: float = (

@@ -1,3 +1,4 @@
+from functools import cached_property
 from itertools import pairwise
 from typing import Tuple
 from Geometry3D import (
@@ -74,14 +75,13 @@ class Geometry:
         longest_edge: float = cuts[-1].travel_time_to(cuts[0], material_height)
         for i in range(1, number_cuts):
             current_cost = cuts[i - 1].travel_time_to(cuts[i], material_height)
-            if current_cost < longest_edge:
+            if current_cost > longest_edge:
                 longest_edge_idx = i
                 longest_edge = current_cost
         return longest_edge_idx
 
     def _left_rotate(self, i: int):
-        cuts = self.cuts
-        cuts = cuts[i:] + cuts[:i]
+        self.cuts = self.cuts[i:] + self.cuts[:i]
 
 
 class Configuration:
@@ -311,6 +311,9 @@ class TrapezoidalCut:
         self._end_top: Point = end_top
         self._end_bottom: Point = end_bottom
 
+        self._start_conf: Configuration | None = None
+        self._end_conf: Configuration | None = None
+
         self._validate_cut()
 
     @classmethod
@@ -410,14 +413,16 @@ class TrapezoidalCut:
     def end_segment(self) -> Segment:
         return Segment(self.end_top, self.end_bottom)
 
+    @cached_property
     def start_configuration(self) -> Configuration:
         return Configuration.from_segment(self.start_segment())
 
+    @cached_property
     def end_configuration(self) -> Configuration:
         return Configuration.from_segment(self.end_segment())
 
     def configurations(self) -> list[Configuration]:
-        return [self.start_configuration(), self.end_configuration()]
+        return [self.start_configuration, self.end_configuration]
 
     def top_vector(self) -> Vector:
         return self.end_top.pv() - self.start_top.pv()
@@ -434,6 +439,7 @@ class TrapezoidalCut:
     def flip_direction(self) -> None:
         self._start_top, self._end_top = self.end_top, self.start_top
         self._start_bottom, self._end_bottom = self.end_bottom, self.start_bottom
+        self._start_conf, self._end_conf = self._end_conf, self._start_conf
 
     def flipped_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
@@ -516,8 +522,8 @@ class TrapezoidalCut:
         return max(min_time, dist / feedrate)
 
     def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
-        return self.end_configuration().travel_time_to(
-            other.start_configuration(), material_height
+        return self.end_configuration.travel_time_to(
+            other.start_configuration, material_height
         )
 
     def __repr__(self) -> str:

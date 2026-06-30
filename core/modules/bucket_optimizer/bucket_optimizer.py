@@ -17,7 +17,7 @@ class BucketOptimizerModule(Module[Geometry, Geometry]):
         return optimized_geo
 
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[int, int, int, int]:
-        start_config = cut.start_configuration()
+        start_config = cut.start_configuration
         mpos1, mpos2 = Container.kinematics_service.get_positions(
             start_config, self.material_height
         )

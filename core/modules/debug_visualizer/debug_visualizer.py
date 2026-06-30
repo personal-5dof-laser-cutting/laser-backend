@@ -249,10 +249,10 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         for i, cut in enumerate(visible_cuts):
             self._draw_cut(cut, i)
             if i != len(visible_cuts) - 1:
-                if visible_cuts[i + 1].start_configuration() != cut.end_configuration():
+                if visible_cuts[i + 1].start_configuration != cut.end_configuration:
                     self._draw_travel_move(
-                        cut.end_configuration(),
-                        visible_cuts[i + 1].start_configuration(),
+                        cut.end_configuration,
+                        visible_cuts[i + 1].start_configuration,
                     )
 
         self.ax.set_xlim(self.min_x, max(gantry_x + 1, self.max_x + 5))
@@ -275,10 +275,10 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         cuts = self.geometry.cuts
         c = self._current_cut - 1  # 0-indexed index of the current (last visible) cut
 
-        prev_end = cuts[c - 1].end_configuration() if c - 1 >= 0 else None
-        cur_start = cuts[c].start_configuration()
-        cur_end = cuts[c].end_configuration()
-        next_start = cuts[c + 1].start_configuration() if c + 1 < len(cuts) else None
+        prev_end = cuts[c - 1].end_configuration if c - 1 >= 0 else None
+        cur_start = cuts[c].start_configuration
+        cur_end = cuts[c].end_configuration
+        next_start = cuts[c + 1].start_configuration if c + 1 < len(cuts) else None
 
         return [prev_end, cur_start, cur_end, next_start]
 

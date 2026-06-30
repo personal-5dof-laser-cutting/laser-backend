@@ -1,4 +1,3 @@
-from functools import lru_cache
 from itertools import combinations
 import logging
 from math import inf, isclose
@@ -62,7 +61,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         for i in range(1, len(cuts) - 1):
             next_cut, flip_cut = self._find_closest_cut(
-                cuts[i - 1].end_configuration(), i
+                cuts[i - 1].end_configuration, i
             )
 
             if flip_cut:
@@ -87,7 +86,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         closest_cost: float = inf
         for i in range(start_idx, len(cuts)):
             current_cost = start_conf.travel_time_to(
-                cuts[i].start_configuration(), self.material_height
+                cuts[i].start_configuration, self.material_height
             )
             if current_cost < closest_cost:
                 closest_cost = current_cost
@@ -95,7 +94,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
                 flip_cut = False
 
             current_flipped_cost = start_conf.travel_time_to(
-                cuts[i].end_configuration(), self.material_height
+                cuts[i].end_configuration, self.material_height
             )
             if current_flipped_cost < closest_cost:
                 closest_cost = current_flipped_cost
@@ -194,7 +193,7 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
     def _cut_flip_delta(self, cut_idx: int) -> float:
         segment_cost = self._segment_cost(cut_idx, flipped=False)
 
-        flipped_cost = self._segment_cost(cut_idx, flipped=False)
+        flipped_cost = self._segment_cost(cut_idx, flipped=True)
 
         flip_delta = flipped_cost - segment_cost
         if isclose(flip_delta, 0):
@@ -202,7 +201,6 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
 
         return flip_delta
 
-    @lru_cache(None)
     def _get_cost(
         self,
         cut1: TrapezoidalCut,
@@ -210,8 +208,8 @@ class GreedyOptimizerModule(Module[Geometry, Geometry]):
         flip1: bool = False,
         flip2: bool = False,
     ) -> float:
-        from_conf = cut1.start_configuration() if flip1 else cut1.end_configuration()
-        to_conf = cut2.end_configuration() if flip2 else cut2.start_configuration()
+        from_conf = cut1.start_configuration if flip1 else cut1.end_configuration
+        to_conf = cut2.end_configuration if flip2 else cut2.start_configuration
         return from_conf.travel_time_to(to_conf, self.material_height)
 
     def _segment_cost(self, cut_idx: int, flipped: bool = False) -> float:
