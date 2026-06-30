@@ -48,10 +48,15 @@ def app_factory():
         try:
             return await call_next(request)
         except Exception as exc:
+            logging.exception(
+                f"Unhandled exception while processing request: {str(exc)}"
+            )
             return JSONResponse(
                 status_code=500,
                 content=ResponseMessage(
-                    type="error", reason=type(exc).__name__, content=str(exc)
+                    type="error",
+                    reason=type(exc).__name__,
+                    content="Internal server error",
                 ).model_dump(),
             )
 
