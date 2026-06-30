@@ -53,7 +53,7 @@ class FrontendInput(StrictBaseModel):
         default=0,
     )
     model_scale: float = Field(
-        description="The factor how much the model should be scaled by", default=1
+        description="The factor by which the model should be scaled", default=1
     )
 
 
