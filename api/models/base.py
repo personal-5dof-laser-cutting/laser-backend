@@ -40,6 +40,10 @@ class FrontendInput(BaseModel):
     )
 
 
+class JobInformation(BaseModel):
+    svg: str
+
+
 class WebsocketMessage(BaseModel):
     type: Literal[
         "info",

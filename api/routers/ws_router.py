@@ -5,7 +5,7 @@ from typing import Tuple
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from api.models.base import WebsocketMessage
+from api.models.base import JobInformation, WebsocketMessage
 from api.routers.jobs import jobs
 from core.corgi_interface import CorgiInterface
 from core.pipeline.base import Pipeline
@@ -22,8 +22,18 @@ async def connect(ws: WebSocket):
     print("WS Connection accepted")
     await ws_send(ws, WebsocketMessage(type="info", content="WS Connection accepted"))
     while True:
-        msg = await ws.receive()
-        print(msg)
+        msg = await ws.receive_json()
+        try:
+            job_info: JobInformation = JobInformation.model_validate(msg)
+        except ValidationError:
+            await ws_send(
+                ws,
+                WebsocketMessage(
+                    type="error", content="Couldn't validate message contents"
+                ),
+            )
+            continue
+        print(job_info.model_dump)
     incoming_messages: PriorityQueue[Tuple[int, WebsocketMessage]] = (
         ws.app.state.incoming
     )
