@@ -21,6 +21,9 @@ async def connect(ws: WebSocket):
     await ws.accept()
     print("WS Connection accepted")
     await ws_send(ws, WebsocketMessage(type="info", content="WS Connection accepted"))
+    while True:
+        msg = await ws.receive()
+        print(msg)
     incoming_messages: PriorityQueue[Tuple[int, WebsocketMessage]] = (
         ws.app.state.incoming
     )
