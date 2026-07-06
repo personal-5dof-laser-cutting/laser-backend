@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from math import ceil
 import sys
 import time
@@ -73,6 +74,8 @@ def simulate_cut(
     svg_path: str,
     material_height: float,
     feedrate: float,
+    save_animation: bool,
+    speed: float,
 ):
     global START_TIME
     START_TIME = None
@@ -91,7 +94,7 @@ def simulate_cut(
     original_timeline = build_timeline(
         geometry, material_height, feedrate, offset_seconds=HOMING_DURATION
     )
-    timelines.append(("Unoptimized", original_timeline))
+    timelines.append(("Unoptimiert", original_timeline))
 
     for optimizer, name in zip(optimizers, optimizer_names):
         t0 = time.time()
@@ -110,16 +113,17 @@ def simulate_cut(
     total_time = max(tl[-1][0] for _, tl in timelines)
 
     # --- set up plot ---
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(16, 9))
     ax.set_xlim(0, total_time * 1.05)
     ax.set_ylim(0, 110)
-    ax.set_xlabel("Time (minutes)")
-    ax.set_ylabel("Progress (%)")
-    ax.set_title("Real-time Cutting Progress")
+    ax.set_xlabel("Rechenzeit + Schnittzeit (Minuten)", fontsize=20)
+    ax.set_ylabel("Fortschritt (%)", fontsize=20)
+    # ax.set_title("Real-time Cutting Progress")
     ax.axhline(100, color="black", linestyle="--", linewidth=0.5, alpha=0.4)
     ax.grid(True, linestyle=":", alpha=0.4)
+    ax.tick_params(labelsize=13)
     time_text = ax.text(
-        1.00, 0.95, "", transform=ax.transAxes, fontsize=10, color="gray"
+        1.00, 0.95, "", transform=ax.transAxes, fontsize=20, color="gray"
     )
 
     # One line + marker per series
@@ -148,7 +152,7 @@ def simulate_cut(
             0.22 - idx * 0.05,
             "",
             transform=ax.transAxes,
-            fontsize=10,
+            fontsize=20,
             color=_COLORS[idx % len(_COLORS)],
         )
 
@@ -163,15 +167,14 @@ def simulate_cut(
         return artists
 
     FPS = 20
-    SPEED = 13
-    FRAME_COUNT = ceil((total_time + 1) / SPEED * FPS)
+    FRAME_COUNT = ceil((total_time + 1) / speed * FPS)
 
     def update(frame):
         global START_TIME
         if START_TIME is None:
             START_TIME = time.time()
 
-        t_now = frame / FPS * SPEED
+        t_now = frame / FPS * speed
 
         for s in series:
             pct = interpolate_progress(s["timeline"], t_now)
@@ -201,42 +204,51 @@ def simulate_cut(
         cache_frame_data=False,
         repeat=False,
     )
-    # plt.show()
-    ani.save("cutting_progress.mp4", writer="ffmpeg", fps=20)
+    if save_animation:
+        print(1)
+        ani.save("cutting_progress.mp4", writer="ffmpeg", fps=20)
+    else:
+        print(2)
+        plt.show()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python script.py svg_path material_height feedrate")
+    if len(sys.argv) != 6:
+        print(
+            "Usage: python script.py svg_path material_height feedrate save_animation speed"
+        )
         sys.exit(1)
 
     svg_path: str = sys.argv[1]
     material_height: float = float(sys.argv[2])
     feedrate: float = float(sys.argv[3])
+    save_animation: bool = sys.argv[4] == "1"
+    speed: float = float(sys.argv[5])
 
-    optimizers: list[BaseOptimizer] = [
-        GreedyOptimizerModule(material_height),
-        GeneticOptimizerModule(material_height),
-        BucketOptimizerModule(material_height),
-        RPPApproximationModule(material_height),
-    ]
+    optimizers: OrderedDict[str, BaseOptimizer] = OrderedDict(
+        {
+            "Naive Lösung": BucketOptimizerModule(material_height),
+            "Greedy": GreedyOptimizerModule(material_height),
+            "Genetischer Algorithmus": GeneticOptimizerModule(material_height),
+            "Christofides Algorithmus": RPPApproximationModule(material_height),
+        }
+    )
 
     print("Available optimizers:")
-    for i, optimizer in enumerate(optimizers):
-        print(f"  {i + 1}: {optimizer.__class__.__name__}")
+    for i, optimizer in enumerate(optimizers.keys()):
+        print(f"  {i + 1}: {optimizer}")
     print("Enter one or more numbers separated by spaces (e.g. 1 3):")
 
     raw = input("Select optimizers: ").split()
     chosen_indices = [int(x) - 1 for x in raw]
 
     if not chosen_indices:
-        chosen_optimizers = optimizers
+        chosen_indices = list(range(len(optimizers)))
     elif any(i < 0 or i >= len(optimizers) for i in chosen_indices):
         print("Invalid selection.")
         sys.exit(1)
-    else:
-        chosen_optimizers = [optimizers[i] for i in chosen_indices]
-    chosen_names = [opt.__class__.__name__ for opt in chosen_optimizers]
+    chosen_optimizers = [list(optimizers.values())[i] for i in chosen_indices]
+    chosen_names = [list(optimizers.keys())[i] for i in chosen_indices]
 
     simulate_cut(
         chosen_optimizers,
@@ -244,4 +256,6 @@ if __name__ == "__main__":
         svg_path,
         material_height,
         feedrate,
+        save_animation,
+        speed,
     )
