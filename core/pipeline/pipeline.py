@@ -1,8 +1,10 @@
 from api.models.base import FrontendInput
+from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule
 from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 from core.pipeline.base import Module, Pipeline
+from core.service_container import Container
 
 
 def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
@@ -27,6 +29,31 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
             )
         ]
     )
+    return Pipeline(modules)
+
+
+def svg_to_geometry_pipeline(
+    material_thickness: float,
+    dpi: float,
+    nest_geometry: bool,
+    x_offset: float = 0,
+    y_offset: float = 0,
+    model_scale: float = 0,
+):
+    modules: list[Module] = []
+    modules.append(
+        SVG5DOF_Importer(
+            material_thickness=material_thickness,
+            dpi=dpi,
+            x_offset=x_offset,
+            y_offset=y_offset,
+            model_scale=model_scale,
+        )
+    )
+    if nest_geometry:
+        center_x, center_y = Container.laser_config.table_center()
+        modules.append(AutoNester(center_x, center_y))
+
     return Pipeline(modules)
 
 

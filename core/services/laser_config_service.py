@@ -16,6 +16,9 @@ class LaserConfigService(ABC, BaseService):
     def gantry_dim_mm(self) -> Tuple[float, float]: ...  # w, h
 
     @abstractmethod
+    def table_center(self) -> Tuple[float, float]: ...  # x, y
+
+    @abstractmethod
     def get_rotating_kinematics(self) -> dict: ...
 
     @abstractmethod
@@ -42,6 +45,11 @@ class LaserConfigServiceImpl(LaserConfigService):
         max_x = self.config["Kinematics"]["rotating_table_five_axis"]["max_x"]
         max_y = self.config["Kinematics"]["rotating_table_five_axis"]["max_y"]
         return max_x, max_y
+
+    def table_center(self) -> Tuple[float, float]:
+        center_x = self.config["Kinematics"]["rotating_table_five_axis"]["center_x"]
+        center_y = self.config["Kinematics"]["rotating_table_five_axis"]["center_y"]
+        return center_x, center_y
 
     def get_rotating_kinematics(self) -> dict:
         return self.config["Kinematics"]["rotating_table_five_axis"]
