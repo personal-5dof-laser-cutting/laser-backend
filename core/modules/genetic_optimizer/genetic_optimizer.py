@@ -1,5 +1,5 @@
 from itertools import product
-from typing import override
+from typing import Optional, override
 import numpy as np
 from ctypes import ArgumentError
 
@@ -13,8 +13,9 @@ class GeneticOptimizerModule(BaseOptimizer):
         self,
         material_height: float,
         generations: int = 1000,
+        start_location: Optional[Configuration] = None,
     ) -> None:
-        super().__init__(material_height)
+        super().__init__(material_height, start_location)
         self.generations = generations
         self.material_height = material_height
 

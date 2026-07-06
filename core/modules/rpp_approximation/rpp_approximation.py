@@ -1,6 +1,6 @@
 from itertools import combinations, pairwise, product
 from math import ceil
-from typing import Literal, TypeGuard
+from typing import Literal, Optional, TypeGuard
 
 import rustworkx as rx
 import networkx as nx
@@ -38,8 +38,12 @@ Edge = CutEdge | MSTEdge | HelperEdge
 
 
 class RPPApproximationModule(BaseOptimizer):
-    def __init__(self, material_height: float) -> None:
-        super().__init__(material_height)
+    def __init__(
+        self,
+        material_height: float,
+        start_location: Optional[Configuration] = None,
+    ) -> None:
+        super().__init__(material_height, start_location)
 
     def get_current_cost(self, as_cycle: bool) -> float:
         return self.geometry.calculate_travel_cost(self.material_height, as_cycle)

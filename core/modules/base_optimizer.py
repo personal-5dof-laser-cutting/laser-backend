@@ -12,7 +12,7 @@ log = logging.getLogger("Optimizer")
 
 class BaseOptimizer(Module[Geometry, Geometry], ABC):
     material_height: float
-    start_configuration: Optional[Configuration]
+    start_location: Optional[Configuration]
     geometry: Geometry
 
     current_travel_cost: float = 0
@@ -22,7 +22,7 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
     ):
         super().__init__()
         self.material_height = material_height
-        self.start_configuration = start_location
+        self.start_location = start_location
 
     @abstractmethod
     def _optimize(self): ...
@@ -35,9 +35,7 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
         self.geometry = data
         self._build_cache_from_cuts
         self._optimize()
-        self.geometry.shift_path_optimally(
-            self.material_height, self.start_configuration
-        )
+        self.geometry.shift_path_optimally(self.material_height, self.start_location)
         return self.geometry
 
     @final

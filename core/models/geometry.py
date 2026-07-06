@@ -72,13 +72,13 @@ class Geometry:
         return running_total
 
     def shift_path_optimally(
-        self, material_height: float, start_configuration: Optional[Configuration]
+        self, material_height: float, start_location: Optional[Configuration]
     ):
-        if start_configuration is not None:
+        if start_location is not None:
             min_cost = float("inf")
             index = -1
             for i in range(len(self.cuts)):
-                cost = start_configuration.travel_time_to(
+                cost = start_location.travel_time_to(
                     self.cuts[i].start_configuration, material_height
                 ) - self.cuts[i - 1].travel_time_to(self.cuts[i], material_height)
                 if cost < min_cost:

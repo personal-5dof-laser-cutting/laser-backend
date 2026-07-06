@@ -1,12 +1,18 @@
 import math
-from core.models.geometry import Geometry, TrapezoidalCut
+from typing import Optional
+from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.modules.base_optimizer import BaseOptimizer
 from core.service_container import Container
 
 
 class BucketOptimizerModule(BaseOptimizer):
-    def __init__(self, material_height: float, epsilon: float = 0.01) -> None:
-        super().__init__(material_height)
+    def __init__(
+        self,
+        material_height: float,
+        epsilon: float = 0.01,
+        start_location: Optional[Configuration] = None,
+    ) -> None:
+        super().__init__(material_height, start_location)
         self.epsilon: float = epsilon
 
     def get_current_cost(self, as_cycle: bool) -> float:
