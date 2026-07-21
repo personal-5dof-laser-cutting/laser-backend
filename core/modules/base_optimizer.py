@@ -11,17 +11,17 @@ log = logging.getLogger("Optimizer")
 
 
 class BaseOptimizer(Module[Geometry, Geometry], ABC):
-    material_height: float
+    material_thickness: float
     start_configuration: Optional[Configuration]
     geometry: Geometry
 
     current_travel_cost: float = 0
 
     def __init__(
-        self, material_height: float, start_location: Configuration | None = None
+        self, material_thickness: float, start_location: Configuration | None = None
     ):
         super().__init__()
-        self.material_height = material_height
+        self.material_thickness = material_thickness
         self.start_configuration = start_location
 
     @abstractmethod
@@ -36,7 +36,7 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
         self._build_cache_from_cuts
         self._optimize()
         self.geometry.shift_path_optimally(
-            self.material_height, self.start_configuration
+            self.material_thickness, self.start_configuration
         )
         return self.geometry
 
@@ -47,5 +47,5 @@ class BaseOptimizer(Module[Geometry, Geometry], ABC):
             config for cut in cuts for config in cut.configurations()
         ]
         Container.kinematics_service.generate_cache(
-            configurations, self.material_height
+            configurations, self.material_thickness
         )

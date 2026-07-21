@@ -7,7 +7,7 @@ from util.calibrate_laser_power import sort_cuts
 
 MAX_POWER = 1000
 interface: CorgiInterface
-material_height: float
+material_thickness: float
 
 
 def home():
@@ -15,7 +15,7 @@ def home():
 
 
 def move(x: float, y: float, a: float = 0, b: float = 0):
-    interface.send_line(f"G0 X{x:z.3f} Y{y:z.3f} Z{material_height} A{a} B{b}")
+    interface.send_line(f"G0 X{x:z.3f} Y{y:z.3f} Z{material_thickness} A{a} B{b}")
     # print(f"Move {x} {y} {a} {b}")
 
 
@@ -36,7 +36,7 @@ def set_feedrate(feedrate: float):
 
 
 def cut(x: float, y: float, a: float = 0, b: float = 0):
-    interface.send_line(f"G1 X{x} Y{y} Z{material_height} A{a} B{b}")
+    interface.send_line(f"G1 X{x} Y{y} Z{material_thickness} A{a} B{b}")
     # print(f"Cut {x} {y} {a} {b}")
 
 
@@ -76,7 +76,7 @@ class Cut:
 
 if __name__ == "__main__":
     address = sys.argv[1]
-    material_height = float(sys.argv[2])
+    material_thickness = float(sys.argv[2])
 
     interface = CorgiInterface(address)
     threading.Thread(target=interface.main_loop, daemon=True).start()

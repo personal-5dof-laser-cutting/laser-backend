@@ -109,7 +109,7 @@ def svg_paths_to_points(
 
 
 def points_to_trapezoids(
-    bottom_points: list[Point2D], top_points: list[Point2D], material_height: float
+    bottom_points: list[Point2D], top_points: list[Point2D], material_thickness: float
 ) -> list[TrapezoidalCut]:
     if len(top_points) < 2 or len(bottom_points) < 2:
         raise ValueError("There must be at least two top and two bottom points.")
@@ -129,8 +129,8 @@ def points_to_trapezoids(
 
         start_top = start[0].to_point3d(0)  # type: ignore
         end_top = end[0].to_point3d(0)  # type: ignore
-        start_bottom = start[1].to_point3d(-material_height)  # type: ignore
-        end_bottom = end[1].to_point3d(-material_height)  # type: ignore
+        start_bottom = start[1].to_point3d(-material_thickness)  # type: ignore
+        end_bottom = end[1].to_point3d(-material_thickness)  # type: ignore
         try:
             try:
                 cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)

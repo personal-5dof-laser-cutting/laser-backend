@@ -17,12 +17,12 @@ class GreedyOptimizerModule(BaseOptimizer):
 
     def __init__(
         self,
-        material_height: float,
+        material_thickness: float,
         start_location: Optional[Configuration] = None,
         max_iterations: int = 10,
         show_statistics: bool = False,
     ):
-        super().__init__(material_height, start_location)
+        super().__init__(material_thickness, start_location)
         self.max_iterations = max_iterations
         self.show_statistics = show_statistics
 
@@ -41,7 +41,7 @@ class GreedyOptimizerModule(BaseOptimizer):
 
     @override
     def get_current_cost(self, as_cycle: bool) -> float:
-        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
+        return self.geometry.calculate_travel_cost(self.material_thickness, as_cycle)
 
     def _best_first(self):
         cuts = self.geometry.cuts
@@ -72,7 +72,7 @@ class GreedyOptimizerModule(BaseOptimizer):
         closest_cost: float = inf
         for i in range(start_idx, len(cuts)):
             current_cost = start_conf.travel_time_to(
-                cuts[i].start_configuration, self.material_height
+                cuts[i].start_configuration, self.material_thickness
             )
             if current_cost < closest_cost:
                 closest_cost = current_cost
@@ -80,7 +80,7 @@ class GreedyOptimizerModule(BaseOptimizer):
                 flip_cut = False
 
             current_flipped_cost = start_conf.travel_time_to(
-                cuts[i].end_configuration, self.material_height
+                cuts[i].end_configuration, self.material_thickness
             )
             if current_flipped_cost < closest_cost:
                 closest_cost = current_flipped_cost
@@ -95,15 +95,15 @@ class GreedyOptimizerModule(BaseOptimizer):
         found_improvement: bool = True
         iterations: int = 0
         previous_cost: float = self.geometry.calculate_travel_cost(
-            self.material_height, True
+            self.material_thickness, True
         )
         improvement: float = 0.0
         cut_indices = list(range(len(cuts)))
         improvable_cut_indices = filter(
             lambda idx: (
-                cuts[idx - 1].travel_time_to(cuts[idx], self.material_height) != 0
+                cuts[idx - 1].travel_time_to(cuts[idx], self.material_thickness) != 0
                 or cuts[idx].travel_time_to(
-                    cuts[(idx + 1) % len(cuts)], self.material_height
+                    cuts[(idx + 1) % len(cuts)], self.material_thickness
                 )
                 != 0
             ),
@@ -211,7 +211,7 @@ class GreedyOptimizerModule(BaseOptimizer):
     ) -> float:
         from_conf = cut1.start_configuration if flip1 else cut1.end_configuration
         to_conf = cut2.end_configuration if flip2 else cut2.start_configuration
-        return from_conf.travel_time_to(to_conf, self.material_height)
+        return from_conf.travel_time_to(to_conf, self.material_thickness)
 
     def _segment_cost(self, cut_idx: int, flipped: bool = False) -> float:
         cuts = self.geometry.cuts
@@ -295,7 +295,7 @@ class GreedyOptimizerModule(BaseOptimizer):
         plt.ion()
         self.steps: list[str] = []
         self.results: list[float] = []
-        self.cut_cost = self.geometry.calculate_cut_cost(self.material_height, 600)
+        self.cut_cost = self.geometry.calculate_cut_cost(self.material_thickness, 600)
 
     def _setup_plot(self):
         self.ax.set_xlabel("Step")
@@ -305,7 +305,7 @@ class GreedyOptimizerModule(BaseOptimizer):
     def _append_stats(self, step_name: str, as_cycle: bool = True):
         self.steps.append(step_name)
         current_cost = self.geometry.calculate_travel_cost(
-            self.material_height, as_cycle=as_cycle
+            self.material_thickness, as_cycle=as_cycle
         )
         self.results.append(current_cost)
 

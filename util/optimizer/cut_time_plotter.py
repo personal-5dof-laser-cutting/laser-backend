@@ -16,18 +16,20 @@ from core.modules.svg5dof_importer.import_svg5dof import SVG5DOF_Importer
 
 
 def build_timeline(
-    geo: Geometry, material_height: float, feedrate: float, offset_seconds: float = 0
+    geo: Geometry, material_thickness: float, feedrate: float, offset_seconds: float = 0
 ):
     cuts = geo.cuts
     n = len(cuts)
     t = offset_seconds
     waypoints = [(t, 0.0)]
-    cuts_cost = geo.calculate_cut_cost(material_height, feedrate) * 60
+    cuts_cost = geo.calculate_cut_cost(material_thickness, feedrate) * 60
     accum_cuts_cost = 0.0
 
     for i, cut in enumerate(cuts):
         cut_cost = (
-            cut.get_internal_cost(feedrate=feedrate, material_height=material_height)
+            cut.get_internal_cost(
+                feedrate=feedrate, material_thickness=material_thickness
+            )
             * 60
         )
         accum_cuts_cost += cut_cost
@@ -36,7 +38,9 @@ def build_timeline(
         waypoints.append((t, pct_after))
         if i < n - 1:
             t += (
-                cuts[i].travel_time_to(cuts[i + 1], material_height=material_height)
+                cuts[i].travel_time_to(
+                    cuts[i + 1], material_thickness=material_thickness
+                )
                 * 60
             )
             waypoints.append((t, pct_after))
@@ -71,7 +75,7 @@ def simulate_cut(
     optimizers: list[BaseOptimizer],
     optimizer_names: list[str],
     svg_path: str,
-    material_height: float,
+    material_thickness: float,
     feedrate: float,
 ):
     global START_TIME
@@ -81,7 +85,7 @@ def simulate_cut(
     svg_string = open(svg_path).read()
     Geometry3D.set_sig_figures(4)
 
-    dof = SVG5DOF_Importer(material_height, 72)
+    dof = SVG5DOF_Importer(material_thickness, 72)
     geometry: Geometry = dof.process(svg_string)
     an = AutoNester(200, 200)
     geometry = an.process(geometry)
@@ -89,7 +93,7 @@ def simulate_cut(
     # --- build one timeline per optimizer (plus the unoptimized baseline) ---
     timelines: list[tuple[str, list[tuple[float, float]]]] = []
     original_timeline = build_timeline(
-        geometry, material_height, feedrate, offset_seconds=HOMING_DURATION
+        geometry, material_thickness, feedrate, offset_seconds=HOMING_DURATION
     )
     timelines.append(("Unoptimized", original_timeline))
 
@@ -101,7 +105,7 @@ def simulate_cut(
         print(f"Took {duration} seconds")
         tl = build_timeline(
             optimized_geo,
-            material_height,
+            material_thickness,
             feedrate,
             offset_seconds=max(duration, HOMING_DURATION),
         )
@@ -207,18 +211,18 @@ def simulate_cut(
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python script.py svg_path material_height feedrate")
+        print("Usage: python script.py svg_path material_thickness feedrate")
         sys.exit(1)
 
     svg_path: str = sys.argv[1]
-    material_height: float = float(sys.argv[2])
+    material_thickness: float = float(sys.argv[2])
     feedrate: float = float(sys.argv[3])
 
     optimizers: list[BaseOptimizer] = [
-        GreedyOptimizerModule(material_height),
-        GeneticOptimizerModule(material_height),
-        BucketOptimizerModule(material_height),
-        RPPApproximationModule(material_height),
+        GreedyOptimizerModule(material_thickness),
+        GeneticOptimizerModule(material_thickness),
+        BucketOptimizerModule(material_thickness),
+        RPPApproximationModule(material_thickness),
     ]
 
     print("Available optimizers:")
@@ -242,6 +246,6 @@ if __name__ == "__main__":
         chosen_optimizers,
         chosen_names,
         svg_path,
-        material_height,
+        material_thickness,
         feedrate,
     )
