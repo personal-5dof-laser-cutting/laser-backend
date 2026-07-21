@@ -167,12 +167,24 @@ class CorgiInterface:
     def _abort(self):
         self.queue.clear()
         self.send_line("M112")
+        self.aborting = True
+
+    aborting = False
 
     def _tick(self):
         if ws_msg := self._check_messages():
+            print(1)
             if ws_msg == "abort":
                 self._abort()
         if (msg := self._interface.recv()) is not None:
+            print(2)
+            print(f"ci: {msg}")
+            if self.aborting:
+                self.outgoing_messages.put(
+                    WebsocketMessage(type="info", content="Successfully aborted")
+                )
+                return
+            spindle_info_message = "[MSG:INFO: spindle: "
             if msg.strip() == "ok" and len(self.buffer_corgi) > 0:
                 processed_command: str = self.buffer_corgi.pop(0)
                 byte_count: int = str_len(processed_command)
@@ -181,15 +193,22 @@ class CorgiInterface:
                 assert self.buffer_used >= 0
             elif msg.startswith("error"):
                 raise Exception(f"Corgi returned '{msg}'")
+            elif msg.strip().startswith(spindle_info_message):
+                self.outgoing_messages.put(
+                    WebsocketMessage(
+                        type="debug",
+                        content=f"{msg.strip()[len(spindle_info_message) : -1]}",
+                    )
+                )
 
         if len(self.queue) > 0:
             next_command: str = self.queue[0]
             free_buffer = self.buffer_size - self.buffer_used
 
             if str_len(next_command) <= free_buffer:
+                print(3)
                 self._send_to_corgi(next_command)
                 self.queue.pop(0)
-
                 assert self.buffer_used <= self.buffer_size
 
     def main_loop(self):
@@ -210,4 +229,5 @@ class CorgiInterface:
                 self.outgoing_messages.put(
                     WebsocketMessage(type="error", content="Corgi disconnected")
                 )
+                print(e)
             sleep(0.001)

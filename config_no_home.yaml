@@ -13,7 +13,7 @@ Kinematics:
     z_height: 71
     max_angle: 60
     rotation_offset: 38.10
-    kinematic_segment_len_mm: 0.5
+    # kinematic_segment_len_mm: 0.5
     center_x: 202.99
     center_y: 242.43
     max_x: 380
@@ -109,7 +109,7 @@ axes:
         direction_pin: I2SO.17
         disable_pin: I2SO.16
       pulloff_mm: 4
-      limit_neg_pin: gpio.32:high
+      # limit_neg_pin: gpio.32:high
     homing:
       cycle: 2
       allow_single_axis: false
@@ -149,7 +149,7 @@ Laser:
   disable_with_s0: true
   s0_with_disable: true
   tool_num: 0
-  speed_map: 0=0.000% 65535=100.000%
+  speed_map: 0=0.000% 255=100.000%
   off_on_alarm: true
 
   # Begin Huanyang
@@ -183,4 +183,4 @@ Laser:
 #  off_on_alarm: false
 
 start:
-  must_home: true
+  must_home: false
