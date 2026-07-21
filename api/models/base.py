@@ -14,12 +14,6 @@ class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
 
 
-class JobOutput(BaseModel):
-    job_id: str = Field(
-        description="Job ID used to create a websocket connection (/ws/{job_id})"
-    )
-
-
 class ResponseMessage(BaseModel):
     type: Literal["info", "error"] = Field(description="Message Type")
     reason: str = Field(
@@ -52,7 +46,7 @@ class WebsocketMessage(StrictBaseModel):
         "error",
         "abort",
         "update",
-        "job_id",
+        "job",
     ] = Field(description="Message Type")
     content: str = Field(
         description="Message content. Can be a singular value or a JSON string"

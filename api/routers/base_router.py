@@ -1,10 +1,8 @@
 import io
-from uuid import uuid4
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from api.models.base import FrontendInput, JobOutput
-from api.routers.jobs import Job, jobs
+from api.models.base import FrontendInput
 from core.pipeline.pipeline import full_pipeline
 
 router = APIRouter()
@@ -34,18 +32,3 @@ def generate_gcode(inp: FrontendInput) -> StreamingResponse:
         media_type="text/plain",
         headers={"Content-Disposition": "attachment; filename=model.gcode"},
     )
-
-
-@router.post(
-    "/cut_svg",
-    responses={
-        202: {
-            "content": {"application/json": {}},
-            "description": "Creates a job",
-        },
-    },
-)
-def cut_svg(inp: FrontendInput) -> JobOutput:
-    job_id = str(uuid4())
-    jobs[job_id] = Job(full_pipeline(inp), inp.svg)
-    return JobOutput(job_id=job_id)
