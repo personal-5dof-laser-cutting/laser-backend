@@ -1,26 +1,31 @@
 from itertools import product
+from typing import override
 import numpy as np
 from ctypes import ArgumentError
 
-from core.models.geometry import Configuration, Geometry, TrapezoidalCut
-from core.pipeline.base import Module
+from core.models.geometry import Configuration, TrapezoidalCut
+from core.modules.base_optimizer import BaseOptimizer
 from core.modules.genetic_optimizer.genetic_gtsp import GTSP, run_gcga
 
 
-class GeneticOptimizerModule(Module[Geometry, Geometry]):
+class GeneticOptimizerModule(BaseOptimizer):
     def __init__(
         self,
         material_height: float,
         generations: int = 1000,
     ) -> None:
-        super().__init__()
+        super().__init__(material_height)
         self.generations = generations
         self.material_height = material_height
 
-    def process(self, data: Geometry) -> Geometry:
-        cuts: list[TrapezoidalCut] = data.cuts
-        weights, groups = self._generate_weights(data.cuts)
-        gtsp = GTSP(weights, groups)
+    @override
+    def _optimize(self):
+        self._set_current_cost(
+            self.geometry.calculate_travel_cost(self.material_height, True)
+        )
+        cuts: list[TrapezoidalCut] = self.geometry.cuts
+        weights, groups = self._generate_weights(cuts)
+        gtsp = GTSP(weights, groups, self._set_current_cost)
         best_chrom, _ = run_gcga(
             gtsp,
             pop_size=100,
@@ -33,9 +38,14 @@ class GeneticOptimizerModule(Module[Geometry, Geometry]):
         )
         tour = gtsp.decode(best_chrom)
         trapezoid_path = self._tour_to_path(tour, cuts)
-        data.cuts = trapezoid_path
+        self.geometry.cuts = trapezoid_path
 
-        return data
+    @override
+    def get_current_cost(self, as_cycle: bool) -> float:
+        return self.current_cost
+
+    def _set_current_cost(self, current_cost: float):
+        self.current_cost = current_cost
 
     def _generate_weights(
         self, cuts: list[TrapezoidalCut]

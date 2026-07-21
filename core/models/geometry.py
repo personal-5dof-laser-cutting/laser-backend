@@ -1,5 +1,6 @@
+from functools import cached_property
 from itertools import pairwise
-from typing import Tuple
+from typing import Optional, Tuple
 from Geometry3D import (
     Plane,
     Point,
@@ -47,6 +48,13 @@ class Geometry:
         vis.add((origin(), "b", 5))
         vis.show()
 
+    def calculate_total_cost(
+        self, material_height: float, feedrate: float, as_cycle: bool
+    ) -> float:
+        return self.calculate_travel_cost(
+            material_height, as_cycle
+        ) + self.calculate_cut_cost(material_height, feedrate)
+
     def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
         if len(self.cuts) <= 1:
             return 0
@@ -62,6 +70,38 @@ class Geometry:
         for cut in self.cuts:
             running_total += cut.get_internal_cost(feedrate, material_height)
         return running_total
+
+    def shift_path_optimally(
+        self, material_height: float, start_configuration: Optional[Configuration]
+    ):
+        if start_configuration is not None:
+            min_cost = float("inf")
+            index = -1
+            for i in range(len(self.cuts)):
+                cost = start_configuration.travel_time_to(
+                    self.cuts[i].start_configuration, material_height
+                ) - self.cuts[i - 1].travel_time_to(self.cuts[i], material_height)
+                if cost < min_cost:
+                    min_cost = cost
+                    index = i
+        else:
+            index = self._find_longest_incoming_edge(material_height)
+        self._left_rotate(index)
+
+    def _find_longest_incoming_edge(self, material_height: float) -> int:
+        cuts = self.cuts
+        number_cuts = len(cuts)
+        longest_edge_idx: int = 0
+        longest_edge: float = cuts[-1].travel_time_to(cuts[0], material_height)
+        for i in range(1, number_cuts):
+            current_cost = cuts[i - 1].travel_time_to(cuts[i], material_height)
+            if current_cost > longest_edge:
+                longest_edge_idx = i
+                longest_edge = current_cost
+        return longest_edge_idx
+
+    def _left_rotate(self, i: int):
+        self.cuts = self.cuts[i:] + self.cuts[:i]
 
 
 class Configuration:
@@ -390,14 +430,16 @@ class TrapezoidalCut:
     def end_segment(self) -> Segment:
         return Segment(self.end_top, self.end_bottom)
 
+    @cached_property
     def start_configuration(self) -> Configuration:
         return Configuration.from_segment(self.start_segment())
 
+    @cached_property
     def end_configuration(self) -> Configuration:
         return Configuration.from_segment(self.end_segment())
 
     def configurations(self) -> list[Configuration]:
-        return [self.start_configuration(), self.end_configuration()]
+        return [self.start_configuration, self.end_configuration]
 
     def top_vector(self) -> Vector:
         return self.end_top.pv() - self.start_top.pv()
@@ -414,6 +456,10 @@ class TrapezoidalCut:
     def flip_direction(self) -> None:
         self._start_top, self._end_top = self.end_top, self.start_top
         self._start_bottom, self._end_bottom = self.end_bottom, self.start_bottom
+        self.start_configuration, self.end_configuration = (
+            self.end_configuration,
+            self.start_configuration,
+        )
 
     def flipped_direction(self) -> TrapezoidalCut:
         """Flip the cut direction by swapping its start and end endpoints."""
@@ -481,23 +527,31 @@ class TrapezoidalCut:
         return math.isclose(self.get_slant_angle(), 0)
 
     def get_internal_cost(self, feedrate: float, material_height: float) -> float:
+        from core.service_container import Container
+
+        steps_per_mm = Container.laser_config.steps_per_mm()
+
         from_conf, to_conf = self.configurations()
-        min_time = from_conf.travel_time_to(to_conf, material_height)
+        travel_move_time = from_conf.travel_time_to(to_conf, material_height)
         from_positions = from_conf.to_motor_positions(material_height)
         to_positions = to_conf.to_motor_positions(material_height)
         delta_1 = from_positions[0].delta(to_positions[0])
         delta_2 = from_positions[0].delta(to_positions[1])
-        delta_1_dist = math.sqrt(delta_1.x**2 + delta_1.y**2)
-        delta_2_dist = math.sqrt(delta_2.x**2 + delta_2.y**2)
+        delta_1_mm = math.sqrt(
+            (delta_1.x / steps_per_mm["x"]) ** 2 + (delta_1.y / steps_per_mm["y"]) ** 2
+        )
+        delta_2_mm = math.sqrt(
+            (delta_2.x / steps_per_mm["x"]) ** 2 + (delta_2.y / steps_per_mm["y"]) ** 2
+        )
 
-        dist = delta_2_dist if delta_2.a < delta_1.a else delta_1_dist
-        dist = min(delta_1_dist, delta_2_dist)
+        dist = delta_2_mm if delta_2.a < delta_1.a else delta_1_mm
+        dist = min(delta_1_mm, delta_2_mm)
 
-        return max(min_time, dist / feedrate)
+        return max(travel_move_time, dist / feedrate)
 
     def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
-        return self.end_configuration().travel_time_to(
-            other.start_configuration(), material_height
+        return self.end_configuration.travel_time_to(
+            other.start_configuration, material_height
         )
 
     def __repr__(self) -> str:

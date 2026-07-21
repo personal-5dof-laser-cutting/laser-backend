@@ -1,23 +1,25 @@
 import math
 from core.models.geometry import Geometry, TrapezoidalCut
-from core.pipeline.base import Module
+from core.modules.base_optimizer import BaseOptimizer
 from core.service_container import Container
 
 
-class BucketOptimizerModule(Module[Geometry, Geometry]):
+class BucketOptimizerModule(BaseOptimizer):
     def __init__(self, material_height: float, epsilon: float = 0.01) -> None:
-        self.material_height: float = material_height
+        super().__init__(material_height)
         self.epsilon: float = epsilon
-        super().__init__()
 
-    def process(self, data: Geometry) -> Geometry:
+    def get_current_cost(self, as_cycle: bool) -> float:
+        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
+
+    def _optimize(self):
         optimized_geo = Geometry()
-        sorted_cuts = sorted(data.cuts, key=self._get_sort_tuple)
+        sorted_cuts = sorted(self.geometry.cuts, key=self._get_sort_tuple)
         optimized_geo.add_cuts(sorted_cuts)
-        return optimized_geo
+        self.geometry = optimized_geo
 
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[int, int, int, int]:
-        start_config = cut.start_configuration()
+        start_config = cut.start_configuration
         mpos1, mpos2 = Container.kinematics_service.get_positions(
             start_config, self.material_height
         )

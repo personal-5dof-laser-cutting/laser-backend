@@ -76,6 +76,11 @@ async def websocket_endpoint(ws: WebSocket):
                                 content="Internal server error. Couldn't start the job.",
                             ),
                         )
+                    else:
+                        await ws_send(
+                            ws,
+                            WebsocketMessage(type="info", content="Job's done"),
+                        )
                     continue
 
                 priority = message_priority.get(ws_input.type, 10)

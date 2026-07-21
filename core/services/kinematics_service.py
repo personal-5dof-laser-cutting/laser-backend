@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import ctypes
 
-from typing import Tuple
+from typing import Iterable, Tuple
 
 import numpy as np
 from core.models.geometry import Configuration, MotorPosition
@@ -18,7 +18,7 @@ class KinematicsService(ABC, BaseService):
 
     @abstractmethod
     def generate_cache(
-        self, configurations: list[Configuration], material_height: float
+        self, configurations: Iterable[Configuration], material_height: float
     ): ...
 
 
@@ -68,12 +68,12 @@ class KinematicsServiceImpl(KinematicsService):
         return self.cache[cartesian]
 
     def generate_cache(
-        self, configurations: list[Configuration], material_height: float
+        self, configurations: Iterable[Configuration], material_height: float
     ):
-        n = len(configurations)
         configurations_f = np.array(
             [[c.x, c.y, c.alpha, c.beta] for c in configurations]
         ).astype(np.float32)
+        n = len(configurations_f)
         cx = np.ascontiguousarray(configurations_f[:, 0], dtype=np.float32)
         cy = np.ascontiguousarray(configurations_f[:, 1], dtype=np.float32)
         cz = np.ascontiguousarray(np.full(n, material_height, dtype=np.float32))

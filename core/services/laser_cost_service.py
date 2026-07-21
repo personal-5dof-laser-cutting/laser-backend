@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from functools import cache
 
 from core.models.geometry import Configuration, MotorPosition
 from core.services.base import BaseService
@@ -9,6 +10,7 @@ class LaserCostService(ABC, BaseService):
     """Service that calculates the cost between two configurations"""
 
     @abstractmethod
+    @cache
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
     ) -> float: ...
@@ -27,6 +29,7 @@ class LaserCostServiceImpl(LaserCostService):
         self.max_rates = max_rates
         self.kinematics = kinematics
 
+    @cache
     def get_cost(
         self, conf1: Configuration, conf2: Configuration, material_height: float
     ) -> float:
