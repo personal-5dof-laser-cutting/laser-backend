@@ -30,14 +30,6 @@ class FrontendInput(BaseModel):
     dpi: float = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm",
     )
-    x_offset: int = Field(
-        description="How many millimeters the svg should be moved alongside the x-axis",
-        default=0,
-    )
-    y_offset: int = Field(
-        description="How many millimeters the svg should be moved alongside the y-axis",
-        default=0,
-    )
 
 
 class WebsocketMessage(BaseModel):

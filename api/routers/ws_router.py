@@ -1,21 +1,22 @@
 import asyncio
+import json
 from queue import PriorityQueue, Queue
 from typing import Tuple
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from api.models.base import WebsocketMessage
-from api.routers.jobs import jobs
+from api.models.base import FrontendInput, WebsocketMessage
 from core.corgi_interface import CorgiInterface
 from core.pipeline.base import Pipeline
+from core.pipeline.pipeline import full_pipeline
 
 
 ws_router = APIRouter()
 
 
 @ws_router.websocket("/ws/main")
-async def connect(ws: WebSocket):
+async def websocket_endpoint(ws: WebSocket):
     corgi_interface: CorgiInterface = ws.app.state.corgi
 
     await ws.accept()
@@ -28,13 +29,11 @@ async def connect(ws: WebSocket):
 
     loop = asyncio.get_running_loop()
 
-    async def run_job(job_id: str, corgi_interface: CorgiInterface) -> bool:
-        job = jobs.pop(job_id, None)
-        if job is None:
-            return False
-
-        pipeline: Pipeline = job.pipeline
-        result: str = await loop.run_in_executor(None, pipeline.run, job.init_value)
+    async def run_job(
+        svg: str, input: FrontendInput, corgi_interface: CorgiInterface
+    ) -> bool:
+        pipeline: Pipeline = full_pipeline(input)
+        result: str = await loop.run_in_executor(None, pipeline.run, svg)
         corgi_interface.send_lines(("$h\n" + result).split("\n"))
         return True
 
@@ -55,7 +54,7 @@ async def connect(ws: WebSocket):
                         ),
                     )
                     continue
-                if ws_input.type == "job_id":
+                if ws_input.type == "job":
                     if not corgi_interface.connected:
                         await ws_send(
                             ws,
@@ -65,14 +64,16 @@ async def connect(ws: WebSocket):
                         )
                         continue
 
-                    job_id = str(ws_input.content)
-                    job_is_valid = await run_job(job_id, corgi_interface)
+                    job = json.loads(ws_input.content)
+                    svg: str = job["svg"]
+                    parameters: FrontendInput = job["parameters"]
+                    job_is_valid = await run_job(svg, parameters, corgi_interface)
                     if not job_is_valid:
                         await ws_send(
                             ws,
                             WebsocketMessage(
                                 type="error",
-                                content=f"Invalid job ID: {job_id}. Couldn't start the job.",
+                                content="Internal server error. Couldn't start the job.",
                             ),
                         )
                     continue

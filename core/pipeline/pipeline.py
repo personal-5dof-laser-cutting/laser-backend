@@ -10,7 +10,7 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
         SVG5DOF_Importer(
             frontendInput.material_thickness,
             dpi=frontendInput.dpi,
-        )
+        ),
     ]
     if frontendInput.optimize:
         modules.append(GreedyOptimizerModule(frontendInput.material_thickness))
