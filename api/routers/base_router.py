@@ -1,11 +1,26 @@
 import io
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from api.models.base import FrontendInput
 from core.pipeline.pipeline import full_pipeline
+from api.models.materials import MATERIALS, MaterialData
 
 router = APIRouter()
+
+
+@router.get(
+    path="/get_materials",
+    response_class=JSONResponse,
+    responses={
+        200: {
+            "content": {"application/json": {}},
+            "description": "JSON object representing all available materials",
+        }
+    },
+)
+def get_materials() -> list[MaterialData]:
+    return MATERIALS
 
 
 @router.post(
