@@ -21,6 +21,7 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
                 laser_off=frontendInput.laser_off,
                 cut_speed=frontendInput.cut_speed,
                 pretty_formatting=False,
+                gcode_comments=False,
             )
         ]
     )

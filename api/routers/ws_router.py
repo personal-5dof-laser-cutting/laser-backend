@@ -1,5 +1,5 @@
 import asyncio
-import json
+import logging
 from queue import PriorityQueue, Queue
 from typing import Tuple
 
@@ -13,6 +13,8 @@ from core.pipeline.pipeline import full_pipeline
 
 
 ws_router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @ws_router.websocket("/ws/main")
@@ -29,11 +31,9 @@ async def websocket_endpoint(ws: WebSocket):
 
     loop = asyncio.get_running_loop()
 
-    async def run_job(
-        svg: str, input: FrontendInput, corgi_interface: CorgiInterface
-    ) -> bool:
+    async def run_job(input: FrontendInput, corgi_interface: CorgiInterface) -> bool:
         pipeline: Pipeline = full_pipeline(input)
-        result: str = await loop.run_in_executor(None, pipeline.run, svg)
+        result: str = await loop.run_in_executor(None, pipeline.run, input.svg)
         corgi_interface.send_lines(("$h\n" + result).split("\n"))
         return True
 
@@ -42,7 +42,7 @@ async def websocket_endpoint(ws: WebSocket):
         while True:
             try:
                 msg = await ws.receive_json()
-                print(f"got msg: {msg}")
+                print("Got message")
                 try:
                     ws_input: WebsocketMessage = WebsocketMessage.model_validate(msg)
                 except ValidationError as e:
@@ -64,10 +64,23 @@ async def websocket_endpoint(ws: WebSocket):
                         )
                         continue
 
-                    job = json.loads(ws_input.content)
-                    svg: str = job["svg"]
-                    parameters: FrontendInput = job["parameters"]
-                    job_is_valid = await run_job(svg, parameters, corgi_interface)
+                    try:
+                        parameters: FrontendInput = FrontendInput.model_validate_json(
+                            ws_input.content
+                        )
+                    except ValidationError as e:
+                        print(f"Couldn't validate model {ws_input.content}: {e}")
+                        await ws_send(
+                            ws,
+                            WebsocketMessage(
+                                type="error",
+                                content=f"The passed parameters don't match the required ones: {ws_input.content}",
+                            ),
+                        )
+                        continue
+                    print("Running job")
+                    job_is_valid = await run_job(parameters, corgi_interface)
+                    logging.debug("Ran job")
                     if not job_is_valid:
                         await ws_send(
                             ws,
