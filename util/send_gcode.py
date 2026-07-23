@@ -1,4 +1,4 @@
-from core.corgi_interface import CorgiInterface
+from core.corgi_interface import corgi_interface
 import sys
 import threading
 
@@ -7,9 +7,8 @@ if __name__ == "__main__":
     gcode_file = open(sys.argv[1], "r").readlines()
     address = sys.argv[2]
 
-    interface = CorgiInterface(address)
-    threading.Thread(target=interface.main_loop, daemon=True).start()
+    threading.Thread(target=corgi_interface.main_loop, daemon=True).start()
 
     print("Sending GCode")
-    interface.send_lines(gcode_file)
+    corgi_interface.send_lines(gcode_file)
     print("Done")

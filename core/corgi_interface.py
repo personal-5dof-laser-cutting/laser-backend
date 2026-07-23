@@ -62,7 +62,7 @@ class SerialInterface:
         return message or None
 
 
-class CorgiInterface:
+class _CorgiInterface:
     _interface: GCodeInterface | SerialInterface
     incoming_messages: PriorityQueue[Tuple[int, CutterActions]] = PriorityQueue()
     outgoing_messages: Queue[WebsocketMessage] = Queue()
@@ -207,3 +207,6 @@ class CorgiInterface:
                     ErrorMessage(type="error", content="Corgi disconnected")
                 )
             sleep(0.001)
+
+
+corgi_interface: _CorgiInterface = _CorgiInterface()
