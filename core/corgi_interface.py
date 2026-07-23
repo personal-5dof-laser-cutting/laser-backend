@@ -8,7 +8,7 @@ import serial
 import serial.tools
 import serial.tools.list_ports
 
-from api.models.base import WebsocketMessage
+from api.models.base import CutterActions, ErrorMessage, InfoMessage, WebsocketMessage
 
 log = logging.getLogger("Corgi Interface")
 
@@ -64,21 +64,17 @@ class SerialInterface:
 
 class CorgiInterface:
     _interface: GCodeInterface | SerialInterface
+    incoming_messages: PriorityQueue[Tuple[int, CutterActions]] = PriorityQueue()
+    outgoing_messages: Queue[WebsocketMessage] = Queue()
 
     def __init__(
         self,
         address: str | None = None,
-        incoming_messages: PriorityQueue[
-            Tuple[int, WebsocketMessage]
-        ] = PriorityQueue(),
-        outgoing_messages: Queue[WebsocketMessage] = Queue(),
         buffer_size: int = 128,
     ):
         if not ALLOW_WIFI_CONNECTION and address is not None:
             log.warning("Address passed but wifi connection is forbidden")
         self.address = address
-        self.incoming_messages = incoming_messages
-        self.outgoing_messages = outgoing_messages
         self.buffer_size: int = buffer_size
         self.buffer_used: int = 0
         self.buffer_corgi: list[str] = []
@@ -142,8 +138,8 @@ class CorgiInterface:
 
     def _check_messages(self) -> str:
         try:
-            _, msg = self.incoming_messages.get_nowait()
-            return msg.type
+            _, action = self.incoming_messages.get_nowait()
+            return action
         except Empty:
             return ""
 
@@ -197,7 +193,7 @@ class CorgiInterface:
             if not self.connected:
                 if self._try_connect():
                     self.outgoing_messages.put(
-                        WebsocketMessage(type="info", content="Corgi connected")
+                        InfoMessage(type="info", content="Corgi connected")
                     )
                 else:
                     sleep(5)
@@ -208,6 +204,6 @@ class CorgiInterface:
                 self.connected = False
                 log.error(f"Error running main loop: {e}")
                 self.outgoing_messages.put(
-                    WebsocketMessage(type="error", content="Corgi disconnected")
+                    ErrorMessage(type="error", content="Corgi disconnected")
                 )
             sleep(0.001)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, TypeAlias, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
@@ -40,14 +40,36 @@ class FrontendInput(StrictBaseModel):
     )
 
 
-class WebsocketMessage(StrictBaseModel):
-    type: Literal[
-        "info",
-        "error",
-        "abort",
-        "update",
-        "job",
-    ] = Field(description="Message Type")
-    content: str = Field(
-        description="Message content. Can be a singular value or a JSON string"
-    )
+message_type_description = "Message Type"
+CutterActions = Literal["abort", "home"]
+
+
+class InfoMessage(StrictBaseModel):
+    type: Literal["info"] = Field(description=message_type_description)
+    content: str = Field(description="Message content")
+
+
+class ErrorMessage(StrictBaseModel):
+    type: Literal["error"] = Field(description=message_type_description)
+    content: str = Field(description="Message content")
+
+
+class ActionMessage(StrictBaseModel):
+    type: Literal["action"] = Field(description=message_type_description)
+    action: CutterActions = Field(description="An action to be performed by the cutter")
+
+
+class UpdateMessage(StrictBaseModel):
+    type: Literal["update"] = Field(description=message_type_description)
+    message: str = Field(description="An update message")
+
+
+class JobMessage(StrictBaseModel):
+    type: Literal["job"] = Field(description=message_type_description)
+    input: FrontendInput = Field(description="A FrontendInput object")
+
+
+WebsocketMessage: TypeAlias = Annotated[
+    Union[InfoMessage, ErrorMessage, ActionMessage, UpdateMessage, JobMessage],
+    Field(discriminator="type"),
+]
