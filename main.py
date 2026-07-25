@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 import logging
 from logging.config import dictConfig
+import os
 from threading import Thread
 
 import Geometry3D
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -11,8 +13,14 @@ from api.models.base import ResponseMessage
 from api.routers.base_router import router
 from api.routers.ws_router import ws_router
 from fastapi.middleware.cors import CORSMiddleware
-
 from core.corgi_interface import corgi_interface
+
+load_dotenv()
+
+if os.getenv("ENVIRONMENT", "production") == "production":
+    logging_level = logging.INFO
+else:
+    logging_level = logging.DEBUG
 
 logging_config = dict(
     version=1,
@@ -20,9 +28,14 @@ logging_config = dict(
         "f": {"format": "%(asctime)s [%(name)s %(levelname)s] %(message)s"},
     },
     handlers={
-        "h": {"class": "logging.StreamHandler", "formatter": "f", "level": logging.INFO}
+        "h": {
+            "class": "logging.StreamHandler",
+            "formatter": "f",
+            "level": logging_level,
+        }
     },
-    root={"handlers": ["h"], "level": logging.INFO},
+    root={"handlers": ["h"], "level": logging_level},
+    disable_existing_loggers=False,
 )
 dictConfig(logging_config)
 

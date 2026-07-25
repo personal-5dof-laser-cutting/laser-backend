@@ -25,7 +25,7 @@ WebsocketMessage_ta: TypeAdapter[WebsocketMessage] = TypeAdapter(WebsocketMessag
 @ws_router.websocket("/ws/main")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
-    print("WS Connection accepted")
+    logger.info("WS Connection accepted")
     await ws_send(ws, InfoMessage(type="info", content="WS Connection accepted"))
 
     loop = asyncio.get_running_loop()
@@ -34,11 +34,10 @@ async def websocket_endpoint(ws: WebSocket):
         while True:
             try:
                 msg = await ws.receive_text()
-                print("Got message")
                 try:
                     ws_message = WebsocketMessage_ta.validate_json(msg)
                 except ValidationError as e:
-                    print(f"Invalid message received: {e}")
+                    logger.exception(f"`{msg}` is an invalid message: {e}")
                     await ws_send(
                         ws,
                         ErrorMessage(
@@ -46,6 +45,8 @@ async def websocket_endpoint(ws: WebSocket):
                         ),
                     )
                     continue
+
+                logger.info(f"Recieved {ws_message.type} Message")
 
                 match ws_message.type:
                     case "job":
@@ -65,7 +66,7 @@ async def websocket_endpoint(ws: WebSocket):
                             f"Input type {ws_message.type} not handled yet"
                         )
             except WebSocketDisconnect:
-                print("WebSocket Connection lost")
+                logger.warning("WebSocket Connection lost")
                 raise
 
     async def broadcast():
@@ -80,7 +81,7 @@ async def websocket_endpoint(ws: WebSocket):
     try:
         await asyncio.gather(listen_task, broadcast_task)
     except Exception as e:
-        print(f"Websocket disconnected: {e}")
+        logger.exception(f"Websocket disconnected due to internal error: {e}")
     finally:
         listen_task.cancel()
         broadcast_task.cancel()
@@ -97,7 +98,7 @@ async def close_ws(ws: WebSocket, code: int, reason: str):
 async def execute_job(
     ws: WebSocket, message: JobMessage, loop: asyncio.AbstractEventLoop
 ):
-    print("Running job")
+    logger.info("Running job")
     job_is_valid = await run_job(message.input, loop)
     logging.debug("Ran job")
     if not job_is_valid:
@@ -123,6 +124,7 @@ async def send_gcode(lines: list[str], home: bool = True):
 
 
 async def handle_action(ws, input: ActionMessage):
+    logger.info(f"Performing action {input.action}")
     message_priority = {"abort": 0, "home": 1}
     match input.action:
         case "abort":

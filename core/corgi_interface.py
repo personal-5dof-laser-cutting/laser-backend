@@ -196,7 +196,13 @@ class _CorgiInterface:
                         InfoMessage(type="info", content="Corgi connected")
                     )
                 else:
-                    sleep(5)
+                    log.info(
+                        f"Wating {self.reconnect_timeout:>2} second{'s' * (self.reconnect_timeout != 1)} to reconnect"
+                    )
+                    sleep(self.reconnect_timeout)
+                    self.reconnect_timeout = min(
+                        self.reconnect_timeout * 2, self.max_reconnect_timeout
+                    )
                     continue
             try:
                 self._tick()
