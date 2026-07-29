@@ -25,10 +25,10 @@ class SerialInterface:
 
     def __init__(self, port: str):
         self._interface = serial.Serial(port, baudrate=115200, timeout=0.5)
-        self._interface.dtr = False
-        sleep(0.1)
-        self._interface.dtr = True
-        sleep(2)
+        # self._interface.dtr = False
+        # sleep(0.1)
+        # self._interface.dtr = True
+        sleep(0.5)
         if self._interface.in_waiting > 0:
             boot_logs = self._interface.read(self._interface.in_waiting).decode(
                 "utf-8", errors="ignore"
@@ -179,8 +179,10 @@ class CorgiInterface:
                 self.buffer_used -= byte_count
 
                 assert self.buffer_used >= 0
-            elif msg.startswith("error"):
-                raise Exception(f"Corgi returned '{msg}'")
+            else:
+                log.info(msg)
+                if msg.startswith("error"):
+                    raise Exception(f"Corgi returned '{msg}'")
 
         if len(self.queue) > 0:
             next_command: str = self.queue[0]
