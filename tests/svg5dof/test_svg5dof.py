@@ -56,6 +56,78 @@ def _expected_point(x: float, y: float, z: float, scale: float = 1.0):
         # (open("tests/svg5dof/svgs/square_45degrees_5dof.svg").read(), 6.0, []),
         # (open("tests/svg5dof/svgs/circle.svg").read(), 6.0, []),
         # (open("tests/svg5dof/svgs/whine-rack.svg").read(), 6.0, []),
+        (
+            open("tests/svg5dof/svgs/class_entry_exit.svg").read(),
+            5.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(5.0, 0.0, -5.0, MM_PER_DOTS),
+                    _expected_point(105.0, 100.0, -5.0, MM_PER_DOTS),
+                )
+            ],
+        ),
+        (
+            open("tests/svg5dof/svgs/class_entry_depth_zero.svg").read(),
+            5.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(5.0, 0.0, -5.0, MM_PER_DOTS),
+                    _expected_point(105.0, 100.0, -5.0, MM_PER_DOTS),
+                )
+            ],
+        ),
+        (
+            open("tests/svg5dof/svgs/class_entry_depth_percent.svg").read(),
+            10.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(0.0, 0.0, -5.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, -5.0, MM_PER_DOTS),
+                )
+            ],
+        ),
+        (
+            open("tests/svg5dof/svgs/class_entry_depth_nosign.svg").read(),
+            10.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(0.0, 0.0, -5.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, -5.0, MM_PER_DOTS),
+                )
+            ],
+        ),
+        (
+            open("tests/svg5dof/svgs/class_entry_depth_mm.svg").read(),
+            10.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(0.0, 0.0, -5.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, -5.0, MM_PER_DOTS),
+                )
+            ],
+        ),
+        (
+            open("tests/svg5dof/svgs/class_exit_depth_override.svg").read(),
+            8.0,
+            [
+                TrapezoidalCut(
+                    _expected_point(0.0, 0.0, 0.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, 0.0, MM_PER_DOTS),
+                    _expected_point(0.0, 0.0, -6.0, MM_PER_DOTS),
+                    _expected_point(100.0, 100.0, -6.0, MM_PER_DOTS),
+                )
+            ],
+        ),
     ],
 )
 def test_import(
@@ -65,3 +137,19 @@ def test_import(
     geometry: Geometry = dof.process(svg_string)
     cuts: set[TrapezoidalCut] = set(geometry.cuts)
     assert cuts == set(expected_cuts)
+
+
+@pytest.mark.parametrize(
+    "svg_path,material_height,exception",
+    [
+        ("tests/svg5dof/svgs/class_multiline.svg", 5.0, NotImplementedError),
+        ("tests/svg5dof/svgs/class_entry_nonzero_depth.svg", 5.0, NotImplementedError),
+        ("tests/svg5dof/svgs/class_entry_unclassed_other.svg", 5.0, ValueError),
+        ("tests/svg5dof/svgs/class_two_entries.svg", 5.0, ValueError),
+        ("tests/svg5dof/svgs/class_entry_negative_depth.svg", 5.0, ValueError),
+    ],
+)
+def test_import_errors(svg_path: str, material_height: float, exception: type):
+    dof = SVG5DOF_Importer(material_height)
+    with pytest.raises(exception):
+        dof.process(open(svg_path).read())
