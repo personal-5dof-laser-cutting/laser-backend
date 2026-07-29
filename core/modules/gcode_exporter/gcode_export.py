@@ -58,6 +58,10 @@ class GCodeExporter(Module[Geometry, str]):
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
         # TODO: does the laser power actually scale linearly
         depth: float = cut.depth(0.5)
+
+        if math.isclose(depth, 0):
+            return 0
+
         angle: float = cut.effective_angle_abs
 
         laser_power: float = (
