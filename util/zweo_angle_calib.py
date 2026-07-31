@@ -1,6 +1,5 @@
-from core.corgi_interface import corgi_interface
+from core.corgi_interface import CorgiInterface
 import sys
-import threading
 import numpy as np
 
 
@@ -9,32 +8,34 @@ material_thickness: float
 
 
 def home():
-    corgi_interface.send_line("$h")
+    corgi_interface._prime_command("$h")
 
 
 def move(x: float, y: float, a: float = 0, b: float = 0):
-    corgi_interface.send_line(f"G0 X{x:z.3f} Y{y:z.3f} Z{material_thickness} A{a} B{b}")
+    corgi_interface._prime_command(
+        f"G0 X{x:z.3f} Y{y:z.3f} Z{material_thickness} A{a} B{b}"
+    )
     # print(f"Move {x} {y} {a} {b}")
 
 
 def laser_on(laser_power: float):
-    corgi_interface.send_line("M8")  # air assist on
-    corgi_interface.send_line(f"M4 S{laser_power:z.3f}")
+    corgi_interface._prime_command("M8")  # air assist on
+    corgi_interface._prime_command(f"M4 S{laser_power:z.3f}")
     # print(f"Laser on {laser_power}")
 
 
 def laser_off():
-    corgi_interface.send_line("M4 S0")
-    corgi_interface.send_line("M8.1")  # air assist off
+    corgi_interface._prime_command("M4 S0")
+    corgi_interface._prime_command("M8.1")  # air assist off
     # print("Laser off")
 
 
 def set_feedrate(feedrate: float):
-    corgi_interface.send_line(f"F{feedrate:z.2f}")
+    corgi_interface._prime_command(f"F{feedrate:z.2f}")
 
 
 def cut(x: float, y: float, a: float = 0, b: float = 0):
-    corgi_interface.send_line(f"G1 X{x} Y{y} Z{material_thickness} A{a} B{b}")
+    corgi_interface._prime_command(f"G1 X{x} Y{y} Z{material_thickness} A{a} B{b}")
     # print(f"Cut {x} {y} {a} {b}")
 
 
@@ -76,8 +77,8 @@ if __name__ == "__main__":
     address = sys.argv[1]
     material_thickness = float(sys.argv[2])
 
-    threading.Thread(target=corgi_interface.main_loop, daemon=True).start()
-    # interface = Mock()
+    corgi_interface = CorgiInterface()
+    corgi_interface.connect()
 
     if input("Needs homing? y/n") == "y":
         home()

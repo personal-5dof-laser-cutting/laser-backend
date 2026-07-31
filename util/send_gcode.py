@@ -1,14 +1,14 @@
-from core.corgi_interface import corgi_interface
+from core.corgi_interface import CorgiInterface
 import sys
-import threading
 
 
 if __name__ == "__main__":
     gcode_file = open(sys.argv[1], "r").readlines()
     address = sys.argv[2]
 
-    threading.Thread(target=corgi_interface.main_loop, daemon=True).start()
+    corgi_interface = CorgiInterface()
+    corgi_interface.connect()
 
     print("Sending GCode")
-    corgi_interface.send_lines(gcode_file)
+    corgi_interface._prime_commands(gcode_file)
     print("Done")

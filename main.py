@@ -1,8 +1,6 @@
-from contextlib import asynccontextmanager
 import logging
 from logging.config import dictConfig
 import os
-from threading import Thread
 
 import Geometry3D
 from dotenv import load_dotenv
@@ -13,7 +11,6 @@ from api.models.base import ResponseMessage
 from api.routers.base_router import router
 from api.routers.ws_router import ws_router
 from fastapi.middleware.cors import CORSMiddleware
-from core.corgi_interface import corgi_interface
 
 load_dotenv()
 
@@ -40,16 +37,8 @@ logging_config = dict(
 dictConfig(logging_config)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    corgi = corgi_interface
-    thread = Thread(target=corgi.main_loop, daemon=True)
-    thread.start()
-    yield
-
-
 def app_factory():
-    api = FastAPI(title="Laser Backend API", version="0.1.0", lifespan=lifespan)
+    api = FastAPI(title="Laser Backend API", version="0.1.0")
 
     @api.middleware("http")
     async def catch_exceptions_middleware(request: Request, call_next):

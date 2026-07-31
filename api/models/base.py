@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal, TypeAlias, Union
+from typing import Annotated, Any, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
@@ -41,7 +41,7 @@ class FrontendInput(StrictBaseModel):
 
 
 message_type_description = "Message Type"
-CutterActions = Literal["abort", "home"]
+type CutterActions = Literal["abort", "home"]
 
 
 class InfoMessage(StrictBaseModel):
@@ -61,7 +61,10 @@ class ActionMessage(StrictBaseModel):
 
 class UpdateMessage(StrictBaseModel):
     type: Literal["update"] = Field(description=message_type_description)
-    message: str = Field(description="An update message")
+    form: Literal["progress", "status"] = Field(
+        description="Either the progress of the current job or the Machine status"
+    )
+    content: Optional[str] = Field(description="Update information")
 
 
 class JobMessage(StrictBaseModel):
@@ -69,7 +72,7 @@ class JobMessage(StrictBaseModel):
     input: FrontendInput = Field(description="A FrontendInput object")
 
 
-WebsocketMessage: TypeAlias = Annotated[
+type WebsocketMessage = Annotated[
     Union[InfoMessage, ErrorMessage, ActionMessage, UpdateMessage, JobMessage],
     Field(discriminator="type"),
 ]

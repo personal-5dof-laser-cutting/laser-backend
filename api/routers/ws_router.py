@@ -12,9 +12,10 @@ from api.models.base import (
     JobMessage,
     WebsocketMessage,
 )
-from core.corgi_interface import corgi_interface
+from core.corgi_interface import CorgiInterface
 from core.pipeline.base import Pipeline
 from core.pipeline.pipeline import full_pipeline
+from tests.corgi_interface.test_interface import FakeFluidNCSerial
 
 
 ws_router = APIRouter()
@@ -22,11 +23,25 @@ logger = logging.getLogger(__name__)
 WebsocketMessage_ta: TypeAdapter[WebsocketMessage] = TypeAdapter(WebsocketMessage)
 
 
+class WebSocketContext:
+    def __init__(self, websocket: WebSocket):
+        self.websocket: WebSocket = websocket
+        self.corgi_interface: CorgiInterface = CorgiInterface()
+        self.corgi_interface._interface = FakeFluidNCSerial()
+
+    async def send(self, message: WebsocketMessage):
+        await self.websocket.send_json(message.model_dump())
+
+    async def close_ws(self, code: int, reason: str):
+        await self.websocket.close(code=code, reason=reason)
+
+
 @ws_router.websocket("/ws/main")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     logger.info("WS Connection accepted")
-    await ws_send(ws, InfoMessage(type="info", content="WS Connection accepted"))
+    ctx = WebSocketContext(ws)
+    await ctx.send(InfoMessage(type="info", content="WS Connection accepted"))
 
     loop = asyncio.get_running_loop()
 
@@ -38,8 +53,7 @@ async def websocket_endpoint(ws: WebSocket):
                     ws_message = WebsocketMessage_ta.validate_json(msg)
                 except ValidationError as e:
                     logger.exception(f"`{msg}` is an invalid message: {e}")
-                    await ws_send(
-                        ws,
+                    await ctx.send(
                         ErrorMessage(
                             type="error", content=f"Invalid Message recieved: {msg}"
                         ),
@@ -50,17 +64,9 @@ async def websocket_endpoint(ws: WebSocket):
 
                 match ws_message.type:
                     case "job":
-                        if not corgi_interface.connected:
-                            await ws_send(
-                                ws,
-                                ErrorMessage(
-                                    type="error", content="Corgi not connected"
-                                ),
-                            )
-                        else:
-                            await execute_job(ws, ws_message, loop)
+                        await execute_job(ctx, ws_message, loop)
                     case "action":
-                        await handle_action(ws, ws_message)
+                        await handle_action(ctx, ws_message)
                     case _:
                         raise NotImplementedError(
                             f"Input type {ws_message.type} not handled yet"
@@ -72,9 +78,9 @@ async def websocket_endpoint(ws: WebSocket):
     async def broadcast():
         while True:
             output: WebsocketMessage = await loop.run_in_executor(
-                None, corgi_interface.outgoing_messages.get
+                None, ctx.corgi_interface.outgoing_messages.get
             )
-            await ws_send(ws, output)
+            await ctx.send(output)
 
     listen_task = asyncio.create_task(listen())
     broadcast_task = asyncio.create_task(broadcast())
@@ -87,19 +93,11 @@ async def websocket_endpoint(ws: WebSocket):
         broadcast_task.cancel()
 
 
-async def ws_send(ws: WebSocket, msg: WebsocketMessage):
-    await ws.send_json(msg.model_dump())
-
-
-async def close_ws(ws: WebSocket, code: int, reason: str):
-    await ws.close(code=code, reason=reason)
-
-
 async def execute_job(
-    ws: WebSocket, message: JobMessage, loop: asyncio.AbstractEventLoop
+    ctx: WebSocketContext, message: JobMessage, loop: asyncio.AbstractEventLoop
 ):
     logger.info("Running job")
-    job_is_valid = await run_job(message.input, loop)
+    job_is_valid = await run_job(ctx, message.input, loop)
     logging.debug("Ran job")
     if not job_is_valid:
         response = ErrorMessage(
@@ -109,31 +107,24 @@ async def execute_job(
     else:
         response = InfoMessage(type="info", content="Job's done")
 
-    await ws_send(ws, response)
+    await ctx.send(response)
 
 
-async def run_job(input: FrontendInput, loop: asyncio.AbstractEventLoop) -> bool:
+async def run_job(
+    ctx: WebSocketContext, input: FrontendInput, loop: asyncio.AbstractEventLoop
+) -> bool:
     pipeline: Pipeline = full_pipeline(input)
     result: str = await loop.run_in_executor(None, pipeline.run, input.svg)
-    await send_gcode(result.split("\n"))
+    ctx.corgi_interface.run_job(result.split("\n"))
     return True
 
 
-async def send_gcode(lines: list[str], home: bool = True):
-    corgi_interface.send_lines(["$h\n"] * home + lines)
-
-
-async def handle_action(ws, input: ActionMessage):
+async def handle_action(ctx: WebSocketContext, input: ActionMessage):
     logger.info(f"Performing action {input.action}")
-    message_priority = {"abort": 0, "home": 1}
     match input.action:
         case "abort":
-            corgi_interface.incoming_messages.put(
-                (message_priority[input.action], input.action)
-            )
+            ctx.corgi_interface.abort()
             pass
         case "home":
-            corgi_interface.incoming_messages.put(
-                (message_priority[input.action], input.action)
-            )
+            ctx.corgi_interface.request_homing()
             pass
