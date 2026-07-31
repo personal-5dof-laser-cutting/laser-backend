@@ -33,7 +33,7 @@ from core.models.geometry import TrapezoidalCut
 
 log = logging.getLogger("SVG5DOF")
 
-INCH_TO_MM: Final = 25.4
+INCH_TO_MM: Final[float] = 25.4
 
 # A vertex of a cut: the same position on the top and on the bottom surface.
 type Vertex = tuple["Point2D", "Point2D"]
