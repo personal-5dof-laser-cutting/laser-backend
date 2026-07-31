@@ -15,7 +15,6 @@ from api.models.base import (
 from core.corgi_interface import CorgiInterface
 from core.pipeline.base import Pipeline
 from core.pipeline.pipeline import full_pipeline
-from tests.corgi_interface.test_interface import FakeFluidNCSerial
 
 
 ws_router = APIRouter()
@@ -27,7 +26,6 @@ class WebSocketContext:
     def __init__(self, websocket: WebSocket):
         self.websocket: WebSocket = websocket
         self.corgi_interface: CorgiInterface = CorgiInterface()
-        self.corgi_interface._interface = FakeFluidNCSerial()
 
     async def send(self, message: WebsocketMessage):
         await self.websocket.send_json(message.model_dump())
