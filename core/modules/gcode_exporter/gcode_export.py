@@ -1,3 +1,5 @@
+from Geometry3D import Point
+
 from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
@@ -54,68 +56,55 @@ class GCodeExporter(Module[Geometry, str]):
             return f"{rounded_value:z.{precision}f}".rstrip("0").rstrip(".")
 
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
-        # This calculations assumes that the laser power increases linearly
+        # TODO: does the laser power actually scale linearly
         depth: float = cut.depth(0.5)
 
-        laser_power: float = depth * self.cut_speed * self.material_constant
+        if math.isclose(depth, 0):
+            return 0
+
+        angle: float = cut.effective_angle_abs
+
+        laser_power: float = (
+            depth * self.cut_speed * self.material_constant * (1 / math.cos(angle))
+        )
 
         assert laser_power >= 0
         return laser_power
 
-    def _disretize_cut_one_step(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
-        # If we cut through the material, we do not need to discretize as the laser power can be constant
-        if math.isclose(self.material_height, cut.cut_depth):
-            return [cut]
-
-        start_depth: float = cut.start_segment().length()
-        end_depth: float = cut.end_segment().length()
-        cut_depth: float = cut.cut_depth  # Distance of top and bottom of the trapezoid
-
-        # Calculate max and min cut depth
-        max_depth: float = max(start_depth, end_depth, cut_depth)
-        min_depth: float = min(start_depth, cut_depth, end_depth)
-
-        delta_depth: float = abs(max_depth - min_depth)
-
-        if delta_depth <= self.max_segment_deviation_mm:
-            return [cut]
-
-        y = self.max_segment_deviation_mm
-        c = cut.bottom_segment().length()
-        beta = cut.bottom_vector().angle(cut.end_vector())
-        alpha = math.pi - cut.bottom_vector().angle(cut.start_vector())
-        gamma = math.pi - beta - alpha
-        b = math.sin(beta) * (c / math.sin(gamma))
-        e = math.cos(beta) * b
-        x = (c - math.cos(beta) * b) - math.sqrt(
-            math.pow(c, 2) - math.pow(y + math.tan(beta) * e, 2)
-        )
-
-        f = x / c
-        x2 = f * cut.top_segment().length()
-
-        top_norm_vector = (cut.end_top.pv() - cut.start_top.pv()).normalized()
-        bottom_norm_vector = (cut.end_bottom.pv() - cut.start_bottom.pv()).normalized()
-        new_top_point = deepcopy(cut.start_top).move(top_norm_vector * x2)
-        new_bottom_point = deepcopy(cut.start_bottom).move(bottom_norm_vector * x)
-
-        return [
-            TrapezoidalCut(
-                cut.start_top, new_top_point, cut.start_bottom, new_bottom_point
-            ),
-            TrapezoidalCut(
-                new_top_point, cut.end_top, new_bottom_point, cut.end_bottom
-            ),
-        ]
-
     def _discretize_cut(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
-        if (
-            cut.start_configuration.direction_vector()
-            != cut.end_configuration.direction_vector()
-            and not math.isclose(cut.cut_depth, self.material_height)
-        ):
-            print("Partial cuts that are not straight are not supported (yet)")
-        return [cut]
+        max_depth_deviation: float = 0.1
+        step_resolution_mm: float = 0.2
+        total_length: float = cut.top_vector().length()
+
+        test_point: float = 0.0
+        result: list[TrapezoidalCut] = []
+
+        last_depth: float = cut.depth(test_point / total_length)
+        last_cut_pos: float = 0.0
+
+        while test_point <= total_length:
+            test_depth = cut.depth(test_point / total_length)
+
+            if abs(test_depth - last_depth) > max_depth_deviation:
+                start_value: float = last_cut_pos / total_length
+                end_value: float = min(test_point / total_length, 1.0)
+
+                new_cut = TrapezoidalCut(
+                    Point((cut.top_vector() * start_value) + cut.start_top.pv()),  # type: ignore
+                    Point((cut.top_vector() * end_value) + cut.start_top.pv()),  # type: ignore
+                    Point((cut.bottom_vector() * start_value) + cut.start_bottom.pv()),  # type: ignore
+                    Point((cut.bottom_vector() * end_value) + cut.start_bottom.pv()),  # type: ignore
+                )  # the linter is not smart enough to figure out that a vector multiplied with a scalar is always a vector and not an int
+                result.append(new_cut)
+
+                last_depth = test_depth
+                last_cut_pos = test_point
+            test_point += step_resolution_mm
+
+        if len(result) == 0:
+            return [cut]
+
+        return result
 
     def process(self, data: Geometry) -> str:
         geometry = data
