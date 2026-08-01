@@ -113,6 +113,7 @@ async def run_job(
 ) -> bool:
     pipeline: Pipeline = full_pipeline(input)
     result: str = await loop.run_in_executor(None, pipeline.run, input.svg)
+    logger.debug(result)
     ctx.corgi_interface.run_job(result.split("\n"))
     return True
 
