@@ -56,6 +56,9 @@ class SerialInterface:
             self._interface.open()
         return self
 
+    def close(self):
+        self._interface.close()
+
     def send(self, message: str):
         self._interface.write(message.encode("utf-8"))
 
@@ -402,9 +405,13 @@ class CorgiInterface:
             self._prime_command("?")
             self._thread_should_run = True
             self._set_interface_state(InterfaceState.READY)
+            self._buffer_worker_thread = Thread(target=self._buffer_loop, daemon=True)
             self._buffer_worker_thread.start()
 
     def disconnect(self):
+        """
+        Implicitly calls _clean_up() because it sets _thread_should_run to False, which will cause the While-Loop in _buffer_loop to end
+        """
         self._thread_should_run = False
         self._buffer_worker_thread.join()
 
@@ -412,10 +419,9 @@ class CorgiInterface:
         with self._manipulate_queue_lock:
             self._command_queue = PriorityQueue()
             self._set_interface_state(InterfaceState.DISCONNECTED)
-            if self._interface_state is not InterfaceState.ABORTED:
-                self._buffer_worker_thread = Thread(
-                    target=self._buffer_loop, daemon=True
-                )
+            if is_connected(self._interface):
+                self._interface.close()
+                self._interface = None
 
     def _home_cutter(self):
         with self._setup_lock:
@@ -430,7 +436,7 @@ class CorgiInterface:
             self._command_queue = aborted_queue
             self._command_queue.join()
             self._set_interface_state(InterfaceState.ABORTED)
-            self._clean_up()
+            self.disconnect()
 
     def request_homing(self, block: bool = False) -> bool:
         self._check_not_aborted()
