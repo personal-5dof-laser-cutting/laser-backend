@@ -31,17 +31,11 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         self,
         material_thickness: float,
         dpi: float = 72,
-        x_offset: float = 0,
-        y_offset: float = 0,
-        model_scale: float = 1,
     ) -> None:
         super().__init__()
 
         self.material_thickness: float = material_thickness
         self.dpi: float = dpi
-        self.x_offset: float = x_offset
-        self.y_offset: float = y_offset
-        self.model_scale: float = model_scale
 
     def process(self, data: str) -> Geometry:
         document = SvgDocument.parse(data)
@@ -67,11 +61,8 @@ class SVG5DOF_Importer(Module[str, Geometry]):
 
     def _coordinate_transform(self, document: SvgDocument) -> CoordinateTransform:
         return CoordinateTransform(
-            scale=self.model_scale / self.dpi * self.inch_to_mm,
-            min_x=document.min_x,
-            max_y=document.max_y,
-            x_offset=self.x_offset,
-            y_offset=self.y_offset,
+            scale=self.inch_to_mm / self.dpi,
+            height=document.height,
         )
 
 

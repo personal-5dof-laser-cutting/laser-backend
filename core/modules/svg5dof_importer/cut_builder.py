@@ -72,15 +72,12 @@ class CoordinateTransform:
     """Maps SVG user units (origin top left) to machine mm (origin bottom left)."""
 
     scale: float
-    min_x: float
-    max_y: float
-    x_offset: float
-    y_offset: float
+    height: float
 
     def apply(self, point: Point2D) -> Point2D:
         return Point2D(
-            (point.x - self.min_x) * self.scale + self.x_offset,
-            (self.max_y - point.y) * self.scale + self.y_offset,
+            point.x * self.scale,
+            self.height - (point.y * self.scale),
         )
 
     def apply_all(self, points: Iterable[Point2D]) -> list[Point2D]:
@@ -182,8 +179,9 @@ def _sample_segment_pair(
             count = max(math.ceil(longest / resolution), 2)
             offsets = [step / (count - 1) for step in range(count)]
             return (
-                [Point2D.from_complex(top_segment.point(t)) for t in offsets],
-                [Point2D.from_complex(bottom_segment.point(t)) for t in offsets],
+                [Point2D.from_complex(top_segment.point(t)) for t in offsets],  # pyright: ignore[reportArgumentType]
+                [Point2D.from_complex(bottom_segment.point(t)) for t in offsets],  # pyright: ignore[reportArgumentType]
+                # Geometry3D.Point allows access as if it were type complex
             )
         case _:
             raise ValueError(

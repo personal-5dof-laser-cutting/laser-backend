@@ -31,7 +31,8 @@ class SvgLine:
 
     @property
     def classes(self) -> frozenset[str]:
-        return frozenset(self.shape.values.get("class", "").split())
+        return frozenset(self.shape.values.get("class", "").split())  # pyright: ignore[reportOptionalMemberAccess]
+        # self.shape.values will never end up being None
 
     @property
     def stroke(self) -> Color:
@@ -45,8 +46,7 @@ class SvgLine:
 class SvgDocument:
     """A parsed SVG, reduced to its bounding box and its line groups."""
 
-    min_x: float
-    max_y: float
+    height: float
     line_groups: list[LineGroup]
 
     @classmethod
@@ -55,17 +55,16 @@ class SvgDocument:
 
         # Taken over the whole document, before dropping undrawable elements, so
         # that unstroked geometry still contributes to the origin.
-        bbox = svg.bbox()
-        if bbox is None:
-            raise ValueError("SVG bounding box not identifiable")
-        min_x, _, _, max_y = bbox
+        if svg.viewbox is None or svg.viewbox.height is None:
+            raise ValueError("SVG view box height is not identifiable")
+        height: float = svg.viewbox.height
 
         # The root itself is never an edge profile: a flat export of many ungrouped
         # lines is a set of through cuts, not one oversized group.
         line_groups = [
             entry if isinstance(entry, list) else [entry] for entry in _collect(svg)
         ]
-        return cls(min_x=min_x, max_y=max_y, line_groups=line_groups)
+        return cls(height=height, line_groups=line_groups)
 
 
 def _collect(container: Group) -> list["SvgLine | LineGroup"]:
