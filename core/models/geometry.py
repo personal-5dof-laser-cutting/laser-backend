@@ -414,11 +414,15 @@ class TrapezoidalCut:
     @property
     def effective_angle_abs(self) -> float:
         # This is the absolute angle of the laser head in a lazy susan configuration
-        cut_plane: Plane = Plane(self.start_bottom, self.start_top, self.end_bottom)
+        cut_plane: Plane = Plane(self.start_top, self.top_vector(), self.end_vector())
+
         parallel_plane: Plane = Plane(
-            self.start_top, self.top_vector(), z_unit_vector()
+            self.start_top, self.top_vector(), -z_unit_vector()
         )
-        return parallel_plane.angle(cut_plane)
+
+        if parallel_plane.n.normalized() == cut_plane.n.normalized():
+            return 0
+        return cut_plane.angle(parallel_plane)
 
     def top_segment(self) -> Segment:
         return Segment(self.start_top, self.end_top)

@@ -1,153 +1,31 @@
-from dataclasses import dataclass
-import math
+"""Imports an SVG5DOF drawing into the cut geometry the rest of the pipeline uses.
 
-from Geometry3D import Point
+The work is split across three layers, each of which knows nothing about the ones
+above it:
 
-import io
+- ``svg_document`` reads the file and groups its drawable elements,
+- ``line_attributes`` decides what each group is meant to cut,
+- ``cut_builder`` samples the resulting paths into machine-space geometry.
 
+This module is only the seam between them.
+"""
+
+from svgelements import Path
 
 from core.models.geometry import Geometry, TrapezoidalCut
-from core.pipeline.base import Module
-
-from svgelements import (
-    SVG,
-    Group,
-    Shape,
-    Path,
-    Color,
-    Line,
-    Arc,
-    CubicBezier,
-    QuadraticBezier,
-    Move,
-    Close,
+from core.modules.svg5dof_importer.cut_builder import (
+    INCH_TO_MM,
+    CoordinateTransform,
+    build_trapezoids,
+    sample_paths,
 )
-
-
-@dataclass
-class Point2D:
-    x: float
-    y: float
-
-    @classmethod
-    def from_complex(cls, p: complex) -> "Point2D":
-        return Point2D(x=float(p.real), y=float(p.imag))
-
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
-    def to_point3d(self, z: float = 0) -> Point:
-        return Point(self.x, self.y, z)
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Point2D)
-            and math.isclose(self.x, other.x)
-            and math.isclose(self.y, other.y)
-        )
-
-
-def svg_element_to_path(element: Path | Shape) -> Path:
-    if isinstance(element, Shape):
-        path = Path(element)
-        path.reify()
-        return path
-    return element
-
-
-def filter_svg_path(element: Path) -> list[Arc | QuadraticBezier | CubicBezier]:
-    return [
-        seg for seg in element if not (isinstance(seg, Move) or isinstance(seg, Close))
-    ]
-
-
-def svg_paths_to_points(
-    bottom_path: Path, top_path: Path, resolution_mm=1
-) -> tuple[list[Point2D], list[Point2D]]:
-    bottom_path.direct_close()
-    top_path.direct_close()
-    bottom_path.validate_connections()
-    top_path.validate_connections()
-
-    bottom_segments: list = filter_svg_path(bottom_path)
-    top_segments: list = filter_svg_path(top_path)
-    if (b := len(bottom_segments)) != (t := len(top_segments)):
-        raise ValueError(
-            f"Top and bottom path do not have the same number of segments. ({t} != {b})"
-        )
-    bottom_points = []
-    top_points = []
-    for bottom_segment, top_segment in zip(bottom_segments, top_segments):
-        if isinstance(bottom_segment, Line) and isinstance(top_segment, Line):
-            bottom_points.extend([Point2D.from_complex(p) for p in bottom_segment])
-            top_points.extend([Point2D.from_complex(p) for p in top_segment])
-        elif (
-            (isinstance(bottom_segment, Arc) and isinstance(top_segment, Arc))
-            or (
-                isinstance(bottom_segment, CubicBezier)
-                and isinstance(top_segment, CubicBezier)
-            )
-            or (
-                isinstance(bottom_segment, QuadraticBezier)
-                and isinstance(top_segment, QuadraticBezier)
-            )
-        ):
-            max_len: float = max(bottom_segment.length(), top_segment.length())
-            num_points: int = max(math.ceil(max_len / resolution_mm), 2)
-            points_x: list[float] = [t / (num_points - 1) for t in range(num_points)]
-            bottom_points.extend([bottom_segment.point(x) for x in points_x])
-            top_points.extend([top_segment.point(x) for x in points_x])
-        elif isinstance(bottom_segment, Move) and isinstance(top_segment, Move):
-            continue
-        elif isinstance(bottom_segment, Close) and isinstance(top_segment, Close):
-            continue
-        else:
-            raise ValueError(f"This is bad. {type(bottom_segment)} {type(top_segment)}")
-
-    return (bottom_points, top_points)
-
-
-def points_to_trapezoids(
-    bottom_points: list[Point2D], top_points: list[Point2D], material_thickness: float
-) -> list[TrapezoidalCut]:
-    if len(top_points) < 2 or len(bottom_points) < 2:
-        raise ValueError("There must be at least two top and two bottom points.")
-    if len(top_points) != len(bottom_points):
-        raise ValueError(
-            f"There must be an equal amount of top ({len(top_points)} points) and bottom ({len(bottom_points)} points) points."
-        )
-
-    points: list[tuple[Point2D, Point2D]] = list(zip(top_points, bottom_points))
-    trapezoids: list[TrapezoidalCut] = []
-
-    for end, start in zip(points + [(None, None)], [(None, None)] + points):
-        if None in start or None in end:
-            continue
-        if end == start:
-            continue
-
-        start_top = start[0].to_point3d(0)  # type: ignore
-        end_top = end[0].to_point3d(0)  # type: ignore
-        start_bottom = start[1].to_point3d(-material_thickness)  # type: ignore
-        end_bottom = end[1].to_point3d(-material_thickness)  # type: ignore
-        try:
-            try:
-                cut = TrapezoidalCut(start_top, end_top, start_bottom, end_bottom)
-            except ValueError:
-                cut = TrapezoidalCut(start_top, end_top, end_bottom, start_bottom)
-        except Exception as e:
-            print(
-                f"Warning: Skipped points because they do not form valid trapezoids: {e}"
-            )
-            continue
-        trapezoids.append(cut)
-
-    return trapezoids
+from core.modules.svg5dof_importer.line_attributes import EdgeProfile, read_edge_profile
+from core.modules.svg5dof_importer.svg_document import SvgDocument
+from core.pipeline.base import Module
 
 
 class SVG5DOF_Importer(Module[str, Geometry]):
-    inch_to_mm = 25.4
+    inch_to_mm = INCH_TO_MM
 
     def __init__(
         self,
@@ -165,97 +43,46 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         self.y_offset: float = y_offset
         self.model_scale: float = model_scale
 
-    def _transform_points(self, points: list[Point2D]) -> list[Point2D]:
-        # This flips the origin from top/left (SVG) to bottom/left (FluidNC) and scales from points to mm
-        scaling_factor: float = self.inch_to_mm / self.dpi
-        return [
-            Point2D(
-                (p.x - self.min_x) * scaling_factor + self.x_offset,
-                (self.max_y - p.y) * scaling_factor + self.y_offset,
-            )
-            for p in points
-        ]
-
-    def _5dof_color_to_percentage(self, color: Color) -> float:
-        if color.saturation != 0.0:
-            raise Exception("Found non grayscale line in svg.")
-
-        value: float = color.lightness  # type: ignore
-        if value > 0.8:
-            raise Exception("Found out of bounds color in svg.")
-
-        percentage: float = value / 0.8
-        return min(percentage, 1.0)
-
-    def _find_top_bottom_element(self, elem1: Path, elem2: Path) -> tuple[Path, Path]:
-        if elem1.stroke.lightness == 0:
-            return elem2, elem1
-        else:
-            return elem1, elem2
-
-    def _filter_svg_elements(self, svg_elements: Group) -> list[Shape | list[Shape]]:
-        output = []
-        for element in svg_elements:
-            if isinstance(element, Shape):
-                if element.stroke.value is not None:
-                    output.append(element)
-            elif isinstance(element, Group) and len(element) > 0:
-                result = self._filter_svg_elements(element)
-                if (
-                    len(result) == 2
-                    and sum([isinstance(e, Shape) for e in result]) == 2
-                ):
-                    output.append(result)
-                else:
-                    output.extend(result)
-        return output
-
-    def process(
-        self,
-        data: str,
-    ) -> Geometry:
-        svg_file = io.StringIO(data)
-        svg: SVG = SVG.parse(
-            svg_file,
-            reify=True,
-            ppi=72,
-        )
-
-        bbox = svg.bbox()
-        if (bbox) is None:
-            raise ValueError("SVG bounding box not identifiable")
-        self.min_x, _, _, self.max_y = bbox
+    def process(self, data: str) -> Geometry:
+        document = SvgDocument.parse(data)
+        transform = self._coordinate_transform(document)
 
         geometry: Geometry = Geometry()
+        for group in document.line_groups:
+            profile = read_edge_profile(group, self.material_thickness)
+            top_points, bottom_points = sample_paths(*_profile_paths(profile))
 
-        filtered_elements = self._filter_svg_elements(svg)  # type: ignore
-
-        for element in filtered_elements:
-            top_points: list[Point2D] = []
-            bottom_points: list[Point2D] = []
-            cut_depth: float = self.material_thickness
-
-            if isinstance(element, Group) or isinstance(element, list):
-                bottom, top = self._find_top_bottom_element(
-                    svg_element_to_path(element[0]),
-                    svg_element_to_path(element[1]),
-                )
-                bottom_points, top_points = svg_paths_to_points(bottom, top)
-                cut_depth *= self._5dof_color_to_percentage(bottom.stroke)
-
-            elif isinstance(element, Shape) or isinstance(element, Path):
-                path = svg_element_to_path(element)
-                bottom_points, top_points = svg_paths_to_points(path, path)
-                cut_depth = self.material_thickness
-
-            if len(bottom_points) < 2 or len(top_points) < 2:
+            # Degenerate paths - a stray pen move, a zero-length shape - are common
+            # in real exports and must not fail the import.
+            if len(top_points) < 2 or len(bottom_points) < 2:
                 continue
 
-            cuts: list[TrapezoidalCut] = points_to_trapezoids(
-                self._transform_points(bottom_points),
-                self._transform_points(top_points),
-                cut_depth,
+            cuts: list[TrapezoidalCut] = build_trapezoids(
+                transform.apply_all(top_points),
+                transform.apply_all(bottom_points),
+                profile.cut_depth_mm,
             )
-
             geometry.add_cuts(cuts)
         return geometry
+
+    def _coordinate_transform(self, document: SvgDocument) -> CoordinateTransform:
+        return CoordinateTransform(
+            scale=self.model_scale / self.dpi * self.inch_to_mm,
+            min_x=document.min_x,
+            max_y=document.max_y,
+            x_offset=self.x_offset,
+            y_offset=self.y_offset,
+        )
+
+
+def _profile_paths(profile: EdgeProfile) -> tuple[Path, Path]:
+    """Converts a profile's lines into the two paths to sample.
+
+    A through cut shares one path object between both surfaces: ``direct_close()``
+    mutates state that copies of the same element share, so sampling two separate
+    copies would close them inconsistently.
+    """
+    if profile.is_through_cut:
+        path = profile.top.to_path()
+        return path, path
+    return profile.top.to_path(), profile.bottom.to_path()
