@@ -72,7 +72,19 @@ class JobMessage(StrictBaseModel):
     input: FrontendInput = Field(description="A FrontendInput object")
 
 
+class GCodeMessage(StrictBaseModel):
+    type: Literal["gcode"] = Field(description=message_type_description)
+    command: str = Field(description="GCode command")
+
+
 type WebsocketMessage = Annotated[
-    Union[InfoMessage, ErrorMessage, ActionMessage, UpdateMessage, JobMessage],
+    Union[
+        InfoMessage,
+        ErrorMessage,
+        ActionMessage,
+        UpdateMessage,
+        JobMessage,
+        GCodeMessage,
+    ],
     Field(discriminator="type"),
 ]

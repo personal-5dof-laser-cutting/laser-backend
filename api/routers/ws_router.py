@@ -65,6 +65,14 @@ async def websocket_endpoint(ws: WebSocket):
                         await execute_job(ctx, ws_message, loop)
                     case "action":
                         await handle_action(ctx, ws_message)
+                    case "gcode":
+                        if not ctx.corgi_interface.run_job([ws_message.command]):
+                            await ctx.send(
+                                ErrorMessage(
+                                    type="error",
+                                    content="Can't execute a command while a job is active",
+                                )
+                            )
                     case _:
                         raise NotImplementedError(
                             f"Input type {ws_message.type} not handled yet"
@@ -85,6 +93,11 @@ async def websocket_endpoint(ws: WebSocket):
     try:
         await asyncio.gather(listen_task, broadcast_task)
     except Exception as e:
+        await ctx.send(
+            ErrorMessage(
+                type="error", content="Websocket disconnected due to internal error"
+            )
+        )
         logger.exception(f"Websocket disconnected due to internal error: {e}")
     finally:
         listen_task.cancel()
@@ -114,7 +127,9 @@ async def run_job(
     pipeline: Pipeline = full_pipeline(input)
     result: str = await loop.run_in_executor(None, pipeline.run, input.svg)
     logger.debug(result)
-    ctx.corgi_interface.run_job(result.split("\n"))
+    commands = result.split("\n")
+    await ctx.send(InfoMessage(type="info", content=f"commands:{len(commands)}"))
+    ctx.corgi_interface.run_job(commands)
     return True
 
 

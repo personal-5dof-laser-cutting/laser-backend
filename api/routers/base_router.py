@@ -1,10 +1,12 @@
 import io
+from typing import Tuple
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from api.models.base import FrontendInput
 from core.pipeline.pipeline import full_pipeline
 from api.models.materials import MATERIALS, MaterialData
+from core.service_container import Container
 
 router = APIRouter()
 
@@ -21,6 +23,20 @@ router = APIRouter()
 )
 def get_materials() -> list[MaterialData]:
     return MATERIALS
+
+
+@router.get(
+    path="/get_cutbed_dimensions",
+    response_class=JSONResponse,
+    responses={
+        200: {
+            "content": {"application/json": {}},
+            "description": "JSON object representing width and height of the cutbed in mm",
+        }
+    },
+)
+def get_cutbed_dimensions() -> Tuple[float, float]:
+    return Container.laser_config.gantry_dim_mm()
 
 
 @router.post(
