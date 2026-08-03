@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: .
+      ssh:
+        - default
+
+    ports:
+      - "8000:8000"
+    networks:
+      - default
+      - shared-net
+
+networks:
+  shared-net:
+    external: true
+    name: shared-net

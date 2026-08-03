@@ -659,7 +659,7 @@ wheels = [
 [[package]]
 name = "gcode-lib"
 version = "0.1.4"
-source = { git = "https://github.com/HCI-BP-25-26/gcode_lib.git#1213762d950ab318fb88db482d5ba2507cc4279f" }
+source = { git = "ssh://git@github.com/HCI-BP-25-26/gcode_lib.git#1213762d950ab318fb88db482d5ba2507cc4279f" }
 
 [[package]]
 name = "geometry3d"
@@ -1218,7 +1218,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.119.1" },
-    { name = "gcode-lib", git = "https://github.com/HCI-BP-25-26/gcode_lib.git" },
+    { name = "gcode-lib", git = "ssh://git@github.com/HCI-BP-25-26/gcode_lib.git" },
     { name = "geometry3d", specifier = ">=0.3.0" },
     { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "mpl-interactions", specifier = ">=0.24.2" },

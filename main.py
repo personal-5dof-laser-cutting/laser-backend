@@ -81,6 +81,5 @@ def app_factory():
 Geometry3D.set_sig_figures(4)
 app = app_factory()
 
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
