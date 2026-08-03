@@ -60,9 +60,13 @@ class SVG5DOF_Importer(Module[str, Geometry]):
         return geometry
 
     def _coordinate_transform(self, document: SvgDocument) -> CoordinateTransform:
+        scale = self.inch_to_mm / self.dpi
+        height = document.height
+        if document.scale_height:
+            height *= scale
         return CoordinateTransform(
-            scale=self.inch_to_mm / self.dpi,
-            height=document.height,
+            scale=scale,
+            height=height,
         )
 
 

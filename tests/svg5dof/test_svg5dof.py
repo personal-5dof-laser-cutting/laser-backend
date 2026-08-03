@@ -10,7 +10,7 @@ MAX_Y = 100.0
 
 
 def _expected_point(x: float, y: float, z: float, scale: float = 1.0):
-    return Point((x - MIN_X) * scale, (MAX_Y - y) * scale, z)
+    return Point(x * scale, (MAX_Y - y) * scale, z)
 
 
 # /home/edi/dev/bachelor/control-software/svgs/whine-rack/whine-rack-svg5dof.svg

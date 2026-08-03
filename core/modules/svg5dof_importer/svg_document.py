@@ -47,6 +47,7 @@ class SvgDocument:
     """A parsed SVG, reduced to its bounding box and its line groups."""
 
     height: float
+    scale_height: bool
     line_groups: list[LineGroup]
 
     @classmethod
@@ -55,16 +56,21 @@ class SvgDocument:
 
         # Taken over the whole document, before dropping undrawable elements, so
         # that unstroked geometry still contributes to the origin.
-        if svg.viewbox is None or svg.viewbox.height is None:
-            raise ValueError("SVG view box height is not identifiable")
-        height: float = svg.viewbox.height
+        if svg.viewbox is not None and svg.viewbox.height is not None:
+            height: float = svg.viewbox.height
+            scale_height = False
+        elif (bbox := svg.bbox()) is not None:
+            height: float = bbox[3]
+            scale_height = True
+        else:
+            raise ValueError("SVG view box and bounding box is not identifiable")
 
         # The root itself is never an edge profile: a flat export of many ungrouped
         # lines is a set of through cuts, not one oversized group.
         line_groups = [
             entry if isinstance(entry, list) else [entry] for entry in _collect(svg)
         ]
-        return cls(height=height, line_groups=line_groups)
+        return cls(height=height, scale_height=scale_height, line_groups=line_groups)
 
 
 def _collect(container: Group) -> list["SvgLine | LineGroup"]:
