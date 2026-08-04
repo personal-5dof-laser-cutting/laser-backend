@@ -125,6 +125,7 @@ class CorgiInterface:
         self._new_status_event: Event = Event()
         self._status: str = ""
         self._status_dict: dict[str, str] = {}
+        self._status_requests: int = 0
 
         self._thread_should_run: bool = False
         self._interface_state: InterfaceState = InterfaceState.DISCONNECTED
@@ -288,6 +289,8 @@ class CorgiInterface:
             )
 
         with self._manipulate_queue_lock:
+            if line_cleaned == "?\n":
+                self._status_requests += 1
             self._command_queue.put((priority, next(self._count), line_cleaned))
 
     def _prime_commands(
@@ -323,11 +326,13 @@ class CorgiInterface:
                 self._fetch_status()
 
         elif (response_match := _CORGI_STATUS_RE.match(msg)) is not None:
-            self.outgoing_messages.put(
-                UpdateMessage(
-                    type="update", form="status", content=response_match.group(0)
+            if self._status_requests > 0:
+                self._status_requests -= 1
+                self.outgoing_messages.put(
+                    UpdateMessage(
+                        type="update", form="status", content=response_match.group(0)
+                    )
                 )
-            )
             with self._manipulate_queue_lock:
                 self._outstanding_rts = max(0, self._outstanding_rts - 1)
 
