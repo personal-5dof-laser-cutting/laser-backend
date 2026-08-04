@@ -428,7 +428,9 @@ class CorgiInterface:
             self._outstanding_rts = 0
 
             if is_connected(self._interface):
-                self._interface.send("M112\n" if legacy else "\x18")
+                self._prime_command(
+                    "M112\n" if legacy else "\x18", CommandPriority.URGENT
+                )
 
             self._set_interface_state(InterfaceState.READY)
 
