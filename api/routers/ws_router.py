@@ -26,6 +26,7 @@ class WebSocketContext:
     def __init__(self, websocket: WebSocket):
         self.websocket: WebSocket = websocket
         self.corgi_interface: CorgiInterface = CorgiInterface()
+        self.corgi_interface.connect()
 
     async def send(self, message: WebsocketMessage):
         await self.websocket.send_json(message.model_dump())
@@ -102,6 +103,7 @@ async def websocket_endpoint(ws: WebSocket):
     finally:
         listen_task.cancel()
         broadcast_task.cancel()
+        ctx.corgi_interface.disconnect()
 
 
 async def execute_job(
