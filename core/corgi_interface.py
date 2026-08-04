@@ -170,9 +170,11 @@ class CorgiInterface:
                 if self._reconnect_timeout == 0
                 else min(self._reconnect_timeout * 2, self.max_reconnect_timeout)
             )
-            self._buffer_used = 0
-            self._buffer_corgi.clear()
-            self._outstanding_rts = 0
+
+            with self._manipulate_queue_lock:
+                self._buffer_used = 0
+                self._buffer_corgi.clear()
+                self._outstanding_rts = 0
 
             serial_port = self._find_serial_port()
             if serial_port:
@@ -215,11 +217,13 @@ class CorgiInterface:
 
     def _is_done(self) -> bool:
         with self._setup_lock:
+            with self._manipulate_queue_lock:
+                queue_empty = self._command_queue.empty()
+                buffer_empty = self._buffer_used == 0
+                rts_empty = self._outstanding_rts == 0
+
             return (
-                self._command_queue.empty()
-                and self._buffer_used == 0
-                and self._outstanding_rts == 0
-                and self._is_in_done_status()
+                queue_empty and buffer_empty and rts_empty and self._is_in_done_status()
             )
 
     def _is_in_done_status(self):
@@ -282,7 +286,9 @@ class CorgiInterface:
             raise ValueError(
                 f"Line too long. Buffer length: {self._buffer_size} bytes (passed string: {byte_count})"
             )
-        self._command_queue.put((priority, next(self._count), line_cleaned))
+
+        with self._manipulate_queue_lock:
+            self._command_queue.put((priority, next(self._count), line_cleaned))
 
     def _prime_commands(
         self, lines: list[str], priority: CommandPriority = CommandPriority.DEFAULT
@@ -290,30 +296,31 @@ class CorgiInterface:
         for line in lines:
             self._prime_command(line, priority)
 
-    def _get_command(self) -> QueueContentType | None:
-        try:
-            return self._command_queue.get_nowait()
-        except Empty:
-            return None
-
     def _handle_incoming_message(self, msg: str):
         msg = msg.strip()
         if not msg:
             return
 
-        if msg == "ok" and len(self._buffer_corgi) > 0:
-            self.outgoing_messages.put(
-                UpdateMessage(type="update", form="progress", content=None)
-            )
-            popped_bytes: int = self._buffer_corgi.popleft()
-            self._buffer_used = max(0, self._buffer_used - popped_bytes)
+        if msg == "ok" or msg.startswith("error"):
+            # An 'error' response consumes a buffered line just like an 'ok'.
+            # If we don't pop it, _buffer_used permanently maxes out resulting in a deadlock.
+            with self._manipulate_queue_lock:
+                if len(self._buffer_corgi) > 0:
+                    popped_bytes: int = self._buffer_corgi.popleft()
+                    self._buffer_used = max(0, self._buffer_used - popped_bytes)
 
-            if self._command_queue.empty() and self._buffer_used == 0:
+                fetch_status = self._command_queue.empty() and self._buffer_used == 0
+
+            if msg == "ok":
+                self.outgoing_messages.put(
+                    UpdateMessage(type="update", form="progress", content=None)
+                )
+            else:
+                log.error(f"Corgi returned '{msg}'")
+                self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
+
+            if fetch_status:
                 self._fetch_status()
-
-        elif msg.startswith("error"):
-            log.error(f"Corgi returned '{msg}'")
-            self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
 
         elif (response_match := _CORGI_STATUS_RE.match(msg)) is not None:
             self.outgoing_messages.put(
@@ -321,7 +328,9 @@ class CorgiInterface:
                     type="update", form="status", content=response_match.group(0)
                 )
             )
-            self._outstanding_rts = max(0, self._outstanding_rts - 1)
+            with self._manipulate_queue_lock:
+                self._outstanding_rts = max(0, self._outstanding_rts - 1)
+
             self._set_status(
                 response_match.group(1), response_match.group(2)[1:].split("|")
             )
@@ -330,10 +339,25 @@ class CorgiInterface:
 
         elif msg.startswith("Grbl") or msg.startswith("FluidNC"):
             log.info(f"Controller booted/reset: {msg}")
+
+            # The hardware resets its RX buffer entirely on boot. We must match it
+            # otherwise Python hangs waiting for responses to vaporized commands.
+            with self._manipulate_queue_lock:
+                self._buffer_corgi.clear()
+                self._buffer_used = 0
+                self._outstanding_rts = 0
+
             self._fetch_status()
 
     def _process_outgoing_commands(self):
-        if is_connected(self._interface) and (item := self._get_command()) is not None:
+        if not is_connected(self._interface):
+            return
+        with self._manipulate_queue_lock:
+            try:
+                item = self._command_queue.get_nowait()
+            except Empty:
+                return
+
             priority, count_idx, command = item
             free_buffer = self._buffer_size - self._buffer_used
 
@@ -348,16 +372,20 @@ class CorgiInterface:
 
             else:
                 self._command_queue.put((priority, count_idx, command))
+                self._command_queue.task_done()
 
     def _work_buffer(self):
         if not is_connected(self._interface):
             return
 
-        is_idle = (
-            self._command_queue.empty()
-            and self._buffer_used == 0
-            and self._outstanding_rts == 0
-        )
+        # Adaptive Polling: lower CPU usage to near 0 when we're completely idle
+        with self._manipulate_queue_lock:
+            is_idle = (
+                self._command_queue.empty()
+                and self._buffer_used == 0
+                and self._outstanding_rts == 0
+            )
+
         read_timeout = 0.1 if is_idle else 0.01
 
         msg = self._interface.recv(timeout=read_timeout)
@@ -389,7 +417,8 @@ class CorgiInterface:
             self._set_interface_state(InterfaceState.READY)
             self._buffer_worker_thread = Thread(target=self._buffer_loop, daemon=True)
             self._buffer_worker_thread.start()
-            self._prime_command("?")
+
+        self._prime_command("?")
 
     def disconnect(self):
         self._thread_should_run = False
@@ -410,6 +439,9 @@ class CorgiInterface:
 
     def _home_cutter(self):
         with self._setup_lock:
+            # Send an explicit Unlock ($X) directly before homing to force
+            # the machine out of any lingering abort/limit alarm states
+            self._prime_command("$X", CommandPriority.HIGH)
             self._prime_command("$h", CommandPriority.HIGH)
 
     def abort(self, legacy: bool = False):
@@ -417,12 +449,11 @@ class CorgiInterface:
         Sends the hardware abort signal immediately and clears queued events.
         """
         with self._manipulate_queue_lock:
-            while not self._command_queue.empty():
-                try:
-                    self._command_queue.get_nowait()
-                except Empty:
-                    break
+            # Overwrite the old queue entirely. This perfectly nukes the ghost commands
+            # that were sneaking through while queue items were being evaluated
+            self._command_queue = PriorityQueue()
 
+            # Clear internal tracking to avoid phantom buffer reservations
             self._buffer_corgi.clear()
             self._buffer_used = 0
             self._outstanding_rts = 0
