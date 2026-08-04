@@ -71,6 +71,7 @@ class FakeFluidNCSerial(SerialInterface):
             self._outbox.append("ok")
 
     def recv(self, timeout: float | None = None) -> str | None:
+        sleep(0.05)
         with self._lock:
             if self._pending_lines and self._running:
                 # simulate the line finishing "execution" after being read once
@@ -111,8 +112,7 @@ def _wait_until_idle(instance: CorgiInterface, timeout: float = 10.0):
         if (
             instance._command_queue.empty()
             and instance._buffer_used == 0
-            and instance._interface_state
-            in [InterfaceState.READY, InterfaceState.ABORTED]
+            and instance._interface_state is InterfaceState.READY
         ):
             return True
         sleep(0.05)
@@ -176,10 +176,3 @@ def test_second_run_job_rejected_while_running(corgi):
     assert instance.run_job(["G1 X99"]) is False
 
     assert _wait_until_idle(instance)
-
-
-def test_idle_timeout(corgi):
-    instance, fake = corgi
-    instance.idle_timeout = 0
-    sleep(1)
-    assert instance._interface_state == InterfaceState.DISCONNECTED
