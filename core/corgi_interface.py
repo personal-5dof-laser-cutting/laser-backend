@@ -118,8 +118,8 @@ class CorgiInterface:
         self.outgoing_messages: Queue[WebsocketMessage] = Queue()
 
         self._setup_lock: RLock = RLock()
-        self._manipulate_queue_lock: Lock = Lock()
-        self._fetch_status_lock: Lock = Lock()
+        self._manipulate_queue_lock: RLock = RLock()
+        self._fetch_status_lock: RLock = RLock()
 
         self._is_fetching_status: bool = False
         self._new_status_event: Event = Event()
@@ -453,12 +453,10 @@ class CorgiInterface:
         """
         Sends the hardware abort signal immediately and clears queued events.
         """
+        log.info("Aborting...")
         with self._manipulate_queue_lock:
-            # Overwrite the old queue entirely. This perfectly nukes the ghost commands
-            # that were sneaking through while queue items were being evaluated
             self._command_queue = PriorityQueue()
 
-            # Clear internal tracking to avoid phantom buffer reservations
             self._buffer_corgi.clear()
             self._buffer_used = 0
             self._outstanding_rts = 0
@@ -469,6 +467,7 @@ class CorgiInterface:
                 )
 
             self._set_interface_state(InterfaceState.READY)
+        log.info("Done")
 
     def request_homing(self, block: bool = False) -> bool:
         if self._interface_state in [
@@ -478,11 +477,14 @@ class CorgiInterface:
             return False
 
         self._home_cutter()
+        log.info("Sent homing command")
         if block:
+            log.info("Waiting for homing routine to be done")
             delay: int = 20
             while not self._is_homed():
                 sleep(delay)
                 delay = 5
+            log.info("Homing complete")
         return True
 
     def run_job(self, lines: list[str]) -> bool:
