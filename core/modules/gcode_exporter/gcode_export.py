@@ -6,7 +6,17 @@ from core.pipeline.base import Module
 import math
 
 
+MAX_LASER_POWER = 65535.0
+
+
 class GCodeExporter(Module[Geometry, str]):
+    """Export a geometry as FluidNC-flavored G-code.
+
+    The exporter converts each cut path into travel and cut moves, computes
+    laser power for a given material depth, and optionally adds inline
+    comments for readability.
+    """
+
     def __init__(
         self,
         material_height: float,
@@ -26,7 +36,7 @@ class GCodeExporter(Module[Geometry, str]):
         # workpiece settings
         self.material_height: float = material_height
 
-        # gcode settings
+        # gcode options
         self.gcode_comments: bool = gcode_comments
         self.pretty_formatting: bool = pretty_formatting
 
@@ -41,12 +51,14 @@ class GCodeExporter(Module[Geometry, str]):
         self.prop_up: float = prop_up
 
     def _add_command(self, command: str, comment: str = ""):
+        """Append a single G-code command to the internal buffer."""
         self._gcode += command
         if self.gcode_comments and comment != "":
             self._gcode += f"; {comment}"
         self._gcode += "\n"
 
     def format_float(self, value, precision=3) -> str:
+        """Format numeric values consistently for G-code output."""
         rounded_value = round(value, precision)
 
         if self.pretty_formatting:
@@ -55,7 +67,12 @@ class GCodeExporter(Module[Geometry, str]):
             return f"{rounded_value:z.{precision}f}".rstrip("0").rstrip(".")
 
     def calculate_laser_power(self, cut: TrapezoidalCut) -> float:
-        # TODO: does the laser power actually scale linearly
+        """Estimate the required laser power for a cut segment.
+
+        The current model uses depth, feed speed, and a material constant.
+        The result is clamped by the drive electronics later in the caller.
+        """
+        # TODO: does the laser power actually scale linearly?
         depth: float = cut.depth(0.5)
 
         if math.isclose(depth, 0):
@@ -64,13 +81,16 @@ class GCodeExporter(Module[Geometry, str]):
         angle: float = cut.effective_angle_abs
 
         laser_power: float = (
-            depth * self.cut_speed * self.material_constant * (1 / math.cos(angle))
+            (depth * self.cut_speed * self.material_constant * (1 / math.cos(angle)))
+            / 255.0
+            * MAX_LASER_POWER
         )
 
         assert laser_power >= 0
         return laser_power
 
     def _discretize_cut(self, cut: TrapezoidalCut) -> list[TrapezoidalCut]:
+        """Split a trapezoidal cut into smaller segments when depth changes significantly."""
         max_depth_deviation: float = 0.1
         step_resolution_mm: float = 0.2
         total_length: float = cut.top_vector().length()
@@ -106,6 +126,7 @@ class GCodeExporter(Module[Geometry, str]):
         return result
 
     def process(self, data: Geometry) -> str:
+        """Convert geometry cuts into a full G-code program string."""
         geometry = data
 
         self._add_command("G90", "absolute positioning")  # absolute positioning
@@ -126,15 +147,16 @@ class GCodeExporter(Module[Geometry, str]):
 
                 if not self.laser_off:
                     laser_power: float = (
-                        255
+                        MAX_LASER_POWER
                         if self.force_max_laser_power
                         else self.calculate_laser_power(cut)
                     )
 
+                    # full power for through cuts at material thickness
                     if math.isclose(cut.cut_depth, self.material_height):
-                        laser_power: float = 255
+                        laser_power: float = MAX_LASER_POWER
 
-                    if laser_power > 255:
+                    if laser_power > MAX_LASER_POWER:
                         print("Cut speed to high or laser not powerful enough")
 
                     if laser_power != last_laser:
@@ -145,6 +167,7 @@ class GCodeExporter(Module[Geometry, str]):
                         last_laser = laser_power
 
                 if last_config != start_config:
+                    # move to the start of the next cut if not already there
                     self._add_command(
                         f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
                         "travel move",
