@@ -23,7 +23,7 @@ SQUARE_PARAMS = [
 )
 @pytest.mark.parametrize("cuts", [SQUARE_PARAMS])
 def test_visualizer(cuts: list[TrapezoidalCut]):
-    gv = GeometryVisualizerModule()
+    gv = GeometryVisualizerModule()  # noqa: F841
     geo = Geometry()
     for cut in cuts:
         geo.add_cut(cut)
