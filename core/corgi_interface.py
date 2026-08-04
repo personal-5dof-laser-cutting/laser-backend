@@ -279,7 +279,10 @@ class CorgiInterface:
         self._buffer_used += byte_count
 
     def _prime_command(
-        self, line: str, priority: CommandPriority = CommandPriority.DEFAULT
+        self,
+        line: str,
+        priority: CommandPriority = CommandPriority.DEFAULT,
+        internal: bool = True,
     ):
         line_cleaned: str = line.rstrip("\n") + "\n"
         byte_count = _str_len(line_cleaned)
@@ -289,15 +292,18 @@ class CorgiInterface:
             )
 
         with self._manipulate_queue_lock:
-            if line_cleaned == "?\n":
+            if not internal and line_cleaned == "?\n":
                 self._status_requests += 1
             self._command_queue.put((priority, next(self._count), line_cleaned))
 
     def _prime_commands(
-        self, lines: list[str], priority: CommandPriority = CommandPriority.DEFAULT
+        self,
+        lines: list[str],
+        priority: CommandPriority = CommandPriority.DEFAULT,
+        internal: bool = False,
     ):
         for line in lines:
-            self._prime_command(line, priority)
+            self._prime_command(line, priority, internal)
 
     def _handle_incoming_message(self, msg: str):
         msg = msg.strip()
@@ -423,7 +429,7 @@ class CorgiInterface:
             self._buffer_worker_thread = Thread(target=self._buffer_loop, daemon=True)
             self._buffer_worker_thread.start()
 
-        self._prime_command("?")
+        self._prime_command("?", internal=False)
 
     def disconnect(self):
         self._thread_should_run = False
@@ -460,10 +466,13 @@ class CorgiInterface:
             self._buffer_corgi.clear()
             self._buffer_used = 0
             self._outstanding_rts = 0
+            self._status_requests = 0
 
             if is_connected(self._interface):
                 self._prime_command(
-                    "M112\n" if legacy else "\x18", CommandPriority.URGENT
+                    "M112\n" if legacy else "\x18",
+                    CommandPriority.URGENT,
+                    internal=False,
                 )
 
             self._set_interface_state(InterfaceState.READY)
@@ -499,5 +508,5 @@ class CorgiInterface:
             if not self._is_homed():
                 self._home_cutter()
 
-            self._prime_commands(lines)
+            self._prime_commands(lines, internal=False)
             return True
