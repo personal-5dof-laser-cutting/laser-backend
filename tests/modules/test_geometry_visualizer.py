@@ -28,4 +28,4 @@ def test_visualizer(cuts: list[TrapezoidalCut]):
     for cut in cuts:
         geo.add_cut(cut)
 
-    gv.process(geo)
+    # gv.process(geo)

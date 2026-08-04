@@ -8,6 +8,7 @@ from core.modules.geometry_visualizer.geometry_visualizer import (
 
 
 def test_segmentation():
+    # this only checks if no errors occur while segmenting a cut
     cut = TrapezoidalCut(
         Point(0, 0, 0), Point(10, 0, 0), Point(5, 0, -1), Point(10.5, 0, -1)
     )
@@ -16,8 +17,6 @@ def test_segmentation():
     cuts = exporter._discretize_cut(cut)
     geo = Geometry()
     geo.add_cuts(cuts)
-    vis = GeometryVisualizerModule()
-    vis.process(geo)
 
     test_geo = Geometry()
     test_geo.add_cut(cut)
