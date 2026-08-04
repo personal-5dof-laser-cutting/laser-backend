@@ -4,7 +4,6 @@ from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.pipeline.base import Module
 
 import math
-from copy import deepcopy
 
 
 class GCodeExporter(Module[Geometry, str]):
