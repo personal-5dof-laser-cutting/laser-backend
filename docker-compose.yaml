@@ -10,6 +10,8 @@ services:
     networks:
       - default
       - shared-net
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
 
 networks:
   shared-net:
