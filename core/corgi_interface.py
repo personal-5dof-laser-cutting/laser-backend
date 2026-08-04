@@ -318,8 +318,6 @@ class CorgiInterface:
                     popped_bytes: int = self._buffer_corgi.popleft()
                     self._buffer_used = max(0, self._buffer_used - popped_bytes)
 
-                fetch_status = self._command_queue.empty() and self._buffer_used == 0
-
             if msg == "ok":
                 self.outgoing_messages.put(
                     UpdateMessage(type="update", form="progress", content=None)
@@ -327,9 +325,6 @@ class CorgiInterface:
             else:
                 log.error(f"Corgi returned '{msg}'")
                 self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
-
-            if fetch_status:
-                self._fetch_status()
 
         elif (response_match := _CORGI_STATUS_RE.match(msg)) is not None:
             if self._status_requests > 0:
