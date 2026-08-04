@@ -10,8 +10,10 @@ services:
     networks:
       - default
       - shared-net
-    devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    device_cgroup_rules:
+      - 'c 188:* rmw'
+    volumes:
+      - /dev:/dev
 
 networks:
   shared-net:
