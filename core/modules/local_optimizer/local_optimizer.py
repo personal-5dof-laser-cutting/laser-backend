@@ -5,6 +5,12 @@ import math
 
 
 class LocalOptimizer(Module[Geometry, Geometry]):
+    """Optimize each cut by locally adjusting and optionally extending its ends.
+
+    This optimizer removes sweep cuts by overshooting cuts.
+    It does this for every cut. It then optionally extends the cut in its top-edge direction.
+    """
+
     def __init__(self, extend_mm: float = 0) -> None:
         self.extend_mm: float = extend_mm
         super().__init__()
@@ -25,6 +31,7 @@ class LocalOptimizer(Module[Geometry, Geometry]):
         return dv.normalized() * math.sin(angle) * side_length
 
     def _extend_cut(self, cut: TrapezoidalCut) -> TrapezoidalCut:
+        """Extend the cut along the top edge by `extend_mm` in both directions."""
         extend_vector: Vector = cut.top_vector().normalized() * self.extend_mm
         start_top: Point = cut.start_top.move(-extend_vector)
         start_bottom: Point = cut.start_bottom.move(-extend_vector)
