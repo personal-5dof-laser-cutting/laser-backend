@@ -10,5 +10,5 @@ if __name__ == "__main__":
     corgi_interface.connect()
 
     print("Sending GCode")
-    corgi_interface._prime_commands(gcode_file)
+    corgi_interface._send_commands(gcode_file)
     print("Done")
