@@ -49,26 +49,28 @@ class Geometry:
         vis.show()
 
     def calculate_total_cost(
-        self, material_height: float, feedrate: float, as_cycle: bool
+        self, material_thickness: float, feedrate: float, as_cycle: bool
     ) -> float:
         return self.calculate_travel_cost(
-            material_height, as_cycle
-        ) + self.calculate_cut_cost(material_height, feedrate)
+            material_thickness, as_cycle
+        ) + self.calculate_cut_cost(material_thickness, feedrate)
 
-    def calculate_travel_cost(self, material_height: float, as_cycle: bool) -> float:
+    def calculate_travel_cost(self, material_thickness: float, as_cycle: bool) -> float:
         if len(self.cuts) <= 1:
             return 0
         running_total: float = 0
         for a, b in pairwise(self.cuts):
-            running_total += a.travel_time_to(b, material_height)
+            running_total += a.travel_time_to(b, material_thickness)
         if as_cycle:
-            running_total += self.cuts[-1].travel_time_to(self.cuts[0], material_height)
+            running_total += self.cuts[-1].travel_time_to(
+                self.cuts[0], material_thickness
+            )
         return running_total
 
-    def calculate_cut_cost(self, material_height: float, feedrate: float) -> float:
+    def calculate_cut_cost(self, material_thickness: float, feedrate: float) -> float:
         running_total: float = 0
         for cut in self.cuts:
-            running_total += cut.get_internal_cost(feedrate, material_height)
+            running_total += cut.get_internal_cost(feedrate, material_thickness)
         return running_total
 
     def shift_path_optimally(
@@ -195,17 +197,17 @@ class Configuration:
         x = math.tan(self.beta)
         return Vector(x, y, -1).normalized()
 
-    def travel_time_to(self, other: Configuration, material_height: float) -> float:
+    def travel_time_to(self, other: Configuration, material_thickness: float) -> float:
         from core.service_container import Container
 
-        return Container.laser_cost.get_cost(self, other, material_height)
+        return Container.laser_cost.get_cost(self, other, material_thickness)
 
     def to_motor_positions(
-        self, material_height: float
+        self, material_thickness: float
     ) -> Tuple[MotorPosition, MotorPosition]:
         from core.service_container import Container
 
-        return Container.kinematics_service.get_positions(self, material_height)
+        return Container.kinematics_service.get_positions(self, material_thickness)
 
 
 class MotorPosition:
@@ -530,15 +532,15 @@ class TrapezoidalCut:
     def is_straight_cut(self) -> bool:
         return math.isclose(self.get_slant_angle(), 0)
 
-    def get_internal_cost(self, feedrate: float, material_height: float) -> float:
+    def get_internal_cost(self, feedrate: float, material_thickness: float) -> float:
         from core.service_container import Container
 
         steps_per_mm = Container.laser_config.steps_per_mm()
 
         from_conf, to_conf = self.configurations()
-        travel_move_time = from_conf.travel_time_to(to_conf, material_height)
-        from_positions = from_conf.to_motor_positions(material_height)
-        to_positions = to_conf.to_motor_positions(material_height)
+        travel_move_time = from_conf.travel_time_to(to_conf, material_thickness)
+        from_positions = from_conf.to_motor_positions(material_thickness)
+        to_positions = to_conf.to_motor_positions(material_thickness)
         delta_1 = from_positions[0].delta(to_positions[0])
         delta_2 = from_positions[0].delta(to_positions[1])
         delta_1_mm = math.sqrt(
@@ -553,13 +555,13 @@ class TrapezoidalCut:
 
         return max(travel_move_time, dist / feedrate)
 
-    def travel_time_to(self, other: TrapezoidalCut, material_height: float) -> float:
+    def travel_time_to(self, other: TrapezoidalCut, material_thickness: float) -> float:
         return self.end_configuration.travel_time_to(
-            other.start_configuration, material_height
+            other.start_configuration, material_thickness
         )
 
     def __repr__(self) -> str:
-        return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_height={self.cut_depth})"
+        return f"Cut(({self.start_top.x}, {self.start_top.y}), ({self.end_top.x}, {self.end_top.y}), ({self.start_bottom.x}, {self.start_bottom.y}), ({self.end_bottom.x}, {self.end_bottom.y}), material_thickness={self.cut_depth})"
 
     def __eq__(self, other):
         return isinstance(other, TrapezoidalCut) and (

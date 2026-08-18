@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 """Models used by endpoints. Descriptions provided will be visible in the docs UI (Swagger)."""
@@ -12,12 +12,6 @@ class StrictBaseModel(BaseModel):
 
 class GCodeOutput(BaseModel):
     gcode: Any = Field(description="Gcode")
-
-
-class JobOutput(BaseModel):
-    job_id: str = Field(
-        description="Job ID used to create a websocket connection (/ws/{job_id})"
-    )
 
 
 class ResponseMessage(BaseModel):
@@ -44,27 +38,53 @@ class FrontendInput(StrictBaseModel):
     dpi: float = Field(
         description="Indicates if SVG was created with Adobe Illustrator scaling or has a scaling in mm",
     )
-    x_offset: float = Field(
-        description="How many millimeters the svg should be moved alongside the x-axis",
-        default=0,
-    )
-    y_offset: float = Field(
-        description="How many millimeters the svg should be moved alongside the y-axis",
-        default=0,
-    )
-    model_scale: float = Field(
-        description="The factor by which the model should be scaled", default=1
-    )
 
 
-class WebsocketMessage(StrictBaseModel):
-    type: Literal[
-        "info",
-        "error",
-        "abort",
-        "update",
-        "job_id",
-    ] = Field(description="Message Type")
-    content: str = Field(
-        description="Message content. Can be a singular value or a JSON string"
+message_type_description = "Message Type"
+type CutterActions = Literal["abort", "home"]
+
+
+class InfoMessage(StrictBaseModel):
+    type: Literal["info"] = Field(description=message_type_description)
+    content: str = Field(description="Message content")
+
+
+class ErrorMessage(StrictBaseModel):
+    type: Literal["error"] = Field(description=message_type_description)
+    content: str = Field(description="Message content")
+
+
+class ActionMessage(StrictBaseModel):
+    type: Literal["action"] = Field(description=message_type_description)
+    action: CutterActions = Field(description="An action to be performed by the cutter")
+
+
+class UpdateMessage(StrictBaseModel):
+    type: Literal["update"] = Field(description=message_type_description)
+    form: Literal["progress", "status"] = Field(
+        description="Either the progress of the current job or the Machine status"
     )
+    content: Optional[str] = Field(description="Update information")
+
+
+class JobMessage(StrictBaseModel):
+    type: Literal["job"] = Field(description=message_type_description)
+    input: FrontendInput = Field(description="A FrontendInput object")
+
+
+class GCodeMessage(StrictBaseModel):
+    type: Literal["gcode"] = Field(description=message_type_description)
+    command: str = Field(description="GCode command")
+
+
+type WebsocketMessage = Annotated[
+    Union[
+        InfoMessage,
+        ErrorMessage,
+        ActionMessage,
+        UpdateMessage,
+        JobMessage,
+        GCodeMessage,
+    ],
+    Field(discriminator="type"),
+]

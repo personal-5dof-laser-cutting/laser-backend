@@ -9,7 +9,7 @@ import math
 class GCodeExporter(Module[Geometry, str]):
     def __init__(
         self,
-        material_height: float,
+        material_thickness: float,
         gcode_comments: bool = True,
         pretty_formatting: bool = True,
         cut_speed: float = 20,
@@ -24,7 +24,7 @@ class GCodeExporter(Module[Geometry, str]):
         self.max_segment_deviation_mm: float = 0.1
 
         # workpiece settings
-        self.material_height: float = material_height
+        self.material_thickness: float = material_thickness
 
         # gcode settings
         self.gcode_comments: bool = gcode_comments
@@ -131,7 +131,7 @@ class GCodeExporter(Module[Geometry, str]):
                         else self.calculate_laser_power(cut)
                     )
 
-                    if math.isclose(cut.cut_depth, self.material_height):
+                    if math.isclose(cut.cut_depth, self.material_thickness):
                         laser_power: float = 255
 
                     if laser_power > 255:
@@ -146,12 +146,12 @@ class GCodeExporter(Module[Geometry, str]):
 
                 if last_config != start_config:
                     self._add_command(
-                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
+                        f"G0 X{self.format_float(start_config.x)} Y{self.format_float(start_config.y)} Z{self.format_float(self.material_thickness + self.prop_up)} A{self.format_float(math.degrees(start_config.alpha) + 0.0)} B{self.format_float(math.degrees(start_config.beta) + 0.0)}",
                         "travel move",
                     )  # travel move
 
                 self._add_command(
-                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_height + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
+                    f"G1 X{self.format_float(end_config.x)} Y{self.format_float(end_config.y)} Z{self.format_float(self.material_thickness + self.prop_up)} A{self.format_float(math.degrees(end_config.alpha) + 0.0)} B{self.format_float(math.degrees(end_config.beta) + 0.0)}",
                     "cut move",
                 )  # cut
 
