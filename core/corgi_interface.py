@@ -195,7 +195,7 @@ class CorgiInterface:
                 self._proxy.send("$X")
                 self._proxy.send("$h")
 
-    def abort(self, legacy: bool = False):
+    def abort(self):
         """
         Sends the hardware abort signal immediately.
         """
@@ -203,7 +203,7 @@ class CorgiInterface:
         self._status_requests = 0
 
         if self._proxy is not None and self._proxy.is_connected:
-            self._proxy.send("M112" if legacy else self._driver.safety_shutoff_command)
+            self._proxy.send(self._driver.safety_shutoff_command)
 
         self._set_interface_state(InterfaceState.READY)
         log.info("Done")
