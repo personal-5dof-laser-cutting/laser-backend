@@ -362,6 +362,7 @@ class CorgiInterface:
             self._status_requests = 0
 
             if is_connected(self._proxy):
+                log.info(f"Sending abort message ({self._proxy._driver.safety_shutoff_command})")
                 self._send_command(self._proxy._driver.safety_shutoff_command, internal=True)
 
             self._set_interface_state(InterfaceState.READY)
