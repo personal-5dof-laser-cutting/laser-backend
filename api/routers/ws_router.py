@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from gcode_lib import FluidNCSerialDriver
 from pydantic import TypeAdapter, ValidationError
 
 from api.models.base import (
@@ -25,7 +26,7 @@ WebsocketMessage_ta: TypeAdapter[WebsocketMessage] = TypeAdapter(WebsocketMessag
 class WebSocketContext:
     def __init__(self, websocket: WebSocket):
         self.websocket: WebSocket = websocket
-        self.corgi_interface: CorgiInterface = CorgiInterface()
+        self.corgi_interface: CorgiInterface = CorgiInterface(FluidNCSerialDriver("/dev/ttyUSB0"))
         self.corgi_interface.connect()
 
     async def send(self, message: WebsocketMessage):
