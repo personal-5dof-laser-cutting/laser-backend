@@ -344,6 +344,9 @@ class CorgiInterface:
             self._send_command("$X", internal=True)
             self._send_command("$h", internal=True)
 
+        self.outgoing_messages.put(UpdateMessage(type="update", form="status", content="homed"))
+        
+
     def send_command(self, line: str):
         self._send_command(line, internal=False)
 
