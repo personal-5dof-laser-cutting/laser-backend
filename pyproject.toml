@@ -14,7 +14,6 @@ dependencies = [
     "uvicorn>=0.38.0",
     "vpython>=7.6.5",
     "svgpathtools>=1.7.1",
-    "gcode-lib",
     "websockets>=16.0",
     "mpl-interactions>=0.24.2",
     "setuptools<81",
@@ -24,6 +23,7 @@ dependencies = [
     "networkx>=3.6.1",
     "rustworkx>=0.17.1",
     "pyqt6>=6.11.0",
+    "gcode-lib>=0.1.5",
 ]
 
 [dependency-groups]
