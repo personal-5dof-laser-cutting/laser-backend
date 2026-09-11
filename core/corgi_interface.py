@@ -1,23 +1,32 @@
+from collections import deque
+from enum import IntEnum, StrEnum, auto
+from itertools import count
 import logging
 from queue import Empty, PriorityQueue, Queue
+import re
+from threading import Event, Lock, RLock, Thread
 from time import sleep
-from typing import Tuple
+from typing import Final, Optional, TypeGuard
 
 from gcode_lib.gcode_interface import GCodeInterface
 import serial
 import serial.tools
 import serial.tools.list_ports
+from websockets import InvalidHandshake, InvalidURI
 
-from api.models.base import WebsocketMessage
+from api.models.base import ErrorMessage, UpdateMessage, WebsocketMessage
 
-log = logging.getLogger("Corgi Interface")
+_ALLOW_WIFI_CONNECTION: Final[bool] = False
+_DISCONNECTED_STATUS: Final[str] = "Disconnected"
+_CORGI_STATUS_RE: Final[re.Pattern] = re.compile(
+    r"<([A-Z][a-z]+(?:\:\d+)?)((?:\|[^\|>]+)+)>"
+)
+
+log = logging.getLogger(__name__)
 
 
-def str_len(string: str) -> int:
+def _str_len(string: str) -> int:
     return len(string.encode("utf-8"))
-
-
-ALLOW_WIFI_CONNECTION = False
 
 
 class SerialInterface:
@@ -25,10 +34,7 @@ class SerialInterface:
 
     def __init__(self, port: str):
         self._interface = serial.Serial(port, baudrate=115200, timeout=0.5)
-        self._interface.dtr = False
-        sleep(0.1)
-        self._interface.dtr = True
-        sleep(2)
+        sleep(0.5)
         if self._interface.in_waiting > 0:
             boot_logs = self._interface.read(self._interface.in_waiting).decode(
                 "utf-8", errors="ignore"
@@ -44,17 +50,20 @@ class SerialInterface:
                     f"Corgi Wake-up response: {self._interface.read(self._interface.in_waiting).decode('utf-8', errors='ignore').strip()}"
                 )
 
-    def open(self):
+    def open(self) -> "SerialInterface":
         if not self._interface.is_open:
             self._interface.open()
+        return self
+
+    def close(self):
+        self._interface.close()
 
     def send(self, message: str):
         self._interface.write(message.encode("utf-8"))
 
-    def recv(self) -> str | None:
+    def recv(self, timeout: Optional[float] = None) -> str | None:
+        self._interface.timeout = 0 if timeout is None else timeout
         try:
-            if self._interface.in_waiting == 0:
-                return None
             message = self._interface.readline().decode("utf-8")
         except UnicodeDecodeError as UDE:
             log.warning(f"Could not decode message: {UDE}")
@@ -62,172 +71,437 @@ class SerialInterface:
         return message or None
 
 
-class CorgiInterface:
-    _interface: GCodeInterface | SerialInterface
+class CommandPriority(IntEnum):
+    URGENT = auto()
+    HIGH = auto()
+    DEFAULT = auto()
 
+
+class InterfaceState(StrEnum):
+    DISCONNECTED = auto()
+    READY = auto()
+    RUNNING = auto()
+
+
+def is_connected(
+    interface: SerialInterface | GCodeInterface | None,
+) -> TypeGuard[SerialInterface | GCodeInterface]:
+    return interface is not None
+
+
+type QueueContentType = tuple[CommandPriority, int, str]
+
+
+class CorgiInterface:
     def __init__(
         self,
         address: str | None = None,
-        incoming_messages: PriorityQueue[
-            Tuple[int, WebsocketMessage]
-        ] = PriorityQueue(),
-        outgoing_messages: Queue[WebsocketMessage] = Queue(),
         buffer_size: int = 128,
+        max_reconnect_timeout: int = 10,
     ):
-        if not ALLOW_WIFI_CONNECTION and address is not None:
+        if not _ALLOW_WIFI_CONNECTION and address is not None:
             log.warning("Address passed but wifi connection is forbidden")
-        self.address = address
-        self.incoming_messages = incoming_messages
-        self.outgoing_messages = outgoing_messages
-        self.buffer_size: int = buffer_size
-        self.buffer_used: int = 0
-        self.buffer_corgi: list[str] = []
-        self.connected = False
 
-        self.queue: list[str] = []
+        self._address = address
+        self._buffer_size: int = buffer_size
+        self.max_reconnect_timeout: int = max_reconnect_timeout
+
+        self._reconnect_timeout: int = 0
+        self._interface: GCodeInterface | SerialInterface | None = None
+
+        self._buffer_corgi: deque[int] = deque()
+        self._buffer_used: int = 0
+        self._outstanding_rts: int = (
+            0  # number of sent Real-Time signals without responses
+        )
+
+        self.outgoing_messages: Queue[WebsocketMessage] = Queue()
+
+        self._setup_lock: RLock = RLock()
+        self._manipulate_queue_lock: RLock = RLock()
+        self._fetch_status_lock: RLock = RLock()
+
+        self._is_fetching_status: bool = False
+        self._new_status_event: Event = Event()
+        self._status: str = ""
+        self._status_dict: dict[str, str] = {}
+        self._status_requests: int = 0
+
+        self._thread_should_run: bool = False
+        self._interface_state: InterfaceState = InterfaceState.DISCONNECTED
+        self._interface_state_lock: Lock = Lock()
+
+        self._command_queue: PriorityQueue[QueueContentType] = PriorityQueue()
+        self._count = count()
+
+        self._buffer_worker_thread: Thread = Thread(
+            target=self._buffer_loop, daemon=True
+        )
 
     def _find_serial_port(self) -> str | None:
-        serial_ports: list[str] = [
-            port.device
-            for port in serial.tools.list_ports.comports()
-            if port.vid is not None
-        ]
-        workingPorts: list[str] = []
+        working_ports: list[str] = []
+        for port in serial.tools.list_ports.comports():
+            if port.vid is None:
+                continue
 
-        for port in serial_ports:
             try:
-                s = serial.Serial(port)
+                s = serial.Serial(port.device)
                 s.close()
-                workingPorts.append(port)
+                working_ports.append(port.device)
             except serial.SerialException:
                 pass
             except PermissionError:
-                log.debug(f"No permission for port {port}")
-                break
-        if len(workingPorts) > 1:
+                log.warning(f"No permission for port {port.device}")
+                continue
+
+        if len(working_ports) > 1:
             raise RuntimeError(
-                f"Too many serial devices connected: {','.join(workingPorts)}"
+                f"Too many serial devices connected: {','.join(working_ports)}"
             )
-        elif len(workingPorts) == 0:
+        elif len(working_ports) == 0:
             return None
 
-        return workingPorts[0]
+        return working_ports[0]
 
     def _try_connect(self) -> bool:
-        try:
-            self._interface.open()
-            self.connected = True
-            self.buffer_used = 0
-            self.buffer_corgi.clear()
-            log.info("Connected to corgi")
-        except AttributeError:
+        if not is_connected(self._interface):
+            sleep(self._reconnect_timeout)
+            self._reconnect_timeout = (
+                1
+                if self._reconnect_timeout == 0
+                else min(self._reconnect_timeout * 2, self.max_reconnect_timeout)
+            )
+
+            with self._manipulate_queue_lock:
+                self._buffer_used = 0
+                self._buffer_corgi.clear()
+                self._outstanding_rts = 0
+
             serial_port = self._find_serial_port()
             if serial_port:
                 self._interface = SerialInterface(serial_port)
             else:
-                if not ALLOW_WIFI_CONNECTION or self.address is None:
+                if not _ALLOW_WIFI_CONNECTION or self._address is None:
                     log.error(
                         "No serial port detected. Connection to Corgi not possible"
                     )
-                    self.connected = False
-                    return self.connected
+                    self._interface = None
+                    return False
                 else:
-                    self._interface = GCodeInterface(self.address)
-            self._try_connect()
-        except Exception as e:
-            log.error(f"Could not connect to corgi: {e}")
-            self.connected = False
-
-        return self.connected
-
-    def _check_messages(self) -> str:
+                    self._interface = GCodeInterface(self._address)
         try:
-            _, msg = self.incoming_messages.get_nowait()
-            return msg.type
-        except Empty:
-            return ""
+            self._interface.open()
+            log.info("Connected to corgi")
+            self._reconnect_timeout = 0
+        except (
+            serial.SerialException,
+            InvalidURI,
+            OSError,
+            InvalidHandshake,
+            TimeoutError,
+        ) as e:
+            log.error(f"Could not connect to corgi: {e}")
+            self._interface = None
 
-    def send_line(self, line: str):
-        line_cleaned: str = line.rstrip("\n") + "\n"
-        byte_count = str_len(line_cleaned)
-        if byte_count > self.buffer_size:
-            raise Exception("Line too long")
-        self.queue.append(line_cleaned)
+        return is_connected(self._interface)
 
-    def send_lines(self, lines: list[str]):
-        for line in lines:
-            self.send_line(line)
+    def _is_homed(self) -> bool:
+        status, _ = self._get_status()
+        if status == _DISCONNECTED_STATUS:
+            return False
+
+        if status.startswith("Alarm"):
+            log.info(f"Corgi is in Alarmstate: {status}")
+            return False
+
+        return True
+
+    def _is_done(self) -> bool:
+        with self._setup_lock:
+            with self._manipulate_queue_lock:
+                queue_empty = self._command_queue.empty()
+                buffer_empty = self._buffer_used == 0
+                rts_empty = self._outstanding_rts == 0
+
+            return (
+                queue_empty and buffer_empty and rts_empty and self._is_in_done_status()
+            )
+
+    def _is_in_done_status(self):
+        return self._status in [_DISCONNECTED_STATUS, "Idle", "Alarm"]
+
+    def _is_real_time_signal(self, command: str) -> bool:
+        return command.strip() in [
+            "?",
+            "!",
+            "~",
+            "\x18",
+        ]  # 0x18 is Ctrl+X: reset / emergency stop
+
+    def _set_interface_state(self, state: InterfaceState):
+        with self._interface_state_lock:
+            self._interface_state = state
+
+    def _fetch_status(self):
+        if not is_connected(self._interface):
+            return
+        with self._fetch_status_lock:
+            if not self._is_fetching_status:
+                log.info("Fetching cutter status")
+                self._new_status_event.clear()
+                self._prime_command("?", CommandPriority.HIGH)
+                self._is_fetching_status = True
+
+    def _get_status(self) -> tuple[str, dict[str, str]]:
+        if not is_connected(self._interface):
+            log.warning("Corgi not connected")
+            self._status = _DISCONNECTED_STATUS
+            self._status_dict = {}
+        else:
+            self._fetch_status()
+            self._new_status_event.wait()
+        return self._status, self._status_dict
+
+    def _set_status(self, status_message: str, status_infos: list[str]):
+        status_dict = dict(info.split(":") for info in status_infos)
+        with self._fetch_status_lock:
+            self._is_fetching_status = False
+            self._status = status_message
+            self._status_dict = status_dict
+            self._new_status_event.set()
 
     def _send_to_corgi(self, string: str):
-        byte_count: int = str_len(string)
+        if not is_connected(self._interface):
+            return
+        byte_count: int = _str_len(string)
         self._interface.send(string)
-        self.buffer_corgi.append(string)
-        self.buffer_used += byte_count
+        self._buffer_corgi.append(byte_count)
+        self._buffer_used += byte_count
 
-    def _abort(self):
-        self.queue.clear()
-        self.send_line("M112")
-        self.aborting = True
+    def _prime_command(
+        self,
+        line: str,
+        priority: CommandPriority = CommandPriority.DEFAULT,
+        internal: bool = True,
+    ):
+        line_cleaned: str = line.rstrip("\n") + "\n"
+        byte_count = _str_len(line_cleaned)
+        if byte_count > self._buffer_size:
+            raise ValueError(
+                f"Line too long. Buffer length: {self._buffer_size} bytes (passed string: {byte_count})"
+            )
 
-    aborting = False
+        with self._manipulate_queue_lock:
+            if not internal and line_cleaned == "?\n":
+                self._status_requests += 1
+            self._command_queue.put((priority, next(self._count), line_cleaned))
 
-    def _tick(self):
-        if ws_msg := self._check_messages():
-            print(1)
-            if ws_msg == "abort":
-                self._abort()
-        if (msg := self._interface.recv()) is not None:
-            print(2)
-            print(f"ci: {msg}")
-            if self.aborting:
+    def _prime_commands(
+        self,
+        lines: list[str],
+        priority: CommandPriority = CommandPriority.DEFAULT,
+        internal: bool = False,
+    ):
+        for line in lines:
+            self._prime_command(line, priority, internal)
+
+    def _handle_incoming_message(self, msg: str):
+        msg = msg.strip()
+        if not msg:
+            return
+
+        if msg == "ok" or msg.startswith("error"):
+            # An 'error' response consumes a buffered line just like an 'ok'.
+            # If we don't pop it, _buffer_used permanently maxes out resulting in a deadlock.
+            with self._manipulate_queue_lock:
+                if len(self._buffer_corgi) > 0:
+                    popped_bytes: int = self._buffer_corgi.popleft()
+                    self._buffer_used = max(0, self._buffer_used - popped_bytes)
+
+            if msg == "ok":
                 self.outgoing_messages.put(
-                    WebsocketMessage(type="info", content="Successfully aborted")
+                    UpdateMessage(type="update", form="progress", content=None)
                 )
-                return
-            spindle_info_message = "[MSG:INFO: spindle: "
-            if msg.strip() == "ok" and len(self.buffer_corgi) > 0:
-                processed_command: str = self.buffer_corgi.pop(0)
-                byte_count: int = str_len(processed_command)
-                self.buffer_used -= byte_count
+            else:
+                log.error(f"Corgi returned '{msg}'")
+                self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
 
-                assert self.buffer_used >= 0
-            elif msg.startswith("error"):
-                raise Exception(f"Corgi returned '{msg}'")
-            elif msg.strip().startswith(spindle_info_message):
+        elif (response_match := _CORGI_STATUS_RE.match(msg)) is not None:
+            if self._status_requests > 0:
+                self._status_requests -= 1
                 self.outgoing_messages.put(
-                    WebsocketMessage(
-                        type="debug",
-                        content=f"{msg.strip()[len(spindle_info_message) : -1]}",
+                    UpdateMessage(
+                        type="update", form="status", content=response_match.group(0)
                     )
                 )
+            with self._manipulate_queue_lock:
+                self._outstanding_rts = max(0, self._outstanding_rts - 1)
 
-        if len(self.queue) > 0:
-            next_command: str = self.queue[0]
-            free_buffer = self.buffer_size - self.buffer_used
+            self._set_status(
+                response_match.group(1), response_match.group(2)[1:].split("|")
+            )
+            if self._is_done():
+                self._set_interface_state(InterfaceState.READY)
 
-            if str_len(next_command) <= free_buffer:
-                print(3)
-                self._send_to_corgi(next_command)
-                self.queue.pop(0)
-                assert self.buffer_used <= self.buffer_size
+        elif msg.startswith("Grbl") or msg.startswith("FluidNC"):
+            log.info(f"Controller booted/reset: {msg}")
 
-    def main_loop(self):
-        while True:
-            if not self.connected:
-                if self._try_connect():
-                    self.outgoing_messages.put(
-                        WebsocketMessage(type="info", content="Corgi connected")
-                    )
-                else:
-                    sleep(5)
-                    continue
+            # The hardware resets its RX buffer entirely on boot. We must match it
+            # otherwise Python hangs waiting for responses to vaporized commands.
+            with self._manipulate_queue_lock:
+                self._buffer_corgi.clear()
+                self._buffer_used = 0
+                self._outstanding_rts = 0
+
+            self._fetch_status()
+
+    def _process_outgoing_commands(self):
+        if not is_connected(self._interface):
+            return
+        with self._manipulate_queue_lock:
             try:
-                self._tick()
+                item = self._command_queue.get_nowait()
+            except Empty:
+                return
+
+            priority, count_idx, command = item
+            free_buffer = self._buffer_size - self._buffer_used
+
+            if self._is_real_time_signal(command):
+                self._interface.send(command)
+                self._outstanding_rts += 1
+                self._command_queue.task_done()
+
+            elif _str_len(command) <= free_buffer:
+                self._send_to_corgi(command)
+                self._command_queue.task_done()
+
+            else:
+                self._command_queue.put((priority, count_idx, command))
+                self._command_queue.task_done()
+
+    def _work_buffer(self):
+        if not is_connected(self._interface):
+            return
+
+        # Adaptive Polling: lower CPU usage to near 0 when we're completely idle
+        with self._manipulate_queue_lock:
+            is_idle = (
+                self._command_queue.empty()
+                and self._buffer_used == 0
+                and self._outstanding_rts == 0
+            )
+
+        read_timeout = 0.1 if is_idle else 0.01
+
+        msg = self._interface.recv(timeout=read_timeout)
+        if msg is not None:
+            self._handle_incoming_message(msg)
+
+        self._process_outgoing_commands()
+
+    def _buffer_loop(self):
+        while self._thread_should_run:
+            try:
+                if self._interface is not None or self._try_connect():
+                    self._work_buffer()
+            except (serial.SerialException, OSError) as e:
+                log.error(f"Hardware connection lost: {e}")
+                self._clean_up()
             except Exception as e:
-                self.connected = False
-                log.error(f"Error running main loop: {e}")
-                self.outgoing_messages.put(
-                    WebsocketMessage(type="error", content="Corgi disconnected")
+                log.exception(f"Unexpected error in buffer loop: {e}")
+                sleep(1)
+
+    def connect(self):
+        with self._manipulate_queue_lock:
+            if self._thread_should_run and self._buffer_worker_thread.is_alive():
+                self._set_interface_state(InterfaceState.READY)
+                return
+
+            self._command_queue = PriorityQueue()
+            self._thread_should_run = True
+            self._set_interface_state(InterfaceState.READY)
+            self._buffer_worker_thread = Thread(target=self._buffer_loop, daemon=True)
+            self._buffer_worker_thread.start()
+
+        self._prime_command("?", internal=False)
+
+    def disconnect(self):
+        self._thread_should_run = False
+        if self._buffer_worker_thread.is_alive():
+            self._buffer_worker_thread.join(timeout=1.0)
+        self._clean_up()
+
+    def _clean_up(self):
+        with self._manipulate_queue_lock:
+            self._command_queue = PriorityQueue()
+            self._buffer_corgi.clear()
+            self._buffer_used = 0
+            self._outstanding_rts = 0
+            self._set_interface_state(InterfaceState.DISCONNECTED)
+            if is_connected(self._interface):
+                self._interface.close()
+                self._interface = None
+
+    def _home_cutter(self):
+        with self._setup_lock:
+            # Send an explicit Unlock ($X) directly before homing to force
+            # the machine out of any lingering abort/limit alarm states
+            self._prime_command("$X", CommandPriority.HIGH)
+            self._prime_command("$h", CommandPriority.HIGH)
+
+    def abort(self, legacy: bool = False):
+        """
+        Sends the hardware abort signal immediately and clears queued events.
+        """
+        log.info("Aborting...")
+        with self._manipulate_queue_lock:
+            self._command_queue = PriorityQueue()
+
+            self._buffer_corgi.clear()
+            self._buffer_used = 0
+            self._outstanding_rts = 0
+            self._status_requests = 0
+
+            if is_connected(self._interface):
+                self._prime_command(
+                    "M112\n" if legacy else "\x18",
+                    CommandPriority.URGENT,
+                    internal=False,
                 )
-                print(e)
-            sleep(0.001)
+
+            self._set_interface_state(InterfaceState.READY)
+        log.info("Done")
+
+    def request_homing(self, block: bool = False) -> bool:
+        if self._interface_state in [
+            InterfaceState.DISCONNECTED,
+            InterfaceState.RUNNING,
+        ]:
+            return False
+
+        self._home_cutter()
+        log.info("Sent homing command")
+        if block:
+            log.info("Waiting for homing routine to be done")
+            delay: int = 20
+            while not self._is_homed():
+                sleep(delay)
+                delay = 5
+            log.info("Homing complete")
+        return True
+
+    def run_job(self, lines: list[str]) -> bool:
+        with self._setup_lock:
+            if self._interface_state is InterfaceState.RUNNING:
+                log.warning("Another job is already being executed")
+                return False
+
+            self.connect()
+            self._set_interface_state(InterfaceState.RUNNING)
+
+            if not self._is_homed():
+                self._home_cutter()
+
+            self._prime_commands(lines, internal=False)
+            return True

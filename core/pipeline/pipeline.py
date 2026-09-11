@@ -12,9 +12,6 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
         SVG5DOF_Importer(
             frontendInput.material_thickness,
             dpi=frontendInput.dpi,
-            x_offset=frontendInput.x_offset,
-            y_offset=frontendInput.y_offset,
-            model_scale=frontendInput.model_scale,
         ),
     ]
     if frontendInput.optimize:
@@ -26,6 +23,7 @@ def full_pipeline(frontendInput: FrontendInput) -> Pipeline:
                 laser_off=frontendInput.laser_off,
                 cut_speed=frontendInput.cut_speed,
                 pretty_formatting=False,
+                gcode_comments=False,
             )
         ]
     )
@@ -36,18 +34,12 @@ def svg_to_geometry_pipeline(
     material_thickness: float,
     dpi: float,
     nest_geometry: bool,
-    x_offset: float = 0,
-    y_offset: float = 0,
-    model_scale: float = 0,
 ):
     modules: list[Module] = []
     modules.append(
         SVG5DOF_Importer(
             material_thickness=material_thickness,
             dpi=dpi,
-            x_offset=x_offset,
-            y_offset=y_offset,
-            model_scale=model_scale,
         )
     )
     if nest_geometry:

@@ -46,7 +46,7 @@ class RPPApproximationModule(BaseOptimizer):
         super().__init__(material_height, start_location)
 
     def get_current_cost(self, as_cycle: bool) -> float:
-        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
+        return self.geometry.calculate_travel_cost(self.material_thickness, as_cycle)
 
     def _optimize(self):
         self.original_cuts: list[TrapezoidalCut] = self.geometry.cuts
@@ -137,7 +137,7 @@ class RPPApproximationModule(BaseOptimizer):
         to_conf_idx: int = 0
         for node_u_idx, node_v_idx in product(component_1, component_2):
             distance = graph[node_u_idx].travel_time_to(
-                graph[node_v_idx], self.material_height
+                graph[node_v_idx], self.material_thickness
             )
             if distance < min_distance:
                 min_distance = distance
@@ -158,7 +158,9 @@ class RPPApproximationModule(BaseOptimizer):
         }
         weights: list[float] = []
         for u_idx, v_idx in combinations(odd_node_indices, 2):
-            distance = graph[u_idx].travel_time_to(graph[v_idx], self.material_height)
+            distance = graph[u_idx].travel_time_to(
+                graph[v_idx], self.material_thickness
+            )
             weights.append(distance)
             odd_indices_graph.add_edge(
                 odd_idx_to_odd_graph_idx[u_idx],

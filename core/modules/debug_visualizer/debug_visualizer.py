@@ -35,7 +35,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
     def __init__(
         self,
-        material_height: float,
+        material_thickness: float,
         flags: VisualizerFlags | None = None,
         laser_config: LaserConfigService = Container.laser_config,
     ) -> None:
@@ -43,7 +43,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
         self.gantry_dim = laser_config.gantry_dim_mm()
 
-        self.material_height = material_height
+        self.material_thickness = material_thickness
         if flags:
             self.shadeArea = bool(flags & VisualizerFlags.SHOW_AREA)
             self.showOrder = bool(flags & VisualizerFlags.SHOW_ORDER)
@@ -65,7 +65,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self.bbox = geo_bbox(data)
         Container.kinematics_service.generate_cache(
             [conf for cut in self.geometry.cuts for conf in cut.configurations()],
-            self.material_height,
+            self.material_thickness,
         )
         self._current_cut = len(self.geometry.cuts)
 
@@ -288,7 +288,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             self._draw_config_panel(ax, config, label)
 
     def _to_motor_position(self, config: Configuration) -> MotorPosition:
-        closest, furthest = config.to_motor_positions(self.material_height)
+        closest, furthest = config.to_motor_positions(self.material_thickness)
         if self._previous is None:
             return closest
         closest_cost = Container.laser_cost.chebyshev_distance(self._previous, closest)
@@ -355,7 +355,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
             # b=0 → down (−y), b=−π/2 → −x, b=+π/2 → +x
             # angle_mpl = −π/2 − b
             max_arrow_len = 0.25
-            arrow_len = (motor_pos.z / self.material_height) * max_arrow_len
+            arrow_len = (motor_pos.z / self.material_thickness) * max_arrow_len
             arrow_angle_mpl = -math.pi / 2 - motor_pos.b
             dx = arrow_len * math.cos(arrow_angle_mpl)
             dy = arrow_len * math.sin(arrow_angle_mpl)
@@ -508,9 +508,9 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
 
     def _get_grey_color(self, cut_depth: float) -> str:
         assert cut_depth > 0
-        assert cut_depth < self.material_height or math.isclose(
-            cut_depth, self.material_height
+        assert cut_depth < self.material_thickness or math.isclose(
+            cut_depth, self.material_thickness
         )
-        percentage = cut_depth / self.material_height
+        percentage = cut_depth / self.material_thickness
         grey = self.lightest_grey_value * percentage
         return str(grey)

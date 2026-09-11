@@ -3,7 +3,6 @@ import time
 from api.models.base import WebsocketMessage
 from core.corgi_interface import CorgiInterface
 import sys
-import threading
 
 from core.modules.auto_nester.auto_nester import AutoNester
 from core.modules.gcode_exporter.gcode_export import GCodeExporter
@@ -33,12 +32,11 @@ if __name__ == "__main__":
 
     gcode = generator.process(geo)
     # print(gcode)
-    interface = CorgiInterface("0")
-    threading.Thread(target=interface.main_loop, daemon=True).start()
+    interface = CorgiInterface()
 
     print("Sending GCode")
     print("\n".join(gcode.split("\n")[:7] + gcode.split("\n")[-2:]))
-    interface.send_lines(gcode.split("\n")[:7] + gcode.split("\n")[-2:])
+    interface._prime_commands(gcode.split("\n")[:7] + gcode.split("\n")[-2:])
     timestamps: list[int] = []
     total_active = 0.0
     total_inactive = 0.0
@@ -50,8 +48,7 @@ if __name__ == "__main__":
             continue
         if msg.content == "done":
             print("Done!")
-            continue
-            # break
+            break
         print(f"{msg.content=}")
         status, timestamp = msg.content.split(" ")
         is_active = bool(status)
@@ -70,3 +67,7 @@ if __name__ == "__main__":
 
     print(f"Actual laser cost: {total_active / 1000:.3f}s")
     print(f"Actual travel cost: {total_inactive / 1000:.3f}s")
+    corgi_interface = CorgiInterface()
+    corgi_interface.connect()
+
+    print("Done")

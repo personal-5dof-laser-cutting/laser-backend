@@ -140,9 +140,6 @@ def run_suite(
             material_thickness=settings.material_height,
             dpi=settings.dpi,
             nest_geometry=settings.nest_geometry,
-            x_offset=settings.x_offset,
-            y_offset=settings.y_offset,
-            model_scale=settings.model_scale,
         )
         content: str = _load_svg(svg_path)
         geometry: Geometry = pipeline.run(content)
@@ -166,7 +163,7 @@ def run_suite(
                 _run_optimizer(
                     on_progress,
                     optimizer(
-                        material_height=material_height,
+                        material_thickness=material_height,
                         start_location=start_location,
                         **settings,
                     ),

@@ -1,13 +1,42 @@
 import io
-from uuid import uuid4
+from typing import Tuple
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
-from api.models.base import FrontendInput, JobOutput
-from api.routers.jobs import Job, jobs
+from api.models.base import FrontendInput
 from core.pipeline.pipeline import full_pipeline
+from api.models.materials import MATERIALS, MaterialData
+from core.service_container import Container
 
 router = APIRouter()
+
+
+@router.get(
+    path="/get_materials",
+    response_class=JSONResponse,
+    responses={
+        200: {
+            "content": {"application/json": {}},
+            "description": "JSON object representing all available materials",
+        }
+    },
+)
+def get_materials() -> list[MaterialData]:
+    return MATERIALS
+
+
+@router.get(
+    path="/get_cutbed_dimensions",
+    response_class=JSONResponse,
+    responses={
+        200: {
+            "content": {"application/json": {}},
+            "description": "JSON object representing width and height of the cutbed in mm",
+        }
+    },
+)
+def get_cutbed_dimensions() -> Tuple[float, float]:
+    return Container.laser_config.gantry_dim_mm()
 
 
 @router.post(
@@ -34,18 +63,3 @@ def generate_gcode(inp: FrontendInput) -> StreamingResponse:
         media_type="text/plain",
         headers={"Content-Disposition": "attachment; filename=model.gcode"},
     )
-
-
-@router.post(
-    "/cut_svg",
-    responses={
-        202: {
-            "content": {"application/json": {}},
-            "description": "Creates a job",
-        },
-    },
-)
-def cut_svg(inp: FrontendInput) -> JobOutput:
-    job_id = str(uuid4())
-    jobs[job_id] = Job(full_pipeline(inp), inp.svg)
-    return JobOutput(job_id=job_id)

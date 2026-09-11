@@ -13,12 +13,12 @@ class KinematicsService(ABC, BaseService):
 
     @abstractmethod
     def get_positions(
-        self, cartesian: Configuration, material_height: float
+        self, cartesian: Configuration, material_thickness: float
     ) -> Tuple[MotorPosition, MotorPosition]: ...
 
     @abstractmethod
     def generate_cache(
-        self, configurations: Iterable[Configuration], material_height: float
+        self, configurations: Iterable[Configuration], material_thickness: float
     ): ...
 
 
@@ -60,15 +60,15 @@ class KinematicsServiceImpl(KinematicsService):
         self.cache: dict[Configuration, Tuple[MotorPosition, MotorPosition]] = {}
 
     def get_positions(
-        self, cartesian: Configuration, material_height: float
+        self, cartesian: Configuration, material_thickness: float
     ) -> Tuple[MotorPosition, MotorPosition]:
         if cartesian not in self.cache:
-            self.generate_cache([cartesian], material_height)
+            self.generate_cache([cartesian], material_thickness)
 
         return self.cache[cartesian]
 
     def generate_cache(
-        self, configurations: Iterable[Configuration], material_height: float
+        self, configurations: Iterable[Configuration], material_thickness: float
     ):
         configurations_f = np.array(
             [[c.x, c.y, c.alpha, c.beta] for c in configurations]
@@ -76,7 +76,7 @@ class KinematicsServiceImpl(KinematicsService):
         n = len(configurations_f)
         cx = np.ascontiguousarray(configurations_f[:, 0], dtype=np.float32)
         cy = np.ascontiguousarray(configurations_f[:, 1], dtype=np.float32)
-        cz = np.ascontiguousarray(np.full(n, material_height, dtype=np.float32))
+        cz = np.ascontiguousarray(np.full(n, material_thickness, dtype=np.float32))
         ca = np.ascontiguousarray(configurations_f[:, 2], dtype=np.float32)
         cb = np.ascontiguousarray(configurations_f[:, 3], dtype=np.float32)
 

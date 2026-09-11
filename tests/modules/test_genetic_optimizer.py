@@ -28,13 +28,13 @@ def test_genetic_optimizer(cuts: list[TrapezoidalCut]):
     geo_rep = Geometry()
     geo_rep.cuts = cuts
 
-    material_height = 5
-    optimizer = GeneticOptimizerModule(material_height)
-    original_costs = geo_rep.calculate_travel_cost(material_height, as_cycle=False)
+    material_thickness = 5
+    optimizer = GeneticOptimizerModule(material_thickness)
+    original_costs = geo_rep.calculate_travel_cost(material_thickness, as_cycle=False)
 
     optimized_geo = optimizer.process(geo_rep)
     optimized_costs = optimized_geo.calculate_travel_cost(
-        material_height, as_cycle=False
+        material_thickness, as_cycle=False
     )
 
     assert original_costs > optimized_costs or original_costs == pytest.approx(

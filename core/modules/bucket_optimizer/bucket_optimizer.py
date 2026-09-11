@@ -1,22 +1,16 @@
 import math
-from typing import Optional
-from core.models.geometry import Configuration, Geometry, TrapezoidalCut
+from core.models.geometry import Geometry, TrapezoidalCut
 from core.modules.base_optimizer import BaseOptimizer
 from core.service_container import Container
 
 
 class BucketOptimizerModule(BaseOptimizer):
-    def __init__(
-        self,
-        material_height: float,
-        epsilon: float = 0.01,
-        start_location: Optional[Configuration] = None,
-    ) -> None:
-        super().__init__(material_height, start_location)
+    def __init__(self, material_thickness: float, epsilon: float = 0.01) -> None:
+        super().__init__(material_thickness)
         self.epsilon: float = epsilon
 
     def get_current_cost(self, as_cycle: bool) -> float:
-        return self.geometry.calculate_travel_cost(self.material_height, as_cycle)
+        return self.geometry.calculate_travel_cost(self.material_thickness, as_cycle)
 
     def _optimize(self):
         optimized_geo = Geometry()
@@ -27,7 +21,7 @@ class BucketOptimizerModule(BaseOptimizer):
     def _get_sort_tuple(self, cut: TrapezoidalCut) -> tuple[int, int, int, int]:
         start_config = cut.start_configuration
         mpos1, mpos2 = Container.kinematics_service.get_positions(
-            start_config, self.material_height
+            start_config, self.material_thickness
         )
         table_angle, laser_head_angle = mpos1.a, mpos1.b
         # We choose only configuration options with positive table angle for better bucketing

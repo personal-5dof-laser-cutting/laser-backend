@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Optional, override
+from typing import override
 import numpy as np
 from ctypes import ArgumentError
 
@@ -11,18 +11,17 @@ from core.modules.genetic_optimizer.genetic_gtsp import GTSP, run_gcga
 class GeneticOptimizerModule(BaseOptimizer):
     def __init__(
         self,
-        material_height: float,
+        material_thickness: float,
         generations: int = 1000,
-        start_location: Optional[Configuration] = None,
     ) -> None:
-        super().__init__(material_height, start_location)
+        super().__init__(material_thickness)
         self.generations = generations
-        self.material_height = material_height
+        self.material_thickness = material_thickness
 
     @override
     def _optimize(self):
         self._set_current_cost(
-            self.geometry.calculate_travel_cost(self.material_height, True)
+            self.geometry.calculate_travel_cost(self.material_thickness, True)
         )
         cuts: list[TrapezoidalCut] = self.geometry.cuts
         weights, groups = self._generate_weights(cuts)
@@ -89,7 +88,7 @@ class GeneticOptimizerModule(BaseOptimizer):
         config1: Configuration,
         config2: Configuration,
     ):
-        matrix[idx1, idx2] = config1.travel_time_to(config2, self.material_height)
+        matrix[idx1, idx2] = config1.travel_time_to(config2, self.material_thickness)
 
     def _tour_to_path(
         self,
@@ -105,10 +104,10 @@ class GeneticOptimizerModule(BaseOptimizer):
                 cut_list.append(cut)
             else:
                 cut_list.append(cut.flipped_direction())
-        max_dist = cut_list[-1].travel_time_to(cut_list[0], self.material_height)
+        max_dist = cut_list[-1].travel_time_to(cut_list[0], self.material_thickness)
         idx_max = -1
         for i in range(len(cut_list) - 1):
-            dist = cut_list[i].travel_time_to(cut_list[i + 1], self.material_height)
+            dist = cut_list[i].travel_time_to(cut_list[i + 1], self.material_thickness)
             if dist > max_dist:
                 max_dist = dist
                 idx_max = i

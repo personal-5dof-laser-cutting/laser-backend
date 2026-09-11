@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: .
+      ssh:
+        - default
+
+    ports:
+      - "8000:8000"
+    networks:
+      - default
+      - shared-net
+    device_cgroup_rules:
+      - 'c 188:* rmw'
+    volumes:
+      - /dev:/dev
+
+networks:
+  shared-net:
+    external: true
+    name: shared-net
