@@ -40,10 +40,10 @@ Edge = CutEdge | MSTEdge | HelperEdge
 class RPPApproximationModule(BaseOptimizer):
     def __init__(
         self,
-        material_height: float,
+        material_thickness: float,
         start_location: Optional[Configuration] = None,
     ) -> None:
-        super().__init__(material_height, start_location)
+        super().__init__(material_thickness, start_location)
 
     def get_current_cost(self, as_cycle: bool) -> float:
         return self.geometry.calculate_travel_cost(self.material_thickness, as_cycle)

@@ -32,7 +32,7 @@ from core.modules.base_optimizer import BaseOptimizer
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule  # noqa: F401
 from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule  # noqa: F401
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule  # noqa: F401
-from core.modules.rpp_approximation.rpp_approximation import RPPApproximationModule  # noqa: F401
+from util.optimizer_suite.plots import plot_results  # noqa: F401
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -59,6 +59,7 @@ def _all_optimizer_classes() -> dict[str, type]:
 
 
 T = TypeVar("T")
+NON_DETERMINISTIC_OPTIMIZERS = [GeneticOptimizerModule.__name__]
 
 
 def _get_constructor_params(
@@ -268,7 +269,7 @@ def _problems_tab() -> None:
 def _optimizers_tab() -> None:
     st.subheader("General Configurations")
     base_params: dict[str, Tuple[type, Any]] = _get_constructor_params(
-        BaseOptimizer, ["material_height"]
+        BaseOptimizer, ["material_thickness", "start_location"]
     )
     if base_params:
         cols = st.columns(min(len(base_params), 4))
@@ -304,10 +305,7 @@ def _optimizers_tab() -> None:
     ):
         with col:
             if st.button(opt_name, key=f"add_{opt_name}"):
-                params: dict[str, Tuple[type, Any]] = _get_constructor_params(cls)
-                index = len(st.session_state.optimizers)
                 st.session_state.optimizers.append((opt_name, cls, dict()))
-
     swap: tuple[int, int] | None = None
 
     for index, (opt_name, cls, _) in enumerate(st.session_state.optimizers):
@@ -323,7 +321,7 @@ def _optimizers_tab() -> None:
                     st.rerun()
 
             with name_col:
-                st.markdown(f"***{opt_name}**")
+                st.markdown(f"**{opt_name}**")
 
             with up_col:
                 if index > 0 and st.button("↑", key=f"up_{opt_name}_{index}"):
@@ -394,8 +392,7 @@ def _run_tab() -> None:
         st.divider()
         df: pd.DataFrame = st.session_state.results
         st.subheader("Original")
-        originals = df[df["optimizer"] == "Original"][["svg_path", "travel_cost"]]
-        originals["total_time"] = st.session_state.total_costs
+        originals = extract_original(df)
         st.dataframe(originals, use_container_width=True)
         # for i, original in enumerate(originals):
         #     cols = st.columns(5)
@@ -404,26 +401,66 @@ def _run_tab() -> None:
         #         st.image(original["svg_path"])
 
         #     with cols[1]:
-        #         st.text(f"Total time: {st.session_state.total_costs[i]:.3f}s")
+        #         st.text(f"Total time: {st.session_state.total_times_s[i]:.3f}s")
 
         #     with cols[2]:
         #         st.text(f"Travel time: {df["travel_cost"]:.3f}s")
 
         st.subheader("Results")
-        baseline = originals.rename(columns={"travel_cost": "original_cost"})
-        df = df.merge(baseline, on="svg_path", how="left")
-        df["cost_reduction"] = df["original_cost"] - df["travel_cost"]
-        df["reduction_pct"] = df["cost_reduction"] / df["original_cost"] * 100
-        stats = df.groupby(["svg_path", "optimizer"], sort=False)[
-            [
-                "travel_cost",
-                "wall_clock_time_s",
-                "process_time_s",
-                "cost_reduction",
-                "reduction_pct",
-            ]
-        ].agg(["mean", "std", "min", "max", "median"])
-        st.dataframe(stats, use_container_width=True)
+        analyse_results(df, originals)
+
+
+def extract_original(df: pd.DataFrame) -> pd.DataFrame:
+    originals = df[df["optimizer"] == "Original"][["svg_path", "travel_time_s"]]
+    originals["total_time_s"] = st.session_state.total_times_s
+    return originals
+
+
+def analyse_results(df: pd.DataFrame, originals: pd.DataFrame):
+    structured_df = structure_dataframe(df, originals)
+    stats = structured_df.groupby(["svg_path", "optimizer"], sort=False)[
+        [
+            "travel_time_s",
+            "wall_clock_time_s",
+            "process_time_s",
+            "time_reduction_s",
+            "net_benefit_pct",
+            "net_benefit_s",
+        ]
+    ].agg(["mean", "std", "min", "max", "median"])
+    stats["is_deterministic"] = ~stats.index.get_level_values("optimizer").isin(
+        NON_DETERMINISTIC_OPTIMIZERS
+    )
+    stats["problem_size"] = stats.index.get_level_values("svg_path").map(
+        st.session_state.problem_sizes
+    )
+
+    st.dataframe(stats, use_container_width=True)
+
+    overall = structured_df.groupby(["optimizer"], sort=False)[
+        [
+            "travel_time_s",
+            "wall_clock_time_s",
+            "process_time_s",
+            "time_reduction_s",
+            "net_benefit_pct",
+            "net_benefit_s",
+        ]
+    ].agg(["mean", "std", "min", "max", "median"])
+    overall["is_deterministic"] = ~overall.index.get_level_values("optimizer").isin(
+        NON_DETERMINISTIC_OPTIMIZERS
+    )
+
+    plot_results(stats, overall)
+
+
+def structure_dataframe(df: pd.DataFrame, originals: pd.DataFrame) -> pd.DataFrame:
+    baseline = originals.rename(columns={"travel_time_s": "original_travel_time_s"})
+    df = df.merge(baseline, on="svg_path", how="left")
+    df["time_reduction_s"] = df["original_travel_time_s"] - df["travel_time_s"]
+    df["net_benefit_s"] = df["time_reduction_s"] - df["wall_clock_time_s"]
+    df["net_benefit_pct"] = df["net_benefit_s"] / df["original_travel_time_s"] * 100
+    return df
 
 
 def _execute_suite() -> None:
@@ -461,14 +498,15 @@ def _execute_suite() -> None:
 
     # ── Execute ───────────────────────────────────────────────────────────────
     try:
-        df, total_costs = run_suite(
+        df, total_timess_s, problem_sizes = run_suite(
             on_progress=on_progress,
             problems=problems,
             optimizers=optimizers,
             sample_size=n,
         )
         st.session_state.results = df
-        st.session_state.total_costs = total_costs
+        st.session_state.total_times_s = total_timess_s
+        st.session_state.problem_sizes = problem_sizes
         progress_bar.progress(1.0, text="Done!")
         log_area.empty()
     except Exception as e:

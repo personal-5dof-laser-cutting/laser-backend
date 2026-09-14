@@ -1,11 +1,16 @@
 import math
-from core.models.geometry import Geometry, TrapezoidalCut
+from core.models.geometry import Configuration, Geometry, TrapezoidalCut
 from core.modules.base_optimizer import BaseOptimizer
 from core.service_container import Container
 
 
 class BucketOptimizerModule(BaseOptimizer):
-    def __init__(self, material_thickness: float, epsilon: float = 0.01) -> None:
+    def __init__(
+        self,
+        material_thickness: float,
+        start_location: Configuration | None = None,
+        epsilon: float = 0.01,
+    ) -> None:
         super().__init__(material_thickness)
         self.epsilon: float = epsilon
 

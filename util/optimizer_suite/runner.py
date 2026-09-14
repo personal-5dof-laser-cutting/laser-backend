@@ -1,12 +1,12 @@
 from copy import deepcopy
 import random
 import time
-from typing import Any, Callable, NotRequired, Optional, Tuple, TypedDict
+from typing import Any, Callable, NotRequired, Tuple, TypedDict
 
 from Geometry3D import set_sig_figures
 from pydantic import BaseModel
 
-from core.models.geometry import Configuration, Geometry
+from core.models.geometry import Geometry
 from core.modules.base_optimizer import BaseOptimizer
 
 import pandas as pd
@@ -31,7 +31,7 @@ class OptimizerStats(TypedDict, total=True):
     svg_path: str
     optimizer: str
     run_index: int
-    travel_cost: float
+    travel_time_s: float
     wall_clock_time_s: NotRequired[float]
     process_time_s: NotRequired[float]
 
@@ -57,7 +57,7 @@ def _original_stats(
         svg_path=svg_path,
         optimizer="Original",
         run_index=0,
-        travel_cost=geometry.calculate_travel_cost(material_height, False),
+        travel_time_s=geometry.calculate_travel_cost(material_height, False) * 60,
     )
 
 
@@ -72,17 +72,24 @@ def _shuffled_stats(
     name = "Randomized"
     for i in range(iterations):
         work_geo = deepcopy(geometry)
+        wall_start = time.perf_counter()
+        cpu_start = time.process_time()
         random.shuffle(work_geo.cuts)
         count = random.randint(1, len(work_geo.cuts))
         for cut in random.sample(work_geo.cuts, k=count):
             cut.flip_direction()
+        wall_end = time.perf_counter()
+        cpu_end = time.process_time()
 
         stats.append(
             OptimizerStats(
                 svg_path=svg_path,
                 optimizer=name,
                 run_index=i,
-                travel_cost=work_geo.calculate_travel_cost(material_height, False),
+                travel_time_s=work_geo.calculate_travel_cost(material_height, False)
+                * 60,
+                wall_clock_time_s=wall_end - wall_start,
+                process_time_s=cpu_end - cpu_start,
             )
         )
         on_progress(svg_path, name, i)
@@ -112,7 +119,10 @@ def _run_optimizer(
                 svg_path=svg_path,
                 optimizer=name,
                 run_index=i,
-                travel_cost=optimized_geo.calculate_travel_cost(material_height, False),
+                travel_time_s=optimized_geo.calculate_travel_cost(
+                    material_height, False
+                )
+                * 60,
                 wall_clock_time_s=wall_end - wall_start,
                 process_time_s=cpu_end - cpu_start,
             )
@@ -128,12 +138,12 @@ def run_suite(
     problems: list[Tuple[ProblemSettings, str]],
     optimizers: list[Tuple[type[BaseOptimizer], dict[str, Any]]],
     sample_size: int,
-    start_location: Optional[Configuration] = None,
-) -> Tuple[pd.DataFrame, list[float]]:
+) -> Tuple[pd.DataFrame, list[float], dict[str, int]]:
     set_sig_figures(4)
 
     rows: list[OptimizerStats] = []
-    total_costs: list[float] = []
+    total_costs_s: list[float] = []
+    problem_sizes: dict[str, int] = {}
     for settings, svg_path in problems:
         material_height = settings.material_height
         pipeline: Pipeline = svg_to_geometry_pipeline(
@@ -143,11 +153,13 @@ def run_suite(
         )
         content: str = _load_svg(svg_path)
         geometry: Geometry = pipeline.run(content)
-        total_costs.append(
+        total_costs_s.append(
             geometry.calculate_total_cost(
                 settings.material_height, settings.feedrate, False
             )
+            * 60
         )
+        problem_sizes[svg_path] = len(geometry.cuts)
 
         rows.append(_original_stats(svg_path, geometry, material_height))
         on_progress(svg_path, "Original", 0)
@@ -158,13 +170,12 @@ def run_suite(
             )
         )
         for optimizer, settings in optimizers:
-            # settings.pop("start_location", None)
+            settings.pop("start_location", None)
             rows.extend(
                 _run_optimizer(
                     on_progress,
                     optimizer(
                         material_thickness=material_height,
-                        start_location=start_location,
                         **settings,
                     ),
                     geometry,
@@ -174,7 +185,7 @@ def run_suite(
                 )
             )
 
-    return (pd.DataFrame(rows), total_costs)
+    return (pd.DataFrame(rows), total_costs_s, problem_sizes)
 
 
 if __name__ == "__main__":
