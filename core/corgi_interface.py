@@ -2,11 +2,10 @@ import logging
 import re
 from collections import deque
 from enum import IntEnum, StrEnum, auto
-from itertools import count
-from queue import Empty, PriorityQueue, Queue
+from queue import Queue
 from threading import Event, Lock, RLock, Thread
 from time import sleep
-from typing import Final, Optional, TypeGuard
+from typing import Final, TypeGuard
 
 import serial
 import serial.tools
@@ -215,7 +214,6 @@ class CorgiInterface:
             self._new_status_event.set()
 
     def _send_command(self, line: str, internal: bool, realtime: bool = False):
-
         if not is_connected(self._proxy):
             log.warning(f"Did not sent command: {line}")
             return
@@ -229,7 +227,7 @@ class CorgiInterface:
                     self._status_requests += 1
             log.info(f"Sending command: {line_cleaned}")
             if realtime:
-                self._proxy.send_realtime(line_cleaned)
+                self._proxy.send_message(line_cleaned)
             else:
                 self._proxy.send(line_cleaned)
 

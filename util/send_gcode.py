@@ -36,7 +36,9 @@ if __name__ == "__main__":
 
     print("Sending GCode")
     print("\n".join(gcode.split("\n")[:7] + gcode.split("\n")[-2:]))
-    interface._prime_commands(gcode.split("\n")[:7] + gcode.split("\n")[-2:])
+    interface._send_commands(
+        gcode.split("\n")[:7] + gcode.split("\n")[-2:], internal=False
+    )
     timestamps: list[int] = []
     total_active = 0.0
     total_inactive = 0.0

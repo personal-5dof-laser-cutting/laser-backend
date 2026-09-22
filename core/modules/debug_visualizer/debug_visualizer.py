@@ -191,7 +191,7 @@ class DebugVisualizerModule(Module[Geometry, Geometry]):
         self._current_cut += 1
 
     def _stop_playback(self) -> None:
-        if self._animation is not None:
+        if self._animation is not None and self._animation.event_source is not None:
             self._animation.event_source.stop()
             self._animation = None
         self._is_playing = False
