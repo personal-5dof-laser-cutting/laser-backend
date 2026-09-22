@@ -8,6 +8,7 @@ def test_full_pipeline():
         material="wood",
         material_thickness=10,
         cut_speed=5,
+        laser_power=1,
         laser_off=True,
         optimize=False,
         svg=open("tests/svg5dof/svgs/circle_2.svg").read(),

@@ -14,14 +14,16 @@ Status report format reference (real FluidNC):
 
 from threading import Lock
 from time import sleep, time
+from typing import override
 
 import pytest
 from pytest_mock import MockerFixture
 
-from core.corgi_interface import CorgiInterface, InterfaceState, SerialInterface
+from core.corgi_interface import CorgiInterface, InterfaceState
+from gcode_lib import CommunicationProxy
 
 
-class FakeFluidNCSerial(SerialInterface):
+class FakeFluidNCSerial(CommunicationProxy):
     """
     Drop-in stand-in for SerialInterface. Implements the same public surface
     (open/send/recv) so nothing in _CorgiInterface hits an AttributeError,
@@ -37,11 +39,21 @@ class FakeFluidNCSerial(SerialInterface):
         self._outbox: list[str] = []
         self._is_open = True
 
+
     # --- SerialInterface-compatible API -------------------------------
 
-    def open(self) -> "FakeFluidNCSerial":
+    @property
+    def is_connected(self):
+        return True
+
+    @override
+    def connect(self, setup_reporting: bool = True, timeout: float = 5.0, clear_messages: bool = True) -> "FakeFluidNCSerial":
         self._is_open = True
         return self
+
+    @override
+    def close(self):
+        pass
 
     def send(self, message: str):
         line = message.strip()
@@ -70,7 +82,7 @@ class FakeFluidNCSerial(SerialInterface):
             self._running = True
             self._outbox.append("ok")
 
-    def recv(self, timeout: float | None = None) -> str | None:
+    def read_message(self, timeout: float | None = None) -> str | None:
         sleep(0.05)
         with self._lock:
             if self._pending_lines and self._running:
@@ -99,7 +111,7 @@ def corgi(mocker: MockerFixture):
     """Fresh _CorgiInterface per test, wired to a FakeFluidNCSerial, no real thread state leakage."""
     instance = CorgiInterface()
     fake = FakeFluidNCSerial(homed=False)
-    instance._interface = fake
+    instance._proxy = fake
     instance.connect()
     yield instance, fake
     # best-effort cleanup so the background buffer thread doesn't keep running
@@ -110,8 +122,7 @@ def _wait_until_idle(instance: CorgiInterface, timeout: float = 10.0):
     start = time()
     while time() - start < timeout:
         if (
-            instance._command_queue.empty()
-            and instance._buffer_used == 0
+            len(instance._command_queue) == 0
             and instance._interface_state is InterfaceState.READY
         ):
             return True
@@ -119,15 +130,12 @@ def _wait_until_idle(instance: CorgiInterface, timeout: float = 10.0):
     return False
 
 
-def test_run_job_homes_when_not_homed(corgi):
+def test_run_job_aborts_when_not_homed(corgi):
     instance, fake = corgi
     assert fake._homed is False
 
     lines = ["G1 X10", "G1 X20"]
-    assert instance.run_job(lines) is True
-
-    assert _wait_until_idle(instance), "job did not complete in time"
-    assert fake._homed is True
+    assert instance.run_job(lines) is False
 
 
 def test_run_job_skips_homing_when_already_homed(corgi):
@@ -151,6 +159,7 @@ def test_status_reflects_alarm_before_homing(corgi):
 def test_status_reflects_idle_after_homing(corgi):
     instance, fake = corgi
     fake._homed = True
+    sleep(1)
     status, _ = instance._get_status()
     assert status == "Idle"
 
@@ -163,8 +172,7 @@ def test_buffer_accounting_reaches_zero(corgi):
     instance.run_job(lines)
 
     assert _wait_until_idle(instance, 999)
-    assert instance._buffer_used == 0
-    assert len(instance._buffer_corgi) == 0
+    assert len(instance._command_queue) == 0
 
 
 def test_second_run_job_rejected_while_running(corgi):

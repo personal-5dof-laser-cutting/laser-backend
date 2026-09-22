@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from gcode_lib import FluidNCSerialDriver
 from pydantic import TypeAdapter, ValidationError
 
 from api.models.base import (
@@ -71,7 +72,7 @@ async def websocket_endpoint(ws: WebSocket):
                             await ctx.send(
                                 ErrorMessage(
                                     type="error",
-                                    content="Can't execute a command while a job is active",
+                                    content="Command couldn't be executed",
                                 )
                             )
                     case _:
@@ -115,7 +116,7 @@ async def execute_job(
     if not job_is_valid:
         response = ErrorMessage(
             type="error",
-            content="Internal server error. Couldn't start the job.",
+            content="Couldn't start the job.",
         )
     else:
         response = InfoMessage(type="info", content="Job's done")
@@ -131,8 +132,7 @@ async def run_job(
     logger.debug(result)
     commands = result.split("\n")
     await ctx.send(InfoMessage(type="info", content=f"commands:{len(commands)}"))
-    ctx.corgi_interface.run_job(commands)
-    return True
+    return ctx.corgi_interface.run_job(commands)
 
 
 async def handle_action(ctx: WebSocketContext, input: ActionMessage):

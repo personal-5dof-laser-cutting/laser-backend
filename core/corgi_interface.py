@@ -1,17 +1,17 @@
+import logging
+import re
 from collections import deque
 from enum import IntEnum, StrEnum, auto
 from itertools import count
-import logging
 from queue import Empty, PriorityQueue, Queue
-import re
 from threading import Event, Lock, RLock, Thread
 from time import sleep
 from typing import Final, Optional, TypeGuard
 
-from gcode_lib.gcode_interface import GCodeInterface
 import serial
 import serial.tools
 import serial.tools.list_ports
+from gcode_lib import CommunicationProxy, FluidNCSerialDriver, FluidNCWebsocketsDriver
 from websockets import InvalidHandshake, InvalidURI
 
 from api.models.base import ErrorMessage, UpdateMessage, WebsocketMessage
@@ -23,52 +23,6 @@ _CORGI_STATUS_RE: Final[re.Pattern] = re.compile(
 )
 
 log = logging.getLogger(__name__)
-
-
-def _str_len(string: str) -> int:
-    return len(string.encode("utf-8"))
-
-
-class SerialInterface:
-    _interface: serial.Serial
-
-    def __init__(self, port: str):
-        self._interface = serial.Serial(port, baudrate=115200, timeout=0.5)
-        sleep(0.5)
-        if self._interface.in_waiting > 0:
-            boot_logs = self._interface.read(self._interface.in_waiting).decode(
-                "utf-8", errors="ignore"
-            )
-            log.info("Corgi Controller Booted successfully")
-            log.debug(boot_logs)
-        else:
-            log.info("No boot logs detected, sending wake-up ping...")
-            self._interface.write(b"\r\n")
-            sleep(0.2)
-            if self._interface.in_waiting > 0:
-                log.info(
-                    f"Corgi Wake-up response: {self._interface.read(self._interface.in_waiting).decode('utf-8', errors='ignore').strip()}"
-                )
-
-    def open(self) -> "SerialInterface":
-        if not self._interface.is_open:
-            self._interface.open()
-        return self
-
-    def close(self):
-        self._interface.close()
-
-    def send(self, message: str):
-        self._interface.write(message.encode("utf-8"))
-
-    def recv(self, timeout: Optional[float] = None) -> str | None:
-        self._interface.timeout = 0 if timeout is None else timeout
-        try:
-            message = self._interface.readline().decode("utf-8")
-        except UnicodeDecodeError as UDE:
-            log.warning(f"Could not decode message: {UDE}")
-            return None
-        return message or None
 
 
 class CommandPriority(IntEnum):
@@ -84,33 +38,31 @@ class InterfaceState(StrEnum):
 
 
 def is_connected(
-    interface: SerialInterface | GCodeInterface | None,
-) -> TypeGuard[SerialInterface | GCodeInterface]:
-    return interface is not None
-
-
-type QueueContentType = tuple[CommandPriority, int, str]
+    proxy: CommunicationProxy | None,
+) -> TypeGuard[CommunicationProxy]:
+    return proxy is not None and proxy.is_connected
 
 
 class CorgiInterface:
     def __init__(
         self,
         address: str | None = None,
+        port: int | None = None,
         buffer_size: int = 128,
         max_reconnect_timeout: int = 10,
     ):
-        if not _ALLOW_WIFI_CONNECTION and address is not None:
+        if not _ALLOW_WIFI_CONNECTION and (address is not None or port is not None):
             log.warning("Address passed but wifi connection is forbidden")
 
         self._address = address
-        self._buffer_size: int = buffer_size
+        self._port = port
         self.max_reconnect_timeout: int = max_reconnect_timeout
 
         self._reconnect_timeout: int = 0
-        self._interface: GCodeInterface | SerialInterface | None = None
+        self._driver: FluidNCSerialDriver | FluidNCWebsocketsDriver | None = None
+        self._proxy: CommunicationProxy | None = None
 
-        self._buffer_corgi: deque[int] = deque()
-        self._buffer_used: int = 0
+        self._command_queue: deque[str] = deque()
         self._outstanding_rts: int = (
             0  # number of sent Real-Time signals without responses
         )
@@ -130,9 +82,6 @@ class CorgiInterface:
         self._thread_should_run: bool = False
         self._interface_state: InterfaceState = InterfaceState.DISCONNECTED
         self._interface_state_lock: Lock = Lock()
-
-        self._command_queue: PriorityQueue[QueueContentType] = PriorityQueue()
-        self._count = count()
 
         self._buffer_worker_thread: Thread = Thread(
             target=self._buffer_loop, daemon=True
@@ -164,7 +113,7 @@ class CorgiInterface:
         return working_ports[0]
 
     def _try_connect(self) -> bool:
-        if not is_connected(self._interface):
+        if not is_connected(self._proxy) or self._driver is None:
             sleep(self._reconnect_timeout)
             self._reconnect_timeout = (
                 1
@@ -172,25 +121,22 @@ class CorgiInterface:
                 else min(self._reconnect_timeout * 2, self.max_reconnect_timeout)
             )
 
-            with self._manipulate_queue_lock:
-                self._buffer_used = 0
-                self._buffer_corgi.clear()
-                self._outstanding_rts = 0
-
             serial_port = self._find_serial_port()
             if serial_port:
-                self._interface = SerialInterface(serial_port)
+                self._driver = FluidNCSerialDriver(serial_port)
             else:
                 if not _ALLOW_WIFI_CONNECTION or self._address is None:
                     log.error(
                         "No serial port detected. Connection to Corgi not possible"
                     )
-                    self._interface = None
+                    self._driver = None
                     return False
                 else:
-                    self._interface = GCodeInterface(self._address)
+                    self._driver = FluidNCWebsocketsDriver(self._address, self._port)
         try:
-            self._interface.open()
+            self._proxy = CommunicationProxy(driver=self._driver).connect(
+                setup_reporting=False
+            )
             log.info("Connected to corgi")
             self._reconnect_timeout = 0
         except (
@@ -201,9 +147,10 @@ class CorgiInterface:
             TimeoutError,
         ) as e:
             log.error(f"Could not connect to corgi: {e}")
-            self._interface = None
+            self._proxy = None
+            self._driver = None
 
-        return is_connected(self._interface)
+        return is_connected(self._proxy)
 
     def _is_homed(self) -> bool:
         status, _ = self._get_status()
@@ -219,13 +166,10 @@ class CorgiInterface:
     def _is_done(self) -> bool:
         with self._setup_lock:
             with self._manipulate_queue_lock:
-                queue_empty = self._command_queue.empty()
-                buffer_empty = self._buffer_used == 0
+                queue_empty = len(self._command_queue) == 0
                 rts_empty = self._outstanding_rts == 0
 
-            return (
-                queue_empty and buffer_empty and rts_empty and self._is_in_done_status()
-            )
+            return queue_empty and rts_empty and self._is_in_done_status()
 
     def _is_in_done_status(self):
         return self._status in [_DISCONNECTED_STATUS, "Idle", "Alarm"]
@@ -243,17 +187,17 @@ class CorgiInterface:
             self._interface_state = state
 
     def _fetch_status(self):
-        if not is_connected(self._interface):
+        if not is_connected(self._proxy):
             return
         with self._fetch_status_lock:
             if not self._is_fetching_status:
                 log.info("Fetching cutter status")
                 self._new_status_event.clear()
-                self._prime_command("?", CommandPriority.HIGH)
+                self._send_command("?", internal=True)
                 self._is_fetching_status = True
 
     def _get_status(self) -> tuple[str, dict[str, str]]:
-        if not is_connected(self._interface):
+        if not is_connected(self._proxy):
             log.warning("Corgi not connected")
             self._status = _DISCONNECTED_STATUS
             self._status_dict = {}
@@ -270,62 +214,45 @@ class CorgiInterface:
             self._status_dict = status_dict
             self._new_status_event.set()
 
-    def _send_to_corgi(self, string: str):
-        if not is_connected(self._interface):
-            return
-        byte_count: int = _str_len(string)
-        self._interface.send(string)
-        self._buffer_corgi.append(byte_count)
-        self._buffer_used += byte_count
+    def _send_command(self, line: str, internal: bool, realtime: bool = False):
 
-    def _prime_command(
-        self,
-        line: str,
-        priority: CommandPriority = CommandPriority.DEFAULT,
-        internal: bool = True,
-    ):
+        if not is_connected(self._proxy):
+            log.warning(f"Did not sent command: {line}")
+            return
+
         line_cleaned: str = line.rstrip("\n") + "\n"
-        byte_count = _str_len(line_cleaned)
-        if byte_count > self._buffer_size:
-            raise ValueError(
-                f"Line too long. Buffer length: {self._buffer_size} bytes (passed string: {byte_count})"
-            )
 
         with self._manipulate_queue_lock:
-            if not internal and line_cleaned == "?\n":
-                self._status_requests += 1
-            self._command_queue.put((priority, next(self._count), line_cleaned))
+            if line_cleaned == "?\n":
+                self._outstanding_rts += 1
+                if not internal:
+                    self._status_requests += 1
+            log.info(f"Sending command: {line_cleaned}")
+            if realtime:
+                self._proxy.send_realtime(line_cleaned)
+            else:
+                self._proxy.send(line_cleaned)
 
-    def _prime_commands(
+    def _send_commands(
         self,
         lines: list[str],
-        priority: CommandPriority = CommandPriority.DEFAULT,
-        internal: bool = False,
+        internal: bool,
     ):
         for line in lines:
-            self._prime_command(line, priority, internal)
+            self._send_command(line, internal)
 
     def _handle_incoming_message(self, msg: str):
         msg = msg.strip()
         if not msg:
             return
 
-        if msg == "ok" or msg.startswith("error"):
-            # An 'error' response consumes a buffered line just like an 'ok'.
-            # If we don't pop it, _buffer_used permanently maxes out resulting in a deadlock.
-            with self._manipulate_queue_lock:
-                if len(self._buffer_corgi) > 0:
-                    popped_bytes: int = self._buffer_corgi.popleft()
-                    self._buffer_used = max(0, self._buffer_used - popped_bytes)
-
-            if msg == "ok":
-                self.outgoing_messages.put(
-                    UpdateMessage(type="update", form="progress", content=None)
-                )
-            else:
-                log.error(f"Corgi returned '{msg}'")
-                self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
-
+        if msg == "ok":
+            self.outgoing_messages.put(
+                UpdateMessage(type="update", form="progress", content=None)
+            )
+        elif msg.startswith("error"):
+            log.error(f"Corgi returned '{msg}'")
+            self.outgoing_messages.put(ErrorMessage(type="error", content=msg))
         elif (response_match := _CORGI_STATUS_RE.match(msg)) is not None:
             if self._status_requests > 0:
                 self._status_requests -= 1
@@ -349,61 +276,28 @@ class CorgiInterface:
             # The hardware resets its RX buffer entirely on boot. We must match it
             # otherwise Python hangs waiting for responses to vaporized commands.
             with self._manipulate_queue_lock:
-                self._buffer_corgi.clear()
-                self._buffer_used = 0
                 self._outstanding_rts = 0
 
             self._fetch_status()
 
-    def _process_outgoing_commands(self):
-        if not is_connected(self._interface):
-            return
-        with self._manipulate_queue_lock:
-            try:
-                item = self._command_queue.get_nowait()
-            except Empty:
-                return
-
-            priority, count_idx, command = item
-            free_buffer = self._buffer_size - self._buffer_used
-
-            if self._is_real_time_signal(command):
-                self._interface.send(command)
-                self._outstanding_rts += 1
-                self._command_queue.task_done()
-
-            elif _str_len(command) <= free_buffer:
-                self._send_to_corgi(command)
-                self._command_queue.task_done()
-
-            else:
-                self._command_queue.put((priority, count_idx, command))
-                self._command_queue.task_done()
-
     def _work_buffer(self):
-        if not is_connected(self._interface):
+        if not is_connected(self._proxy):
             return
 
         # Adaptive Polling: lower CPU usage to near 0 when we're completely idle
         with self._manipulate_queue_lock:
-            is_idle = (
-                self._command_queue.empty()
-                and self._buffer_used == 0
-                and self._outstanding_rts == 0
-            )
+            is_idle = len(self._command_queue) == 0 and self._outstanding_rts == 0
 
         read_timeout = 0.1 if is_idle else 0.01
 
-        msg = self._interface.recv(timeout=read_timeout)
+        msg = self._proxy.read_message(timeout=read_timeout)
         if msg is not None:
             self._handle_incoming_message(msg)
-
-        self._process_outgoing_commands()
 
     def _buffer_loop(self):
         while self._thread_should_run:
             try:
-                if self._interface is not None or self._try_connect():
+                if is_connected(self._proxy) or self._try_connect():
                     self._work_buffer()
             except (serial.SerialException, OSError) as e:
                 log.error(f"Hardware connection lost: {e}")
@@ -418,13 +312,13 @@ class CorgiInterface:
                 self._set_interface_state(InterfaceState.READY)
                 return
 
-            self._command_queue = PriorityQueue()
+            self._command_queue.clear()
             self._thread_should_run = True
             self._set_interface_state(InterfaceState.READY)
             self._buffer_worker_thread = Thread(target=self._buffer_loop, daemon=True)
             self._buffer_worker_thread.start()
 
-        self._prime_command("?", internal=False)
+        self._send_command("?", internal=False)
 
     def disconnect(self):
         self._thread_should_run = False
@@ -434,43 +328,52 @@ class CorgiInterface:
 
     def _clean_up(self):
         with self._manipulate_queue_lock:
-            self._command_queue = PriorityQueue()
-            self._buffer_corgi.clear()
-            self._buffer_used = 0
+            self._command_queue.clear()
             self._outstanding_rts = 0
             self._set_interface_state(InterfaceState.DISCONNECTED)
-            if is_connected(self._interface):
-                self._interface.close()
-                self._interface = None
+            if is_connected(self._proxy):
+                self._proxy.close()
+                self._proxy = None
 
     def _home_cutter(self):
         with self._setup_lock:
             # Send an explicit Unlock ($X) directly before homing to force
             # the machine out of any lingering abort/limit alarm states
-            self._prime_command("$X", CommandPriority.HIGH)
-            self._prime_command("$h", CommandPriority.HIGH)
+            self._send_command("$X", internal=True)
+            self._send_command("$h", internal=True)
 
-    def abort(self, legacy: bool = False):
+        self.outgoing_messages.put(
+            UpdateMessage(type="update", form="status", content="homed")
+        )
+
+    def send_command(self, line: str):
+        self._send_command(line, internal=False)
+
+    def abort(self):
         """
         Sends the hardware abort signal immediately and clears queued events.
         """
         log.info("Aborting...")
         with self._manipulate_queue_lock:
-            self._command_queue = PriorityQueue()
+            self._command_queue.clear()
 
-            self._buffer_corgi.clear()
-            self._buffer_used = 0
             self._outstanding_rts = 0
             self._status_requests = 0
 
-            if is_connected(self._interface):
-                self._prime_command(
-                    "M112\n" if legacy else "\x18",
-                    CommandPriority.URGENT,
-                    internal=False,
+            if is_connected(self._proxy):
+                log.info(
+                    f"Sending abort message ({self._proxy._driver.safety_shutoff_command})"
+                )
+                self._send_command(
+                    self._proxy._driver.safety_shutoff_command,
+                    internal=True,
+                    realtime=True,
                 )
 
             self._set_interface_state(InterfaceState.READY)
+            self.disconnect()
+            self.connect()
+
         log.info("Done")
 
     def request_homing(self, block: bool = False) -> bool:
@@ -501,7 +404,7 @@ class CorgiInterface:
             self._set_interface_state(InterfaceState.RUNNING)
 
             if not self._is_homed():
-                self._home_cutter()
+                return False
 
-            self._prime_commands(lines, internal=False)
+            self._send_commands(lines, internal=False)
             return True

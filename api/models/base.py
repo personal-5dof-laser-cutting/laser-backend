@@ -28,6 +28,7 @@ class FrontendInput(StrictBaseModel):
     material: str = Field(description="Material type")
     material_thickness: float = Field(description="Material thickness in mm")
     cut_speed: float = Field(description="Speed of the laser cutter in mm/s")
+    laser_power: float = Field(description="Laser power in percen", ge=0, le=1)
     laser_off: bool = Field(
         description="If true, the laser will be disabled, but the path will still be walked",
     )

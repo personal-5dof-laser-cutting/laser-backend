@@ -13,30 +13,30 @@ def home():
 
 
 def move(x: float, y: float, a: float = 0, b: float = 0):
-    corgi_interface._prime_command(
+    corgi_interface.send_command(
         f"G0 X{x:z.3f} Y{y:z.3f} Z{material_thickness} A{a} B{b}"
     )
     # print(f"Move {x} {y} {a} {b}")
 
 
 def laser_on(laser_power: float):
-    corgi_interface._prime_command("M8")  # air assist on
-    corgi_interface._prime_command(f"M4 S{laser_power:z.3f}")
+    corgi_interface.send_command("M8")  # air assist on
+    corgi_interface.send_command(f"M4 S{laser_power:z.3f}")
     # print(f"Laser on {laser_power}")
 
 
 def laser_off():
-    corgi_interface._prime_command("M4 S0")
-    corgi_interface._prime_command("M8.1")  # air assist off
+    corgi_interface.send_command("M4 S0")
+    corgi_interface.send_command("M8.1")  # air assist off
     # print("Laser off")
 
 
 def set_feedrate(feedrate: float):
-    corgi_interface._prime_command(f"F{feedrate:z.2f}")
+    corgi_interface.send_command(f"F{feedrate:z.2f}")
 
 
 def cut(x: float, y: float, a: float = 0, b: float = 0):
-    corgi_interface._prime_command(f"G1 X{x} Y{y} Z{material_thickness} A{a} B{b}")
+    corgi_interface.send_command(f"G1 X{x} Y{y} Z{material_thickness} A{a} B{b}")
     # print(f"Cut {x} {y} {a} {b}")
 
 
