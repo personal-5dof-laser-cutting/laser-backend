@@ -99,13 +99,14 @@ def _shuffled_stats(
 def _run_optimizer(
     on_progress: Callable[[str, str, int], None],
     optimizer: BaseOptimizer,
+    name: str,
     geometry: Geometry,
     material_height: float,
     svg_path: str,
     iterations: int,
 ) -> list[OptimizerStats]:
     stats: list[OptimizerStats] = []
-    name = type(optimizer).__name__
+    set_sig_figures(4)
     for i in range(iterations):
         geo_copy = deepcopy(geometry)
         wall_start = time.perf_counter()
@@ -152,7 +153,10 @@ def run_suite(
             nest_geometry=settings.nest_geometry,
         )
         content: str = _load_svg(svg_path)
-        geometry: Geometry = pipeline.run(content)
+        try:
+            geometry: Geometry = pipeline.run(content)
+        except Exception as e:
+            raise Exception(f"Error running pileine on {svg_path}: {e}")
         total_costs_s.append(
             geometry.calculate_total_cost(
                 settings.material_height, settings.feedrate, False
@@ -169,21 +173,35 @@ def run_suite(
                 on_progress, svg_path, geometry, material_height, sample_size
             )
         )
+        optimizer_classes: list[type[BaseOptimizer]] = [
+            optimizer for optimizer, _ in optimizers
+        ]
         for optimizer, settings in optimizers:
             settings.pop("start_location", None)
-            rows.extend(
-                _run_optimizer(
-                    on_progress,
-                    optimizer(
-                        material_thickness=material_height,
-                        **settings,
-                    ),
-                    geometry,
-                    material_height,
-                    svg_path,
-                    sample_size,
+            settings.pop("show_statistics", None)
+            name = optimizer.__name__
+            if optimizer_classes.count(optimizer) > 1:
+                for k, v in settings.items():
+                    name += f"_{k}:{v}"
+            try:
+                rows.extend(
+                    _run_optimizer(
+                        on_progress,
+                        optimizer(
+                            material_thickness=material_height,
+                            **settings,
+                        ),
+                        name,
+                        geometry,
+                        material_height,
+                        svg_path,
+                        sample_size,
+                    )
                 )
-            )
+            except Exception as e:
+                raise Exception(
+                    f"Error running {optimizer.__name__} on {svg_path}: {e}"
+                )
 
     return (pd.DataFrame(rows), total_costs_s, problem_sizes)
 

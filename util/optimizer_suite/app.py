@@ -2,6 +2,8 @@
 # Run with:  streamlit run app.py
 
 import inspect
+from io import StringIO
+import json
 import os
 import tempfile
 import types
@@ -32,6 +34,7 @@ from core.modules.base_optimizer import BaseOptimizer
 from core.modules.greedy_optimizer.greedy_optimizer import GreedyOptimizerModule  # noqa: F401
 from core.modules.genetic_optimizer.genetic_optimizer import GeneticOptimizerModule  # noqa: F401
 from core.modules.bucket_optimizer.bucket_optimizer import BucketOptimizerModule  # noqa: F401
+from core.modules.rpp_approximation.rpp_approximation import RPPApproximationModule  # noqa: F401
 from util.optimizer_suite.plots import plot_results  # noqa: F401
 
 
@@ -388,24 +391,28 @@ def _run_tab() -> None:
     if st.button("▶ Run Suite", type="primary", disabled=not ready):
         _execute_suite()
 
+    uploaded_results = st.file_uploader("Load previous results", type=["json"])
+    if uploaded_results:
+        data = json.load(uploaded_results)
+        st.session_state.total_times_s = data["total_time_s"]
+        st.session_state.results = pd.read_csv(StringIO(data["results"]))
+        st.success("Results loaded.")
+
     if st.session_state.results is not None:
         st.divider()
         df: pd.DataFrame = st.session_state.results
+        sidecar = json.dumps(
+            {"total_time_s": st.session_state.total_times_s, "results": df.to_csv()}
+        )
+        st.download_button(
+            label="Download raw data",
+            data=sidecar,
+            file_name="optimization_results.json",
+            mime="application/json",
+        )
         st.subheader("Original")
         originals = extract_original(df)
         st.dataframe(originals, use_container_width=True)
-        # for i, original in enumerate(originals):
-        #     cols = st.columns(5)
-        #     with cols[0]:
-        #         a
-        #         st.image(original["svg_path"])
-
-        #     with cols[1]:
-        #         st.text(f"Total time: {st.session_state.total_times_s[i]:.3f}s")
-
-        #     with cols[2]:
-        #         st.text(f"Travel time: {df["travel_cost"]:.3f}s")
-
         st.subheader("Results")
         analyse_results(df, originals)
 
@@ -413,6 +420,9 @@ def _run_tab() -> None:
 def extract_original(df: pd.DataFrame) -> pd.DataFrame:
     originals = df[df["optimizer"] == "Original"][["svg_path", "travel_time_s"]]
     originals["total_time_s"] = st.session_state.total_times_s
+    originals["travel_percent"] = (
+        originals["travel_time_s"] / originals["total_time_s"] * 100
+    )
     return originals
 
 
@@ -498,14 +508,14 @@ def _execute_suite() -> None:
 
     # ── Execute ───────────────────────────────────────────────────────────────
     try:
-        df, total_timess_s, problem_sizes = run_suite(
+        df, total_times_s, problem_sizes = run_suite(
             on_progress=on_progress,
             problems=problems,
             optimizers=optimizers,
             sample_size=n,
         )
         st.session_state.results = df
-        st.session_state.total_times_s = total_timess_s
+        st.session_state.total_times_s = total_times_s
         st.session_state.problem_sizes = problem_sizes
         progress_bar.progress(1.0, text="Done!")
         log_area.empty()
